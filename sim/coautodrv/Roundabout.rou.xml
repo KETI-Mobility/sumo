@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="C-VEH" color="red" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="CE-VEH" vClass="truck" carFollowModel="ACC"/>
+    <vType id="E-CDA" color="yellow" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="N-VEH" color="white" carFollowModel="ACC"/>
+    <vType id="T-CDA" color="0,156,255" carFollowModel="ACC"/>
+
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <trip id="trip0" type="E-CDA" depart="0.00" departLane="0" from="SI" to="NO"/>
+    <trip id="trip1" type="C-VEH" depart="0.00" departLane="0" from="WI" to="NO"/>
+	<trip id="trip2" type="C-VEH" depart="0.00" departLane="0" from="EI" to="NO"/>
+
+    <trip id="trip3" type="C-VEH" depart="5.00" departLane="0" from="SI" to="NO"/>
+	<trip id="trip4" type="C-VEH" depart="5.00" departLane="0" from="WI" to="NO"/>
+	<trip id="trip5" type="C-VEH" depart="5.00" departLane="0" from="EI" to="NO"/>
+	<trip id="trip6" type="C-VEH" depart="5.00" departLane="0" from="NI" to="NO"/>
+</routes>
