@@ -45,6 +45,7 @@
 #include "MSRouterDefs.h"
 #include "MSJunction.h"
 
+//#define PUSIK_TRACE_SIM	1
 
 // ===========================================================================
 // class declarations

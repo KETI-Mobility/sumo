@@ -62,7 +62,11 @@ MSCFModel::MSCFModel(const MSVehicleType* vtype) :
     myCollisionMinGapFactor(vtype->getParameter().getCFParam(SUMO_ATTR_COLLISION_MINGAP_FACTOR, 1)),
     myHeadwayTime(vtype->getParameter().getCFParam(SUMO_ATTR_TAU, 1.0)),
     myStartupDelay(TIME2STEPS(vtype->getParameter().getCFParam(SUMO_ATTR_STARTUP_DELAY, 0.0)))
-{ }
+{ 
+#ifdef PUSIK_TRACE_SIM
+	std::cout << "MSCFModel::MSCFModel(vtype->id: " <<vtype->getID() << ")" << std::endl;
+#endif
+}
 
 
 MSCFModel::~MSCFModel() {}
@@ -73,6 +77,10 @@ MSCFModel::VehicleVariables::~VehicleVariables() {}
 
 double
 MSCFModel::brakeGap(const double speed, const double decel, const double headwayTime) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::brakeGap(" << speed << ", " << decel << ", " << headwayTime << ")" << std::endl;
+#endif
+
     if (MSGlobals::gSemiImplicitEulerUpdate) {
         return brakeGapEuler(speed, decel, headwayTime);
     } else {
@@ -88,6 +96,9 @@ MSCFModel::brakeGap(const double speed, const double decel, const double headway
 
 double
 MSCFModel::brakeGapEuler(const double speed, const double decel, const double headwayTime) {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::brakeGapEuler(" << speed << ", " << decel << ", " << headwayTime << ")" << std::endl;
+#endif
     /* one possibility to speed this up is to calculate speedReduction * steps * (steps+1) / 2
        for small values of steps (up to 10 maybe) and store them in an array */
     const double speedReduction = ACCEL2SPEED(decel);
@@ -98,6 +109,10 @@ MSCFModel::brakeGapEuler(const double speed, const double decel, const double he
 
 double
 MSCFModel::freeSpeed(const double currentSpeed, const double decel, const double dist, const double targetSpeed, const bool onInsertion, const double actionStepLength) {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::freeSpeed(" << currentSpeed << ", " << decel << ", " << dist << ", " << targetSpeed << ", " << onInsertion << ", " << actionStepLength << ")" << std::endl;
+#endif
+
     // XXX: (Leo) This seems to be exclusively called with decel = myDecel (max deceleration) and is not overridden
     // by any specific CFModel. That may cause undesirable hard braking (at junctions where the vehicle
     // changes to a road with a lower speed limit).
@@ -164,6 +179,10 @@ MSCFModel::freeSpeed(const double currentSpeed, const double decel, const double
 
 double
 MSCFModel::getSecureGap(const MSVehicle* const veh, const MSVehicle* const /*pred*/, const double speed, const double leaderSpeed, const double leaderMaxDecel) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::getSecureGap(id: " << veh->getID() << ", " << speed << ", " << leaderSpeed << ", " << leaderMaxDecel << ")" << std::endl;
+#endif
+
     // The solution approach leaderBrakeGap >= followerBrakeGap is not
     // secure when the follower can brake harder than the leader because the paths may still cross.
     // As a workaround we use a value of leaderDecel which errs on the side of caution
@@ -185,7 +204,11 @@ MSCFModel::getSecureGap(const MSVehicle* const veh, const MSVehicle* const /*pre
 
 double
 MSCFModel::finalizeSpeed(MSVehicle* const veh, double vPos) const {
-    // save old v for optional acceleration computation
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::finalizeSpeed(id: " << veh->getID() << ", " << vPos << ")" << std::endl;
+#endif
+
+	// save old v for optional acceleration computation
     const double oldV = veh->getSpeed();
     // process stops (includes update of stopping state)
     const double vStop = MIN2(vPos, veh->processNextStop(vPos));
@@ -255,6 +278,10 @@ MSCFModel::finalizeSpeed(MSVehicle* const veh, double vPos) const {
 
 double
 MSCFModel::applyStartupDelay(const MSVehicle* veh, const double vMin, const double vMax, const SUMOTime addTime) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::applyStartupDelay(id: " << veh->getID() << ", " << vMin << ", " << vMax << ", " << addTime << ")" << std::endl;	
+#endif
+
     UNUSED_PARAMETER(vMin);
     // timeSinceStartup was already incremented by DELTA_T
     if (veh->getTimeSinceStartup() > 0 && veh->getTimeSinceStartup() - DELTA_T < myStartupDelay + addTime) {
@@ -275,6 +302,10 @@ MSCFModel::applyStartupDelay(const MSVehicle* veh, const double vMin, const doub
 
 double
 MSCFModel::interactionGap(const MSVehicle* const veh, double vL) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::interactionGap(id: " << veh->getID() << ", " << vL << ")" << std::endl;
+#endif
+
     // Resolve the vsafe equation to gap. Assume predecessor has
     // speed != 0 and that vsafe will be the current speed plus acceleration,
     // i.e that with this gap there will be no interaction.
@@ -289,13 +320,21 @@ MSCFModel::interactionGap(const MSVehicle* const veh, double vL) const {
 
 
 double
-MSCFModel::maxNextSpeed(double speed, const MSVehicle* const /*veh*/) const {
+MSCFModel::maxNextSpeed(double speed, const MSVehicle* const veh) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::maxNextSpeed(" << speed << ", id:" << veh->getID() << ")" << std::endl;
+#endif
+
     return MIN2(speed + (double) ACCEL2SPEED(getMaxAccel()), myType->getMaxSpeed());
 }
 
 
 double
-MSCFModel::minNextSpeed(double speed, const MSVehicle* const /*veh*/) const {
+MSCFModel::minNextSpeed(double speed, const MSVehicle* const veh) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::minNextSpeed(" << speed << ", id: " << veh->getID() << ")" << std::endl;
+#endif
+
     if (MSGlobals::gSemiImplicitEulerUpdate) {
         return MAX2(speed - ACCEL2SPEED(myDecel), 0.);
     } else {
@@ -306,7 +345,11 @@ MSCFModel::minNextSpeed(double speed, const MSVehicle* const /*veh*/) const {
 
 
 double
-MSCFModel::minNextSpeedEmergency(double speed, const MSVehicle* const /*veh*/) const {
+MSCFModel::minNextSpeedEmergency(double speed, const MSVehicle* const veh) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::minNextSpeedEmergency(" << speed << ", id: " << veh->getID() << ")" << std::endl;
+#endif
+
     if (MSGlobals::gSemiImplicitEulerUpdate) {
         return MAX2(speed - ACCEL2SPEED(myEmergencyDecel), 0.);
     } else {
@@ -319,6 +362,10 @@ MSCFModel::minNextSpeedEmergency(double speed, const MSVehicle* const /*veh*/) c
 
 double
 MSCFModel::freeSpeed(const MSVehicle* const veh, double speed, double seen, double maxSpeed, const bool onInsertion, const CalcReason /*usage*/) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::freeSpeed(id: " << veh->getID() << ", " << speed << ", " << seen << ", " << maxSpeed << ", " << onInsertion << ")" << std::endl;
+#endif
+
     if (maxSpeed < 0.) {
         // can occur for ballistic update (in context of driving at red light)
         return maxSpeed;
@@ -329,7 +376,11 @@ MSCFModel::freeSpeed(const MSVehicle* const veh, double speed, double seen, doub
 
 
 double
-MSCFModel::insertionFollowSpeed(const MSVehicle* const /* v */, double speed, double gap2pred, double predSpeed, double predMaxDecel, const MSVehicle* const /*pred*/) const {
+MSCFModel::insertionFollowSpeed(const MSVehicle* const v, double speed, double gap2pred, double predSpeed, double predMaxDecel, const MSVehicle* const /*pred*/) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::insertionFollowSpeed(id: " << v->getID() << ", " << speed << ", " << gap2pred << ", " << predSpeed << ", " << predMaxDecel << ")" << std::endl;
+#endif
+
     if (MSGlobals::gSemiImplicitEulerUpdate) {
         return maximumSafeFollowSpeed(gap2pred, speed, predSpeed, predMaxDecel, true);
     } else {
@@ -341,6 +392,10 @@ MSCFModel::insertionFollowSpeed(const MSVehicle* const /* v */, double speed, do
 
 double
 MSCFModel::insertionStopSpeed(const MSVehicle* const veh, double speed, double gap) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::insertionStopSpeed(id: " << veh->getID() << ", " << speed << ", " << gap << ")" << std::endl;
+#endif
+
     if (MSGlobals::gSemiImplicitEulerUpdate) {
         return stopSpeed(veh, speed, gap, CalcReason::FUTURE);
     } else {
@@ -350,7 +405,11 @@ MSCFModel::insertionStopSpeed(const MSVehicle* const veh, double speed, double g
 
 
 double
-MSCFModel::followSpeedTransient(double duration, const MSVehicle* const /*veh*/, double /*speed*/, double gap2pred, double predSpeed, double predMaxDecel) const {
+MSCFModel::followSpeedTransient(double duration, const MSVehicle* const veh, double speed, double gap2pred, double predSpeed, double predMaxDecel) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::followSpeedTransient(" << duration << ", id: " << veh->getID() << ", " << speed << ", " << gap2pred << ", " << predSpeed << ", " << predMaxDecel << ")" << std::endl;
+#endif
+
     // minimium distance covered by the leader if braking
     double leaderMinDist = gap2pred + distAfterTime(duration, predSpeed, -predMaxDecel);
     // if ego would not brake it could drive with speed leaderMinDist / duration
@@ -401,6 +460,10 @@ MSCFModel::followSpeedTransient(double duration, const MSVehicle* const /*veh*/,
 
 double
 MSCFModel::distAfterTime(double t, double speed, const double accel) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::distAfterTime(" << t << ", " << speed << ", " << accel << ")" << std::endl;
+#endif
+
     if (accel >= 0.) {
         return (speed + 0.5 * accel * t) * t;
     }
@@ -427,6 +490,10 @@ MSCFModel::distAfterTime(double t, double speed, const double accel) const {
 
 SUMOTime
 MSCFModel::getMinimalArrivalTime(double dist, double currentSpeed, double arrivalSpeed) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::getMinimalArrivalTime(" << dist << ", " << currentSpeed << ", " << arrivalSpeed << ")" << std::endl;
+#endif
+
     if (dist <= 0.) {
         return 0;
     }
@@ -450,6 +517,9 @@ double
 MSCFModel::estimateArrivalTime(double dist, double speed, double maxSpeed, double accel) {
     assert(speed >= 0.);
     assert(dist >= 0.);
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::estimateArrivalTime(" << dist << ", " << speed << ", " << maxSpeed << ", " << accel << ")" << std::endl;
+#endif
 
     if (dist < NUMERICAL_EPS) {
         return 0.;
@@ -489,6 +559,10 @@ double
 MSCFModel::estimateArrivalTime(double dist, double initialSpeed, double arrivalSpeed, double maxSpeed, double accel, double decel) {
     UNUSED_PARAMETER(arrivalSpeed); // only in assertion
     UNUSED_PARAMETER(decel); // only in assertion
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::estimateArrivalTime(" << dist << ", " << initialSpeed << ", " << arrivalSpeed << ", " << maxSpeed << ", " << accel << ", " << decel << ")" << std::endl;
+#endif
+
     if (dist <= 0) {
         return 0.;
     }
@@ -520,6 +594,10 @@ MSCFModel::estimateArrivalTime(double dist, double initialSpeed, double arrivalS
 double
 MSCFModel::avoidArrivalAccel(double dist, double time, double speed, double maxDecel) {
     assert(time > 0 || dist == 0);
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::avoidArrivalAccel(" << dist << ", " << time << ", " << speed << ", " << maxDecel << ")" << std::endl;
+#endif
+
     if (dist <= 0) {
         return -maxDecel;
     } else if (time * speed > 2 * dist) {
@@ -536,6 +614,10 @@ MSCFModel::avoidArrivalAccel(double dist, double time, double speed, double maxD
 
 double
 MSCFModel::getMinimalArrivalSpeed(double dist, double currentSpeed) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::getMinimalArrivalSpeed(" << dist << ", " << currentSpeed << ")" << std::endl;
+#endif
+
     // ballistic update
     return estimateSpeedAfterDistance(dist - currentSpeed * getHeadwayTime(), currentSpeed, -getMaxDecel());
 }
@@ -543,6 +625,10 @@ MSCFModel::getMinimalArrivalSpeed(double dist, double currentSpeed) const {
 
 double
 MSCFModel::getMinimalArrivalSpeedEuler(double dist, double currentSpeed) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::getMinimalArrivalSpeedEuler(" << dist << ", " << currentSpeed << ")" << std::endl;
+#endif
+
     double arrivalSpeedBraking;
     // Because we use a continuous formula for computing the possible slow-down
     // we need to handle the mismatch with the discrete dynamics
@@ -562,6 +648,9 @@ MSCFModel::getMinimalArrivalSpeedEuler(double dist, double currentSpeed) const {
 
 double
 MSCFModel::gapExtrapolation(const double duration, const double currentGap, double v1,  double v2, double a1, double a2, const double maxV1, const double maxV2) {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::gapExtrapolation(" << duration << ", " << currentGap << ", " << v1 << ", " << v2 << ", " << a1 << ", " << a2 << ", " << maxV1 << ", " << maxV2 << ")" << std::endl;
+#endif
 
     double newGap = currentGap;
 
@@ -661,6 +750,9 @@ MSCFModel::passingTime(const double lastPos, const double passedPos, const doubl
     assert(passedPos >= lastPos);
     assert(currentPos > lastPos);
     assert(currentSpeed >= 0);
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::passingTime(" << lastPos << ", " << passedPos << ", " << currentPos << ", " << lastSpeed << ", " << currentSpeed << ")" << std::endl;
+#endif
 
     if (passedPos > currentPos || passedPos < lastPos) {
         std::stringstream ss;
@@ -736,6 +828,10 @@ double
 MSCFModel::speedAfterTime(const double t, const double v0, const double dist) {
     assert(dist >= 0);
     assert(t >= 0 && t <= TS);
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::speedAfterTime(" << t << ", " << v0 << ", " << dist << ")" << std::endl;
+#endif
+
     if (MSGlobals::gSemiImplicitEulerUpdate) {
         // euler: constant speed within [0,TS]
         return DIST2SPEED(dist);
@@ -763,6 +859,10 @@ MSCFModel::speedAfterTime(const double t, const double v0, const double dist) {
 
 double
 MSCFModel::estimateSpeedAfterDistance(const double dist, const double v, const double accel) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::estimateSpeedAfterDistance(" << dist << ", " << v << ", " << accel << ")" << std::endl;
+#endif
+
     // dist=v*t + 0.5*accel*t^2, solve for t and use v1 = v + accel*t
     return MIN2(myType->getMaxSpeed(),
                 (double)sqrt(MAX2(0., 2 * dist * accel + v * v)));
@@ -772,6 +872,10 @@ MSCFModel::estimateSpeedAfterDistance(const double dist, const double v, const d
 
 double
 MSCFModel::maximumSafeStopSpeed(double gap, double decel, double currentSpeed, bool onInsertion, double headway, bool relaxEmergency) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::maximumSafeStopSpeed(" << gap << ", " << decel << ", " << currentSpeed << ", " << onInsertion << ", " << headway << ", " << relaxEmergency << ")" << std::endl;
+#endif
+
     double vsafe;
     if (MSGlobals::gSemiImplicitEulerUpdate) {
         vsafe = maximumSafeStopSpeedEuler(gap, decel, onInsertion, headway);
@@ -825,6 +929,10 @@ MSCFModel::maximumSafeStopSpeed(double gap, double decel, double currentSpeed, b
 
 double
 MSCFModel::maximumSafeStopSpeedEuler(double gap, double decel, bool /* onInsertion */, double headway) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::maximumSafeStopSpeedEuler(" << gap << ", " << decel << ", " << headway << ")" << std::endl;
+#endif
+
     // decrease gap slightly (to avoid passing end of lane by values of magnitude ~1e-12, when exact stop is required)
     const double g = gap - NUMERICAL_EPS;
     if (g < 0.) {
@@ -853,6 +961,10 @@ MSCFModel::maximumSafeStopSpeedEuler(double gap, double decel, bool /* onInserti
 
 double
 MSCFModel::maximumSafeStopSpeedBallistic(double gap, double decel, double currentSpeed, bool onInsertion, double headway) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::maximumSafeStopSpeedBallistic(" << gap << ", " << decel << ", " << currentSpeed << ", " << onInsertion << ", " << headway << ")" << std::endl;
+#endif
+
     // decrease gap slightly (to avoid passing end of lane by values of magnitude ~1e-12, when exact stop is required)
     const double g = MAX2(0., gap - NUMERICAL_EPS);
     headway = headway >= 0 ? headway : myHeadwayTime;
@@ -920,6 +1032,10 @@ MSCFModel::maximumSafeStopSpeedBallistic(double gap, double decel, double curren
 /** Returns the SK-vsafe. */
 double
 MSCFModel::maximumSafeFollowSpeed(double gap, double egoSpeed, double predSpeed, double predMaxDecel, bool onInsertion) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::maximumSafeFollowSpeed(" << gap << ", " << egoSpeed << ", " << predSpeed << ", " << predMaxDecel << ", " << onInsertion << ")" << std::endl;
+#endif
+
     // the speed is safe if allows the ego vehicle to come to a stop behind the leader even if
     // the leaders starts braking hard until stopped
     // unfortunately it is not sufficient to compare stopping distances if the follower can brake harder than the leader
@@ -1000,6 +1116,10 @@ MSCFModel::maximumSafeFollowSpeed(double gap, double egoSpeed, double predSpeed,
 
 double
 MSCFModel::calculateEmergencyDeceleration(double gap, double egoSpeed, double predSpeed, double predMaxDecel) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel::calculateEmergencyDeceleration(" << gap << ", " << egoSpeed << ", " << predSpeed << ", " << predMaxDecel << ")" << std::endl;
+#endif
+
     // There are two cases:
     // 1) Either, stopping in time is possible with a deceleration b <= predMaxDecel, then this value is returned
     // 2) Or, b > predMaxDecel is required in this case the minimal value b allowing to stop safely under the assumption maxPredDecel=b is returned
@@ -1052,6 +1172,10 @@ MSCFModel::calculateEmergencyDeceleration(double gap, double egoSpeed, double pr
 
 void
 MSCFModel::applyOwnSpeedPerceptionError(const MSVehicle* const veh, double& speed) const {
+#ifdef PUSIK_TRACE_SIM
+	//std::cout << SIMTIME << ": " << "MSCFModel::applyOwnSpeedPerceptionError(" << veh << ", " << speed << ")" << std::endl;
+#endif
+
     if (!veh->hasDriverState()) {
         return;
     }
@@ -1061,6 +1185,10 @@ MSCFModel::applyOwnSpeedPerceptionError(const MSVehicle* const veh, double& spee
 
 void
 MSCFModel::applyHeadwayAndSpeedDifferencePerceptionErrors(const MSVehicle* const veh, double speed, double& gap, double& predSpeed, double predMaxDecel, const MSVehicle* const pred) const {
+#ifdef PUSIK_TRACE_SIM
+	//std::cout << SIMTIME << ": " << "MSCFModel::applyHeadwayAndSpeedDifferencePerceptionErrors(" << veh << ", " << speed << ", " << gap << ", " << predSpeed << ", " << predMaxDecel << ", " << pred << ")" << std::endl;
+#endif
+
     UNUSED_PARAMETER(speed);
     UNUSED_PARAMETER(predMaxDecel);
     if (!veh->hasDriverState()) {
@@ -1097,6 +1225,10 @@ MSCFModel::applyHeadwayAndSpeedDifferencePerceptionErrors(const MSVehicle* const
 
 void
 MSCFModel::applyHeadwayPerceptionError(const MSVehicle* const veh, double speed, double& gap) const {
+#ifdef PUSIK_TRACE_SIM
+	//std::cout << SIMTIME << ": " << "MSCFModel::applyHeadwayPerceptionError(" << veh << ", " << speed << ", " << gap << ")" << std::endl;
+#endif
+
     UNUSED_PARAMETER(speed);
     if (!veh->hasDriverState()) {
         return;

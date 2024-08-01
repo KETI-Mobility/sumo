@@ -87,13 +87,20 @@ MSCFModel_ACC::MSCFModel_ACC(const MSVehicleType* vtype) :
     myEmergencyThreshold(vtype->getParameter().getCFParam(SUMO_ATTR_CA_OVERRIDE, DEFAULT_EMERGENCY_OVERRIDE_THRESHOLD)) {
     // ACC does not drive very precise and often violates minGap
     myCollisionMinGapFactor = vtype->getParameter().getCFParam(SUMO_ATTR_COLLISION_MINGAP_FACTOR, 0.1);
+#ifdef PUSIK_TRACE_SIM
+	std::cout << "MSCFModel_ACC::MSCFModel_ACC(vtype.id: " << vtype->getID() << ")" << std::endl;	
+#endif
 }
 
 MSCFModel_ACC::~MSCFModel_ACC() {}
 
 
 double
-MSCFModel_ACC::followSpeed(const MSVehicle* const veh, double speed, double gap2pred, double predSpeed, double predMaxDecel, const MSVehicle* const /*pred*/, const CalcReason /*usage*/) const {
+MSCFModel_ACC::followSpeed(const MSVehicle* const veh, double speed, double gap2pred, double predSpeed, double predMaxDecel, const MSVehicle* const pred, const CalcReason /*usage*/) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::followSpeed(id: " << veh->getID() << ", " << speed << ", " << gap2pred << ", " << predSpeed << ", " << predMaxDecel << ", id: " << pred->getID() << ")" << std::endl;
+#endif
+
     const double desSpeed = MIN2(veh->getLane()->getSpeedLimit(), veh->getMaxSpeed());
     const double vACC = _v(veh, gap2pred, speed, predSpeed, desSpeed, true);
     const double vSafe = maximumSafeFollowSpeed(gap2pred, speed, predSpeed, predMaxDecel);
@@ -108,6 +115,10 @@ MSCFModel_ACC::followSpeed(const MSVehicle* const veh, double speed, double gap2
 
 double
 MSCFModel_ACC::stopSpeed(const MSVehicle* const veh, const double speed, double gap, double decel, const CalcReason /*usage*/) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::stopSpeed(id: " << veh->getID() << ", " << speed << ", " << gap << ", " << decel << ")" << std::endl;
+#endif
+
     // NOTE: This allows return of smaller values than minNextSpeed().
     // Only relevant for the ballistic update: We give the argument headway=TS, to assure that
     // the stopping position is approached with a uniform deceleration also for tau!=TS.
@@ -116,7 +127,11 @@ MSCFModel_ACC::stopSpeed(const MSVehicle* const veh, const double speed, double 
 
 
 double
-MSCFModel_ACC::getSecureGap(const MSVehicle* const /*veh*/, const MSVehicle* const /*pred*/, const double speed, const double leaderSpeed, const double /* leaderMaxDecel */) const {
+MSCFModel_ACC::getSecureGap(const MSVehicle* const veh, const MSVehicle* const pred, const double speed, const double leaderSpeed, const double leaderMaxDecel) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::getSecureGap(id: " << veh->getID() << ", id: " << pred->getID() << ", " << speed << ", " << leaderSpeed << ", " << leaderMaxDecel << ")" << std::endl;
+#endif
+
     // Accel in gap mode should vanish:
     //      0 = myGapControlGainSpeed * (leaderSpeed - speed) + myGapControlGainSpace * (g - myHeadwayTime * speed);
     // <=>  myGapControlGainSpace * g = - myGapControlGainSpeed * (leaderSpeed - speed) + myGapControlGainSpace * myHeadwayTime * speed;
@@ -126,7 +141,11 @@ MSCFModel_ACC::getSecureGap(const MSVehicle* const /*veh*/, const MSVehicle* con
 
 
 double
-MSCFModel_ACC::insertionFollowSpeed(const MSVehicle* const v, double speed, double gap2pred, double predSpeed, double predMaxDecel, const MSVehicle* const /*pred*/) const {
+MSCFModel_ACC::insertionFollowSpeed(const MSVehicle* const v, double speed, double gap2pred, double predSpeed, double predMaxDecel, const MSVehicle* const pred) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::insertionFollowSpeed(id: " << v->getID() << ", " << speed << ", " << gap2pred << ", " << predSpeed << ", " << predMaxDecel << ", id: " << pred->getID() << ")" << std::endl;
+#endif
+
 //#ifdef DEBUG_ACC
 //        std::cout << "MSCFModel_ACC::insertionFollowSpeed(), speed="<<speed<< std::endl;
 //#endif
@@ -157,18 +176,30 @@ MSCFModel_ACC::insertionFollowSpeed(const MSVehicle* const v, double speed, doub
 
 /// @todo update interactionGap logic
 double
-MSCFModel_ACC::interactionGap(const MSVehicle* const /*veh */, double /* vL */) const {
+MSCFModel_ACC::interactionGap(const MSVehicle* const veh, double vL) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::interactionGap(id: " << veh->getID() << ", " << vL << ")" << std::endl;
+#endif
+
     /*maximum radar range is ACC is enabled*/
     return 250;
 }
 
 double MSCFModel_ACC::accelSpeedControl(double vErr) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::accelSpeedControl(" << vErr << ")" << std::endl;
+#endif
+
     // Speed control law
     return mySpeedControlGain * vErr;
 }
 
 double
-MSCFModel_ACC::accelGapControl(const MSVehicle* const /* veh */, const double gap2pred, const double speed, const double predSpeed, double vErr) const {
+MSCFModel_ACC::accelGapControl(const MSVehicle* const veh, const double gap2pred, const double speed, const double predSpeed, double vErr) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::accelGapControl(id: " << veh->getID() << ", " << gap2pred << ", " << speed << ", " << predSpeed << ", " << vErr << ")" << std::endl;
+#endif
+
     // Gap control law
     double gclAccel = 0.0;
     const double deltaVel = predSpeed - speed;
@@ -210,7 +241,10 @@ MSCFModel_ACC::accelGapControl(const MSVehicle* const /* veh */, const double ga
 
 double
 MSCFModel_ACC::_v(const MSVehicle* const veh, const double gap2pred, const double speed,
-                  const double predSpeed, const double desSpeed, const bool /* respectMinGap */) const {
+                  const double predSpeed, const double desSpeed, const bool respectMinGap) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::_v(id: " << veh->getID() << ", " << gap2pred << ", " << speed << ", " << predSpeed << ", " << desSpeed << ", " << respectMinGap << ")" << std::endl;
+#endif
 
     double accelACC = 0;
     double gapLimit_SC = GAP_THRESHOLD_SPEEDCTRL; // lower gap limit in meters to enable speed control law
@@ -284,5 +318,9 @@ MSCFModel_ACC::_v(const MSVehicle* const veh, const double gap2pred, const doubl
 
 MSCFModel*
 MSCFModel_ACC::duplicate(const MSVehicleType* vtype) const {
+#ifdef PUSIK_TRACE_SIM
+	std::cout << SIMTIME << ": " << "MSCFModel_ACC::duplicate(vtype.id: " << vtype->getID() << ")" << std::endl;
+#endif
+
     return new MSCFModel_ACC(vtype);
 }

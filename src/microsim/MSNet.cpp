@@ -127,7 +127,7 @@
 // ===========================================================================
 // debug constants
 // ===========================================================================
-//#define DEBUG_SIMSTEP
+#define DEBUG_SIMSTEP
 
 
 // ===========================================================================
@@ -729,8 +729,8 @@ MSNet::simulationStep(const bool onlyMove) {
         }
         lastTraCICmd = t->processCommands(myStep);
 #ifdef DEBUG_SIMSTEP
-        bool loadRequested = !TraCI::getLoadArgs().empty();
-        assert(t->getTargetTime() >= myStep || loadRequested || TraCIServer::wasClosed());
+        //bool loadRequested = !TraCI::getLoadArgs().empty();
+        //assert(t->getTargetTime() >= myStep || loadRequested || TraCIServer::wasClosed());
 #endif
         if (myLogExecutionTime) {
             myTraCIStepDuration = SysUtils::getCurrentMillis() - myTraCIStepDuration;
@@ -740,7 +740,7 @@ MSNet::simulationStep(const bool onlyMove) {
         }
     }
 #ifdef DEBUG_SIMSTEP
-    std::cout << SIMTIME << ": TraCI target time: " << t->getTargetTime() << std::endl;
+    //std::cout << SIMTIME << ": TraCI target time: " << t->getTargetTime() << std::endl;
 #endif
     // execute beginOfTimestepEvents
     if (myLogExecutionTime) {
