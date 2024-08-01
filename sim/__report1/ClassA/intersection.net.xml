@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-12-20 18:14:08 by Eclipse SUMO netedit Version 1.19.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/neteditConfiguration.xsd">
+
+    <input>
+        <sumocfg-file value="/home/lab1/Documents/sumo/sumo/cross_test/data/cross.sumocfg"/>
+        <additional-files value="/home/lab1/Documents/sumo/sumo/cross_test/data/cross.det.xml"/>
+        <route-files value="/home/lab1/Documents/sumo/sumo/cross_test/data/cross.rou.xml"/>
+        <sumo-net-file value="/home/lab1/Documents/sumo/sumo/cross_test/data/cross_short.net.xml"/>
+    </input>
+
+    <output>
+        <output-file value="/home/lab1/Documents/sumo/sumo/cross_test/data/cross_short.net.xml"/>
+    </output>
+
+    <processing>
+        <geometry.min-radius.fix.railways value="false"/>
+        <geometry.max-grade.fix value="false"/>
+        <offset.disable-normalization value="true"/>
+        <lefthand value="0"/>
+    </processing>
+
+    <junctions>
+        <no-turnarounds value="true"/>
+        <junctions.corner-detail value="0"/>
+        <junctions.limit-turn-speed value="-1.00"/>
+        <rectangular-lane-cut value="0"/>
+    </junctions>
+
+    <pedestrian>
+        <walkingareas value="0"/>
+    </pedestrian>
+
+</configuration>
+-->
+
+<net version="1.16" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="510.00,510.00" convBoundary="490.00,490.00,530.00,530.00" origBoundary="-510.00,-510.00,510.00,510.00" projParameter="!"/>
+
+    <edge id=":0_0" function="internal">
+        <lane id=":0_0_0" index="0" speed="10.00" length="9.03" shape="517.20,511.60 514.75,511.95 513.00,513.00 511.95,514.75 511.60,517.20"/>
+    </edge>
+    <edge id=":0_1" function="internal">
+        <lane id=":0_1_0" index="0" speed="10.00" length="14.40" shape="511.60,502.80 511.60,517.20"/>
+    </edge>
+    <edge id=":0_2" function="internal">
+        <lane id=":0_2_0" index="0" speed="10.00" length="14.19" shape="502.80,508.40 506.65,508.95 509.40,510.60 511.05,513.35 511.60,517.20"/>
+    </edge>
+
+    <edge id="bottomi" from="bottomnode" to="0" priority="78">
+        <lane id="bottomi_0" index="0" speed="10.00" length="12.80" shape="511.60,490.00 511.60,502.80"/>
+    </edge>
+    <edge id="bottomo" from="0" to="bottomnode" priority="46">
+        <lane id="bottomo_0" index="0" speed="10.00" length="12.80" shape="508.40,502.80 508.40,490.00"/>
+    </edge>
+    <edge id="lefti" from="leftnode" to="0" priority="78">
+        <lane id="lefti_0" index="0" speed="10.00" length="12.80" shape="490.00,508.40 502.80,508.40"/>
+    </edge>
+    <edge id="lefto" from="0" to="leftnode" priority="46">
+        <lane id="lefto_0" index="0" speed="10.00" length="12.80" shape="502.80,511.60 490.00,511.60"/>
+    </edge>
+    <edge id="righti" from="rightnode" to="0" priority="78">
+        <lane id="righti_0" index="0" speed="10.00" length="12.80" shape="530.00,511.60 517.20,511.60"/>
+    </edge>
+    <edge id="righto" from="0" to="rightnode" priority="46">
+        <lane id="righto_0" index="0" speed="10.00" length="12.80" shape="517.20,508.40 530.00,508.40"/>
+    </edge>
+    <edge id="topi" from="topnode" to="0" priority="78">
+        <lane id="topi_0" index="0" speed="10.00" length="12.80" shape="508.40,530.00 508.40,517.20"/>
+    </edge>
+    <edge id="topo" from="0" to="topnode" priority="46">
+        <lane id="topo_0" index="0" speed="10.00" length="12.80" shape="511.60,517.20 511.60,530.00"/>
+    </edge>
+
+    <junction id="0" type="allway_stop" x="510.00" y="510.00" incLanes="topi_0 righti_0 bottomi_0 lefti_0" intLanes=":0_0_0 :0_1_0 :0_2_0" shape="506.80,517.20 513.20,517.20 517.20,513.20 517.20,506.80 513.20,502.80 506.80,502.80 502.80,506.80 502.80,513.20">
+        <request index="0" response="110" foes="110" cont="0"/>
+        <request index="1" response="101" foes="101" cont="0"/>
+        <request index="2" response="011" foes="011" cont="0"/>
+    </junction>
+    <junction id="bottomnode" type="dead_end" x="510.00" y="490.00" incLanes="bottomo_0" intLanes="" shape="510.00,490.00 506.80,490.00 510.00,490.00"/>
+    <junction id="leftnode" type="dead_end" x="490.00" y="510.00" incLanes="lefto_0" intLanes="" shape="490.00,510.00 490.00,513.20 490.00,510.00"/>
+    <junction id="rightnode" type="dead_end" x="530.00" y="510.00" incLanes="righto_0" intLanes="" shape="530.00,510.00 530.00,506.80 530.00,510.00"/>
+    <junction id="topnode" type="dead_end" x="510.00" y="530.00" incLanes="topo_0" intLanes="" shape="510.00,530.00 513.20,530.00 510.00,530.00"/>
+
+    <connection from="bottomi" to="topo" fromLane="0" toLane="0" via=":0_1_0" dir="s" state="w"/>
+    <connection from="lefti" to="topo" fromLane="0" toLane="0" via=":0_2_0" dir="l" state="w"/>
+    <connection from="righti" to="topo" fromLane="0" toLane="0" via=":0_0_0" dir="r" state="w"/>
+
+    <connection from=":0_0" to="topo" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":0_1" to="topo" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":0_2" to="topo" fromLane="0" toLane="0" dir="l" state="M"/>
+
+</net>

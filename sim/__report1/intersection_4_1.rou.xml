@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-12-20 02:49:21 by Eclipse SUMO netedit Version 1.19.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="C-VEH" maxSpeed="10.0" color="red"/>
+    <vType id="CE-VEH" vClass="truck"/>
+    <vType id="E-CDA" maxSpeed="10.0" color="yellow"/>
+    <vType id="N-VEH" color="white"/>
+    <vType id="T-CDA" color="0,156,255"/>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <trip id="E_CDA_R" type="E-CDA" depart="0.00" from="righti" to="topo"/>
+    <trip id="C_VEH_B" type="C-VEH" depart="1.00" from="bottomi" to="topo"/>
+    <trip id="C_VEH_L" type="C-VEH" depart="2.00" from="lefti" to="topo"/>
+</routes>
