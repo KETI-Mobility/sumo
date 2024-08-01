@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-12-21 01:18:12 by Eclipse SUMO netedit Version 1.19.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="T-CDA" maxSpeed="16.66" color="blue"/>
+    <vType id="E-CDA" maxSpeed="22.22" color="yellow" laneChangeModel="KETI2023" carFollowModel="IDM" accel="2.60" tau="1.00"/>
+    <!-- Routes -->
+    <route id="route0" edges="E3 E2 E1" color="yellow"/>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <vehicle id="t-cda" type="T-CDA" depart="0.00" route="route0"/>
+    <vehicle id="e-cda" type="E-CDA" depart="3.00" route="route0"/>
+</routes>

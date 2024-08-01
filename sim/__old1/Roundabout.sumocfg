@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2022-07-20 08:47:07 by Eclipse SUMO GUI Version 1.14.0
+-->
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="Roundabout.net.xml"/>
+        <route-files value="Roundabout.rou.xml"/>
+        <additional-files value="Roundabout.add.xml"/>
+        <gui-settings-file value="Roundabout.settings.xml"/>
+    </input>
+
+</configuration>

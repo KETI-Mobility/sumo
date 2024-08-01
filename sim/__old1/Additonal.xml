@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2022-07-01 14:06:44 by Eclipse SUMO netedit Version 1.13.0
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- StoppingPlaces -->
+    <busStop id="bs_0" lane="E74_0" startPos="20.61" endPos="30.61"/>
+    <busStop id="bs_1" lane="E1_0" startPos="23.87" endPos="33.87"/>
+    <busStop id="bs_2" lane="-E88_0" startPos="7.74" endPos="17.74"/>
+    <busStop id="bs_3" lane="-E1_0" startPos="25.67" endPos="35.67"/>
+    <busStop id="bs_4" lane="E88_0" startPos="34.14" endPos="44.14"/>
+    <busStop id="bs_5" lane="-E108_0" startPos="18.52" endPos="28.52"/>
+    <busStop id="bs_6" lane="E108_0" startPos="20.05" endPos="30.05"/>
+    <parkingArea id="pa_0" lane="E14_0" startPos="30.65" endPos="40.65">
+        <space name="HANKUK TIRE" x="-784.41" y="1145.11" width="70" length="50"/>
+    </parkingArea>
+    <parkingArea id="pa_1" lane="E2_0" startPos="98.24" endPos="108.24" width="20.00" length="1.00">
+        <space name="NHN PlayHub" x="-990.85" y="1462.90" width="30" length="20" angle="45.00"/>
+    </parkingArea>
+    <parkingArea id="pa_10" lane="E76_0" startPos="106.08" endPos="116.08">
+        <space name="SAM-HWAN A" x="-385.04" y="1077.73" width="100" length="40"/>
+    </parkingArea>
+    <parkingArea id="pa_11" lane="-E101_0" startPos="22.84" endPos="32.84" friendlyPos="true">
+        <space name="SAM-HWAN B" x="-385.65" y="991.86" width="100" length="40"/>
+    </parkingArea>
+    <parkingArea id="pa_12" lane="-E77_0" startPos="42.34" endPos="52.34">
+        <space name="DASAN TOWER" x="-213.46" y="981.64" width="200" length="50" angle="90.00"/>
+    </parkingArea>
+    <parkingArea id="pa_13" lane="E99_0" startPos="51.33" endPos="61.33">
+        <space name="KETI" x="-400.94" y="919.86" width="70" length="35" angle="89.00"/>
+    </parkingArea>
+    <parkingArea id="pa_14" lane="E100_0" startPos="37.92" endPos="47.92">
+        <space name="KETI" x="-350.01" y="921.04" width="70" length="35" angle="90.00"/>
+    </parkingArea>
+    <parkingArea id="pa_15" lane="E102_0" startPos="4.40" endPos="14.40">
+        <space name="KETI" x="-298.62" y="929.25" width="55" length="25" angle="90.00"/>
+    </parkingArea>
+    <parkingArea id="pa_2" lane="-E63_0" startPos="118.27" endPos="128.27">
+        <space name="M_TOWER" x="-696.26" y="1143.37" width="50" length="50"/>
+    </parkingArea>
+    <parkingArea id="pa_3" lane="E63_0" startPos="32.75" endPos="42.75">
+        <space name="U SPACE 2" x="-672.36" y="1067.46" width="100" length="50"/>
+    </parkingArea>
+    <parkingArea id="pa_4" lane="E21_0" startPos="90.54" endPos="100.54">
+        <space name="H SQUARE S" x="-546.19" y="988.70" width="120" length="50"/>
+    </parkingArea>
+    <parkingArea id="pa_5" lane="E22_0" startPos="59.56" endPos="69.56">
+        <space name="U SPACE 1" x="-675.82" y="951.78" width="120" length="60" angle="115.00"/>
+    </parkingArea>
+    <parkingArea id="pa_6" lane="E58_0" startPos="12.89" endPos="22.89">
+        <space name="H SQUARE N" x="-546.01" y="1067.60" width="120" length="50"/>
+    </parkingArea>
+    <parkingArea id="pa_7" lane="-E21_0" startPos="43.39" endPos="53.39">
+        <space name="TWO SUN WORLD BLD." x="-508.62" y="924.14" width="60" length="40"/>
+    </parkingArea>
+    <parkingArea id="pa_8" lane="-E76_0" startPos="66.61" endPos="76.61">
+        <space name="SK ECOHub" x="-399.12" y="1149.58" width="80" length="50"/>
+    </parkingArea>
+    <parkingArea id="pa_9" lane="-E45_0" startPos="25.16" endPos="35.16">
+        <space name="SK ECOLab" x="-528.61" y="1146.14" width="80" length="50"/>
+    </parkingArea>
+</additional>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2022-07-20 09:31:49 by Eclipse SUMO netedit Version 1.14.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="t_bus" maxSpeed="13.00" vClass="bus" color="yellow"/>
+    <vType id="t_car" maxSpeed="14.00"/>
+    <vType id="t_vip" maxSpeed="6.00" color="red"/>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+	<!--
+	<flow id="f_r0" type="t_bus" begin="0.00" departSpeed="5.00" line="bus" from="-E0" to="E0" end="3600.00" vehsPerHour="12.00">
+        <stop busStop="bs_0d" duration="20.00"/>
+        <stop busStop="bs_3a" duration="20.00"/>
+        <stop busStop="bs_3d" duration="20.00"/>
+        <stop busStop="bs_2a" duration="20.00"/>
+        <stop busStop="bs_2d" duration="20.00"/>
+        <stop busStop="bs_1a" duration="20.00"/>
+        <stop busStop="bs_1d" duration="20.00"/>
+        <stop busStop="bs_0a" duration="20.00"/>
+    </flow>
+    <flow id="f_r1" type="t_bus" begin="0.00" departSpeed="5.00" line="bus" from="-E2" to="E2" end="3600.00" vehsPerHour="14.00">
+        <stop busStop="bs_2d" duration="20.00"/>
+        <stop busStop="bs_1a" duration="20.00"/>
+        <stop busStop="bs_1d" duration="20.00"/>
+        <stop busStop="bs_0a" duration="20.00"/>
+        <stop busStop="bs_0d" duration="20.00"/>
+        <stop busStop="bs_3a" duration="20.00"/>
+        <stop busStop="bs_3d" duration="20.00"/>
+        <stop busStop="bs_2a" duration="20.00"/>
+    </flow>
+    <flow id="f_s0" type="t_bus" begin="0.00" departSpeed="5.00" line="bus" from="-E1" to="E1" end="3600.00" vehsPerHour="16.00">
+        <stop busStop="bs_1d" duration="20.00"/>
+        <stop busStop="bs_3a" duration="20.00"/>
+        <stop busStop="bs_3d" duration="20.00"/>
+        <stop busStop="bs_1a" duration="20.00"/>
+    </flow>
+    <flow id="f_s1" type="t_bus" begin="0.00" departSpeed="5.00" line="bus" from="-E3" to="E3" end="3600.00" vehsPerHour="18.00">
+        <stop busStop="bs_3d" duration="20.00"/>
+        <stop busStop="bs_1a" duration="20.00"/>
+        <stop busStop="bs_1d" duration="20.00"/>
+        <stop busStop="bs_3a" duration="20.00"/>
+    </flow>
+	-->
+    <flow id="f_car0" type="t_car" begin="0.10" departSpeed="0.00" from="-E0" to="E2" end="3600.00" vehsPerHour="64.00"/>
+    <flow id="f_car1" type="t_car" begin="0.20" departSpeed="0.00" from="-E3" to="E1" end="3600.00" vehsPerHour="72.00"/>
+    <flow id="f_car2" type="t_car" begin="0.30" departSpeed="0.00" from="-E2" to="E0" end="3600.00" vehsPerHour="76.00"/>
+    <flow id="f_car3" type="t_car" begin="0.40" departSpeed="0.00" from="-E1" to="E3" end="3600.00" vehsPerHour="80.00"/>
+    <flow id="f_car4" type="t_car" begin="1.10" departSpeed="0.00" from="-E0" to="E1" end="3600.00" vehsPerHour="52.00"/>
+    <flow id="f_car5" type="t_car" begin="1.20" departSpeed="0.00" from="-E3" to="E0" end="3600.00" vehsPerHour="64.00"/>
+    <flow id="f_car6" type="t_car" begin="1.30" departSpeed="0.00" from="-E2" to="E3" end="3600.00" vehsPerHour="56.00"/>
+    <flow id="f_car7" type="t_car" begin="1.40" departSpeed="0.00" from="-E1" to="E2" end="3600.00" vehsPerHour="68.00"/>
+    <flow id="f_car8" type="t_car" begin="2.10" departSpeed="0.00" from="-E0" to="E3" end="3600.00" vehsPerHour="54.00"/>
+    <flow id="f_car9" type="t_car" begin="2.20" departSpeed="0.00" from="-E3" to="E2" end="3600.00" vehsPerHour="65.00"/>
+    <flow id="f_car10" type="t_car" begin="2.30" departSpeed="0.00" from="-E2" to="E1" end="3600.00" vehsPerHour="66.00"/>
+    <flow id="f_car11" type="t_car" begin="2.40" departSpeed="0.00" from="-E1" to="E0" end="3600.00" vehsPerHour="57.00"/>
+
+    <flow id="f_vip" type="t_vip" begin="5.0" departSpeed="0.00" from="-E3" to="E1" end="3600.00" vehsPerHour="30.00"/>
+</routes>
