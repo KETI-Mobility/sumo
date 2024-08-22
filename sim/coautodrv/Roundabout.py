@@ -44,7 +44,7 @@ else:
 
 # Global variables for Vehicle class
 vehicles = []
-
+shared_data = []
 
 def get_vehicle_by_id(vehicle_id, vehicles):
 	for vehicle in vehicles:
@@ -145,6 +145,32 @@ def custom_code_at_step(step):
 			# Update the location of the vehicle
 			the_vehicle.update_location(vehicle_position)
 			the_vehicle.show_info()
+
+		# C-VEH sends its own information(BSM) to E-CDA and T-CDA
+		# CE-VEH sends its own information(BSM, EDM) to E-CDA and T-CDA 
+		# T-CDA sends its own information(BSM+, DMM, DNM) to E-CDA
+		# Then,
+		# E-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, T-CDA's BSM+, DMM, DNM)
+		# T-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, E-CDA's BSM+, DMM, DNM)
+
+		# Roundabout (Class A)
+		# E-CDA evaulates C-VEH's existence on roundabout (to check C-VEH's speed, TTB(Time-to-Break) at cross point)
+		# Scenario A-8-1: E-CDA passes through the roundabout without yielding to C-VEH
+		# Scenario A-8-2: E-CDA yields to C-VEH
+
+		# Roundabout (Class B)
+		# E-CDA evaluates T-CDA's manuever.Exit_Loc with E-CDA's path
+		# Scenario B-8-1: E-CDA passes through the roundabout without yielding to T-CDA
+		# Scenario B-8-2: E-CDA yields to T-CDA
+
+		# Roundabout (Class C)
+		# Negotiation between E-CDA and T-CDA while exchaning Req, Resp, DNM between E-CDA and T-CDA
+
+		# Roundabout (Class D)
+		# CE-VEH broadcasts EDM 
+		# E-CDA determines pass or yield to CE-VEH
+
+
 
 
 def run_simulation():
