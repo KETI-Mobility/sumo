@@ -16,11 +16,23 @@
 #  sumo-gui -c Roundabout_8_1.sumocfg --remote-port 1337
 # - Start the script:
 #  python Roundabout.py
-#
+# 
+# ImportError: No module named enum
+# - Install the enum module using pip:
+#   pip install enum34
 ##############################################################################
 
 import os
 import sys
+import traci
+import math
+from enum import Enum
+from Vehicle import Vehicle
+from Vehicle_T_CDA import T_CDA
+from Vehicle_C_VEH import C_VEH
+from Vehicle_CE_VEH import CE_VEH
+from Vehicle_E_CDA import E_CDA
+
 
 # Add the SUMO tools directory to the PYTHONPATH
 if 'SUMO_HOME' in os.environ:
@@ -28,63 +40,6 @@ if 'SUMO_HOME' in os.environ:
 	sys.path.append(tools)
 else:
 	sys.exit("Please declare the environment variable 'SUMO_HOME'")
-
-
-import os
-import sys
-import traci
-import math
-from enum import Enum
-
-class VehicleState(Enum):
-	INITIAL = 1
-	ADDED = 2
-	APPROACHING = 3
-	INSIDE = 4
-	EXITING = 5
-	REMOVED = 6
-
-class Vehicle:
-	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
-		self.vehicle_id = vehicle_id
-		self.vehicle_type = vehicle_type
-		self.vehicle_color = vehicle_color
-		self.vehicle_length = vehicle_length
-		self.vehicle_width = vehicle_width
-		self.cur_location = (0,0)	# Initial location of the vehicle
-		self.x_location = x_location	# Location of the roundabout
-		self.distance = self.get_distance()
-		self.state = VehicleState.INITIAL
-
-	def update_location(self, new_location):
-		self.cur_location = new_location
-		self.update_state()
-
-	def update_state(self):
-		if self.state == VehicleState.INITIAL:
-			print("INITIAL -> ADDED")
-			self.state = VehicleState.ADDED
-		elif self.state == VehicleState.ADDED and self.get_distance(self) < 100:
-			print("ADDED -> APPROACHING")
-			self.state = VehicleState.APPROACHING
-		elif self.state == VehicleState.APPROACHING and self.get_distance(self) < 50:
-			print("APPROACHING -> INSIDE")
-			self.state = VehicleState.INSIDE
-		elif self.state == VehicleState.INSIDE and self.get_distance(self) > 50:
-			print("INSIDE -> EXITING")
-			self.state = VehicleState.EXITING
-		elif self.state == VehicleState.EXITING and self.get_distance(self) > 100:
-			print("EXITING -> REMOVED")
-			self.state = VehicleState.REMOVED
-
-	def get_distance(self):
-		self.distance = math.sqrt((self.x_location[0] - self.cur_location[0])**2 + (self.x_location[1] - self.cur_location[1])**2)
-		return self.distance
-	
-	def print(self):
-		print("Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
-
-
 
 
 # Global variables for Vehicle class
@@ -171,13 +126,25 @@ def custom_code_at_step(step):
 		# Search the vehicle_id in vehicles
 		the_vehicle = get_vehicle_by_id(vehicle_id, vehicles)
 		if the_vehicle is None:
+			if vehicle_type == "T_CDA":
+				the_vehicle = T_CDA(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
+			elif vehicle_type == "C_VEH":
+				the_vehicle = C_VEH(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
+			elif vehicle_type == "CE_VEH":
+				the_vehicle = CE_VEH(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
+			elif vehicle_type == "E_CDA":
+				the_vehicle = E_CDA(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
+			else:
+				print("Vehicle {} type not found".format(vehicle_id))
+				return
+			
 			# Add the vehicle to the vehicles list
-			vehicles.append(Vehicle(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position))
+			vehicles.append(the_vehicle)
 			print("Vehicle {} added to the list".format(vehicle_id))
 		else:
 			# Update the location of the vehicle
 			the_vehicle.update_location(vehicle_position)
-			the_vehicle.print()
+			the_vehicle.show_info()
 
 
 def run_simulation():
