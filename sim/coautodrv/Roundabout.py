@@ -12,14 +12,20 @@
 # vehicles, to collect data, to visualize the simulation, etc.
 #
 # Usage:
+# 
+# On the Apple MacBook Pro M3 Pro,
+# - Set the Python evnrionment on the specific directory:
+#   python3 -m venv env_sumo
+#   source env_sumo/bin/activate
+# - Install the modules using pip on the specific environment:
+#   pip install traci
+#   pip install enum34
+#
 # - Start the SUMO simulation with the TraCI server enabled:
 #  sumo-gui -c Roundabout_8_1.sumocfg --remote-port 1337
 # - Start the script:
 #  python Roundabout.py
-# 
-# ImportError: No module named enum
-# - Install the enum module using pip:
-#   pip install enum34
+#
 ##############################################################################
 
 import os
