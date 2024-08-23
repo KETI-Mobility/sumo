@@ -46,6 +46,40 @@ class Vehicle:
 
 
 ##############################################################################
+# Normal Vehicle (N-VEH) class
+#
+# Normal Vehicle, 통신기능 없이 일반 운전자가 주행하는 일반차량
+# 전송가능 메시지: 없음
+#
+##############################################################################
+
+class N_VEH(Vehicle):
+
+	class State(Enum):
+		INITIAL = 1
+		ADDED = 2
+		APPROACHING = 3
+		INSIDE = 4
+		EXITING = 5
+		REMOVED = 6
+
+	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
+		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
+		self.state = N_VEH.State.INITIAL
+
+	def update_location(self, new_location):
+		super().update_location(new_location)
+		self.update_state()
+
+	def get_location(self):
+		return (self.x_location, self.y_location)
+
+	def show_info(self):
+		print("[N-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
+
+
+
+##############################################################################
 # Connected Vehicle (C-VEH) class
 #
 #  기본적인 안전 메시지를 송수신하며 일반 운전자가 주행하는 차량 
@@ -105,7 +139,7 @@ class C_VEH(Vehicle):
 			self.state = C_VEH.State.REMOVED
 
 	def show_info(self):
-		print("Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
+		print("[C-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
 ##############################################################################
@@ -176,7 +210,7 @@ class CE_VEH(Vehicle):
 			self.state = CE_VEH.State.REMOVED
 
 	def show_info(self):
-		print("Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
+		print("[CE-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
 ##############################################################################
@@ -271,7 +305,7 @@ class E_CDA(Vehicle):
 			self.state = E_CDA.State.REMOVED
 
 	def show_info(self):
-		print("Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
+		print("[E-CDA] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
 ##############################################################################
@@ -318,6 +352,6 @@ class T_CDA(Vehicle):
 			self.state = T_CDA.State.REMOVED
 
 	def show_info(self):
-		print("Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
+		print("[T-CDA] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
