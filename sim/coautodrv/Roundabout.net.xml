@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2023-12-22 10:52:21 by Eclipse SUMO netedit Version 1.19.0
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/neteditConfiguration.xsd">
+<!-- generated on 2024-08-26 00:14:16 by Eclipse SUMO netedit Version f00bd13363a
+<neteditConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/neteditConfiguration.xsd">
 
     <input>
-        <sumocfg-file value="~/sumo/sim/Roundabout_8_1.sumocfg"/>
-        <additional-files value=""/>
-        <route-files value="~/sumo/sim/A_8_1.rou.xml"/>
-        <sumo-net-file value="~/sumo/sim/Roundabout.net.xml"/>
+        <sumo-net-file value="/Users/parksik/Git/sumo/sim/coautodrv/Roundabout.net.xml"/>
     </input>
 
     <output>
-        <output-file value="~/sumo/sim/Roundabout.net.xml"/>
+        <output-file value="/Users/parksik/Git/sumo/sim/coautodrv/Roundabout.net.xml"/>
     </output>
 
     <processing>
@@ -32,12 +29,12 @@
         <walkingareas value="0"/>
     </pedestrian>
 
-</configuration>
+</neteditConfiguration>
 -->
 
-<net version="1.16" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+<net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
 
-    <location netOffset="0.00,0.00" convBoundary="60.00,50.00,160.00,150.00" origBoundary="-10000000000.00,-10000000000.00,10000000000.00,10000000000.00" projParameter="!"/>
+    <location netOffset="0.00,0.00" convBoundary="-60.00,-70.00,280.00,270.00" origBoundary="-10000000000.00,-10000000000.00,10000000000.00,10000000000.00" projParameter="!"/>
 
     <edge id=":eround_0" function="internal">
         <lane id=":eround_0_0" index="0" disallow="pedestrian" speed="6.50" length="8.82" shape="140.13,104.80 137.74,105.14 136.01,106.15 134.94,107.84 134.54,110.20"/>
@@ -117,24 +114,24 @@
     </edge>
 
     <edge id="EI" from="e" to="eround" priority="-1">
-        <lane id="EI_0" index="0" disallow="pedestrian" speed="13.89" length="19.87" shape="160.00,104.80 140.13,104.80"/>
-        <lane id="EI_1" index="1" disallow="pedestrian" speed="13.89" length="19.87" shape="160.00,101.60 140.13,101.60"/>
+        <lane id="EI_0" index="0" disallow="pedestrian" speed="13.89" length="139.87" shape="280.00,104.80 140.13,104.80"/>
+        <lane id="EI_1" index="1" disallow="pedestrian" speed="13.89" length="139.87" shape="280.00,101.60 140.13,101.60"/>
     </edge>
     <edge id="EN" from="eround" to="nround" priority="-1" shape="130.00,100.00 129.77,108.88 125.43,114.49 119.35,118.15 110.00,120.00">
         <lane id="EN_0" index="0" disallow="pedestrian" speed="13.89" length="18.39" shape="134.54,110.20 134.53,110.57 128.68,118.14 121.11,122.70 119.31,123.05"/>
         <lane id="EN_1" index="1" disallow="pedestrian" speed="13.89" length="18.39" shape="130.94,109.99 126.51,115.71 119.94,119.67 118.69,119.91"/>
     </edge>
     <edge id="EO" from="eround" to="e" priority="-1">
-        <lane id="EO_0" index="0" disallow="pedestrian" speed="13.89" length="19.87" shape="140.13,95.20 160.00,95.20"/>
-        <lane id="EO_1" index="1" disallow="pedestrian" speed="13.89" length="19.87" shape="140.13,98.40 160.00,98.40"/>
+        <lane id="EO_0" index="0" disallow="pedestrian" speed="13.89" length="139.87" shape="140.13,95.20 280.00,95.20"/>
+        <lane id="EO_1" index="1" disallow="pedestrian" speed="13.89" length="139.87" shape="140.13,98.40 280.00,98.40"/>
     </edge>
     <edge id="NI" from="n" to="nround" priority="-1">
-        <lane id="NI_0" index="0" disallow="pedestrian" speed="13.89" length="21.46" shape="105.20,150.00 105.20,128.54"/>
-        <lane id="NI_1" index="1" disallow="pedestrian" speed="13.89" length="21.46" shape="108.40,150.00 108.40,128.54"/>
+        <lane id="NI_0" index="0" disallow="pedestrian" speed="13.89" length="141.46" shape="105.20,270.00 105.20,128.54"/>
+        <lane id="NI_1" index="1" disallow="pedestrian" speed="13.89" length="141.46" shape="108.40,270.00 108.40,128.54"/>
     </edge>
     <edge id="NO" from="nround" to="n" priority="-1">
-        <lane id="NO_0" index="0" disallow="pedestrian" speed="13.89" length="21.46" shape="114.80,128.54 114.80,150.00"/>
-        <lane id="NO_1" index="1" disallow="pedestrian" speed="13.89" length="21.46" shape="111.60,128.54 111.60,150.00"/>
+        <lane id="NO_0" index="0" disallow="pedestrian" speed="13.89" length="141.46" shape="114.80,128.54 114.80,270.00"/>
+        <lane id="NO_1" index="1" disallow="pedestrian" speed="13.89" length="141.46" shape="111.60,128.54 111.60,270.00"/>
     </edge>
     <edge id="NW" from="nround" to="wround" priority="-1" shape="110.00,120.00 100.06,118.03 94.97,114.00 91.34,108.61 90.00,100.00">
         <lane id="NW_0" index="0" disallow="pedestrian" speed="13.89" length="18.09" shape="100.69,123.05 97.99,122.51 91.41,117.30 86.76,110.40 86.67,109.81"/>
@@ -145,28 +142,27 @@
         <lane id="SE_1" index="1" disallow="pedestrian" speed="13.89" length="17.45" shape="118.75,80.38 120.56,80.79 126.09,85.30 129.86,90.62"/>
     </edge>
     <edge id="SI" from="s" to="sround" priority="-1">
-        <lane id="SI_0" index="0" disallow="pedestrian" speed="13.89" length="20.85" shape="114.80,50.00 114.80,70.85"/>
-        <lane id="SI_1" index="1" disallow="pedestrian" speed="13.89" length="20.85" shape="111.60,50.00 111.60,70.85"/>
+        <lane id="SI_0" index="0" disallow="pedestrian" speed="13.89" length="140.85" shape="114.80,-70.00 114.80,70.85"/>
+        <lane id="SI_1" index="1" disallow="pedestrian" speed="13.89" length="140.85" shape="111.60,-70.00 111.60,70.85"/>
     </edge>
     <edge id="SO" from="sround" to="s" priority="-1">
-        <lane id="SO_0" index="0" disallow="pedestrian" speed="13.89" length="20.85" shape="105.20,70.85 105.20,50.00"/>
-        <lane id="SO_1" index="1" disallow="pedestrian" speed="13.89" length="20.85" shape="108.40,70.85 108.40,50.00"/>
+        <lane id="SO_0" index="0" disallow="pedestrian" speed="13.89" length="140.85" shape="105.20,70.85 105.20,-70.00"/>
+        <lane id="SO_1" index="1" disallow="pedestrian" speed="13.89" length="140.85" shape="108.40,70.85 108.40,-70.00"/>
     </edge>
     <edge id="WI" from="w" to="wround" priority="-1">
-        <lane id="WI_0" index="0" disallow="pedestrian" speed="13.89" length="20.36" shape="60.00,95.20 80.36,95.20"/>
-        <lane id="WI_1" index="1" disallow="pedestrian" speed="13.89" length="20.36" shape="60.00,98.40 80.36,98.40"/>
+        <lane id="WI_0" index="0" disallow="pedestrian" speed="13.89" length="140.36" shape="-60.00,95.20 80.36,95.20"/>
+        <lane id="WI_1" index="1" disallow="pedestrian" speed="13.89" length="140.36" shape="-60.00,98.40 80.36,98.40"/>
     </edge>
     <edge id="WO" from="wround" to="w" priority="-1">
-        <lane id="WO_0" index="0" disallow="pedestrian" speed="13.89" length="20.36" shape="80.36,104.80 60.00,104.80"/>
-        <lane id="WO_1" index="1" disallow="pedestrian" speed="13.89" length="20.36" shape="80.36,101.60 60.00,101.60"/>
+        <lane id="WO_0" index="0" disallow="pedestrian" speed="13.89" length="140.36" shape="80.36,104.80 -60.00,104.80"/>
+        <lane id="WO_1" index="1" disallow="pedestrian" speed="13.89" length="140.36" shape="80.36,101.60 -60.00,101.60"/>
     </edge>
     <edge id="WS" from="wround" to="sround" priority="-1" shape="90.00,100.00 90.67,91.17 94.70,85.65 100.36,81.24 110.00,80.00">
         <lane id="WS_0" index="0" disallow="pedestrian" speed="13.89" length="18.30" shape="85.94,90.05 85.99,89.44 91.22,82.28 98.45,76.65 100.31,76.41"/>
         <lane id="WS_1" index="1" disallow="pedestrian" speed="13.89" length="18.30" shape="89.28,90.36 93.54,84.53 99.72,79.71 100.72,79.58"/>
     </edge>
 
-<!-- Unit of x and y: meter -->
-    <junction id="e" type="dead_end" x="160.00" y="100.00" incLanes="EO_0 EO_1" intLanes="" shape="160.00,100.00 160.00,93.60 160.00,100.00" name="East"/>
+    <junction id="e" type="dead_end" x="280.00" y="100.00" incLanes="EO_0 EO_1" intLanes="" shape="280.00,100.00 280.00,93.60 280.00,100.00" name="East"/>
     <junction id="eround" type="priority" x="130.00" y="100.00" incLanes="EI_0 EI_1 SE_0 SE_1" intLanes=":eround_0_0 :eround_0_1 :eround_2_0 :eround_3_0 :eround_6_0 :eround_5_0" shape="140.13,106.40 140.13,93.60 137.47,93.17 136.47,92.64 135.70,91.89 135.16,90.93 134.84,89.75 128.12,90.93 130.20,94.37 131.52,97.69 132.05,100.91 131.81,104.01 130.80,107.00 129.00,109.87 136.14,110.30 136.62,108.13 137.19,107.37 137.96,106.83 138.94,106.51" name="Roundabout_east">
         <request index="0" response="001000" foes="001000" cont="0"/>
         <request index="1" response="101000" foes="101000" cont="0"/>
@@ -175,7 +171,7 @@
         <request index="4" response="001000" foes="001000" cont="1"/>
         <request index="5" response="000000" foes="000010" cont="0"/>
     </junction>
-    <junction id="n" type="dead_end" x="110.00" y="150.00" incLanes="NO_0 NO_1" intLanes="" shape="110.00,150.00 116.40,150.00 110.00,150.00" name=" North"/>
+    <junction id="n" type="dead_end" x="110.00" y="270.00" incLanes="NO_0 NO_1" intLanes="" shape="110.00,270.00 116.40,270.00 110.00,270.00" name=" North"/>
     <junction id="nround" type="priority" x="110.00" y="120.00" incLanes="NI_0 NI_1 EN_0 EN_1" intLanes=":nround_0_0 :nround_0_1 :nround_2_0 :nround_3_0 :nround_6_0 :nround_5_0" shape="103.60,128.54 116.40,128.54 116.76,126.65 117.21,125.92 117.83,125.34 118.64,124.91 119.62,124.62 118.38,118.34 114.86,119.02 112.21,119.43 110.00,119.56 107.79,119.43 105.15,119.02 101.62,118.34 100.38,124.62 102.17,125.34 102.79,125.92 103.24,126.65 103.51,127.52" name="Roundabout_north">
         <request index="0" response="001000" foes="001000" cont="0"/>
         <request index="1" response="101000" foes="101000" cont="0"/>
@@ -184,7 +180,7 @@
         <request index="4" response="001000" foes="001000" cont="1"/>
         <request index="5" response="000000" foes="000010" cont="0"/>
     </junction>
-    <junction id="s" type="dead_end" x="110.00" y="50.00" incLanes="SO_0 SO_1" intLanes="" shape="110.00,50.00 103.60,50.00 110.00,50.00" name="South"/>
+    <junction id="s" type="dead_end" x="110.00" y="-70.00" incLanes="SO_0 SO_1" intLanes="" shape="110.00,-70.00 103.60,-70.00 110.00,-70.00" name="South"/>
     <junction id="sround" type="priority" x="110.00" y="80.00" incLanes="SI_0 SI_1 WS_0 WS_1" intLanes=":sround_0_0 :sround_0_1 :sround_2_0 :sround_3_0 :sround_6_0 :sround_5_0" shape="118.39,81.94 119.83,75.70 117.92,74.81 117.26,74.09 116.78,73.19 116.50,72.11 116.40,70.85 103.60,70.85 103.21,72.86 102.73,73.60 102.05,74.18 101.18,74.58 100.11,74.82 100.93,81.17 104.64,80.70 107.41,80.43 109.72,80.40 112.00,80.62 114.74,81.12" name="Roundabout_south">
         <request index="0" response="001000" foes="001000" cont="0"/>
         <request index="1" response="101000" foes="101000" cont="0"/>
@@ -193,7 +189,7 @@
         <request index="4" response="001000" foes="001000" cont="1"/>
         <request index="5" response="000000" foes="000010" cont="0"/>
     </junction>
-    <junction id="w" type="dead_end" x="60.00" y="100.00" incLanes="WO_0 WO_1" intLanes="" shape="60.00,100.00 60.00,106.40 60.00,100.00" name="West"/>
+    <junction id="w" type="dead_end" x="-60.00" y="100.00" incLanes="WO_0 WO_1" intLanes="" shape="-60.00,100.00 -60.00,106.40 -60.00,100.00" name="West"/>
     <junction id="wround" type="priority" x="90.00" y="100.00" incLanes="NW_0 NW_1 WI_0 WI_1" intLanes=":wround_0_0 :wround_1_0 :wround_6_0 :wround_3_0 :wround_4_0 :wround_4_1" shape="85.09,110.06 91.61,109.00 89.73,105.73 88.58,102.53 88.14,99.42 88.42,96.38 89.42,93.42 91.13,90.54 84.35,89.90 83.78,91.96 83.21,92.68 82.45,93.19 81.50,93.50 80.36,93.60 80.36,106.40 82.73,106.81 83.62,107.32 84.31,108.03 84.80,108.94" name="Roundabout_west">
         <request index="0" response="000000" foes="000000" cont="0"/>
         <request index="1" response="000000" foes="110100" cont="0"/>
@@ -208,29 +204,29 @@
     <junction id=":sround_6_0" type="internal" x="104.32" y="78.49" incLanes=":sround_4_0 WS_0" intLanes=":sround_3_0"/>
     <junction id=":wround_6_0" type="internal" x="88.80" y="107.87" incLanes=":wround_2_0 NW_0" intLanes=":wround_1_0"/>
 
-    <connection from="EI" to="EN" fromLane="0" toLane="0" via=":eround_0_0" dir="r" state="M" visibility="9.00"/>
-    <connection from="EI" to="EN" fromLane="1" toLane="1" via=":eround_0_1" dir="r" state="M" visibility="9.00"/>
+    <connection from="EI" to="EN" fromLane="0" toLane="0" via=":eround_0_0" dir="r" state="m" visibility="9.00"/>
+    <connection from="EI" to="EN" fromLane="1" toLane="1" via=":eround_0_1" dir="r" state="m" visibility="9.00"/>
     <connection from="EN" to="NO" fromLane="0" toLane="0" via=":nround_2_0" dir="r" state="M"/>
     <connection from="EN" to="NW" fromLane="0" toLane="0" via=":nround_3_0" dir="s" state="M"/>
-    <connection from="EN" to="NO" fromLane="1" toLane="1" via=":nround_4_0" dir="r" state="M"/>
+    <connection from="EN" to="NO" fromLane="1" toLane="1" via=":nround_4_0" dir="r" state="m"/>
     <connection from="EN" to="NW" fromLane="1" toLane="1" via=":nround_5_0" dir="s" state="M"/>
-    <connection from="NI" to="NW" fromLane="0" toLane="0" via=":nround_0_0" dir="r" state="M" visibility="9.00"/>
-    <connection from="NI" to="NW" fromLane="1" toLane="1" via=":nround_0_1" dir="r" state="M" visibility="9.00"/>
+    <connection from="NI" to="NW" fromLane="0" toLane="0" via=":nround_0_0" dir="r" state="m" visibility="9.00"/>
+    <connection from="NI" to="NW" fromLane="1" toLane="1" via=":nround_0_1" dir="r" state="m" visibility="9.00"/>
     <connection from="NW" to="WO" fromLane="0" toLane="0" via=":wround_0_0" dir="r" state="M"/>
     <connection from="NW" to="WS" fromLane="0" toLane="0" via=":wround_1_0" dir="s" state="M"/>
-    <connection from="NW" to="WO" fromLane="1" toLane="1" via=":wround_2_0" dir="r" state="M"/>
+    <connection from="NW" to="WO" fromLane="1" toLane="1" via=":wround_2_0" dir="r" state="m"/>
     <connection from="NW" to="WS" fromLane="1" toLane="1" via=":wround_3_0" dir="s" state="M"/>
     <connection from="SE" to="EO" fromLane="0" toLane="0" via=":eround_2_0" dir="r" state="M"/>
     <connection from="SE" to="EN" fromLane="0" toLane="0" via=":eround_3_0" dir="s" state="M"/>
-    <connection from="SE" to="EO" fromLane="1" toLane="1" via=":eround_4_0" dir="r" state="M"/>
+    <connection from="SE" to="EO" fromLane="1" toLane="1" via=":eround_4_0" dir="r" state="m"/>
     <connection from="SE" to="EN" fromLane="1" toLane="1" via=":eround_5_0" dir="s" state="M"/>
-    <connection from="SI" to="SE" fromLane="0" toLane="0" via=":sround_0_0" dir="r" state="M" visibility="9.00"/>
-    <connection from="SI" to="SE" fromLane="1" toLane="1" via=":sround_0_1" dir="r" state="M" visibility="9.00"/>
-    <connection from="WI" to="WS" fromLane="0" toLane="0" via=":wround_4_0" dir="r" state="M" visibility="9.00"/>
-    <connection from="WI" to="WS" fromLane="1" toLane="1" via=":wround_4_1" dir="r" state="M" visibility="9.00"/>
+    <connection from="SI" to="SE" fromLane="0" toLane="0" via=":sround_0_0" dir="r" state="m" visibility="9.00"/>
+    <connection from="SI" to="SE" fromLane="1" toLane="1" via=":sround_0_1" dir="r" state="m" visibility="9.00"/>
+    <connection from="WI" to="WS" fromLane="0" toLane="0" via=":wround_4_0" dir="r" state="m" visibility="9.00"/>
+    <connection from="WI" to="WS" fromLane="1" toLane="1" via=":wround_4_1" dir="r" state="m" visibility="9.00"/>
     <connection from="WS" to="SO" fromLane="0" toLane="0" via=":sround_2_0" dir="r" state="M"/>
     <connection from="WS" to="SE" fromLane="0" toLane="0" via=":sround_3_0" dir="s" state="M"/>
-    <connection from="WS" to="SO" fromLane="1" toLane="1" via=":sround_4_0" dir="r" state="M"/>
+    <connection from="WS" to="SO" fromLane="1" toLane="1" via=":sround_4_0" dir="r" state="m"/>
     <connection from="WS" to="SE" fromLane="1" toLane="1" via=":sround_5_0" dir="s" state="M"/>
 
     <connection from=":eround_0" to="EN" fromLane="0" toLane="0" dir="r" state="M"/>
