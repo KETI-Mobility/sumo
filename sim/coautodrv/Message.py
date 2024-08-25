@@ -11,7 +11,9 @@ import sys
 import traci
 import math
 from enum import Enum
-from Vehicle import Maneuver
+from Vehicle import *
+from Channel import *
+
 
 # Global variable to accumulate a number to use as an ID
 global_msg_id = 0
@@ -35,7 +37,7 @@ class Message:
 		self.sender_vehicle_id		= sender_vehicle_id
 		self.sender_vehicle_type	= sender_vehicle_type
 
-	def show_msg(self):
+	def show_msg(self) -> None:
 		print("Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
 		print("  + Sender: ID: {}, Type: {}".format(self.sender_vehicle_id, self.sender_vehicle_type))
 
@@ -60,7 +62,7 @@ class BSM(Message):
 		self.sender_lane_id		= sender_lane_id
 		
 
-	def show_msg(self):
+	def show_msg(self) -> None:
 		print("[BSM] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
 		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
 
@@ -85,7 +87,7 @@ class BSMplus(Message):
 		self.sender_lane_id		= sender_lane_id
 		
 
-	def show_msg(self):
+	def show_msg(self) -> None:
 		print("[BSM+] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
 		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
 
@@ -111,7 +113,7 @@ class DMM(Message):
 
 		self.maneuver 			= Maneuver.NONE
 
-	def show_msg(self):
+	def show_msg(self) -> None:
 		print("[DMM] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
 		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
 
@@ -136,7 +138,7 @@ class EDM(Message):
 		self.sender_lane_id		= sender_lane_id
 		
 
-	def show_msg(self):
+	def show_msg(self) -> None:
 		print("[BSM] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
 		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
 
@@ -161,7 +163,7 @@ class DNMReq(Message):
 		self.sender_lane_id		= sender_lane_id
 
 
-	def show_msg(self):
+	def show_msg(self) -> None:
 		print("[DNM Req] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
 		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
 
@@ -178,7 +180,7 @@ class DNMResp(Message):
 		self.sender_lane_id		= sender_lane_id
 
 
-	def show_msg(self):
+	def show_msg(self) -> None:
 		print("[DNM Res] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
 		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
 

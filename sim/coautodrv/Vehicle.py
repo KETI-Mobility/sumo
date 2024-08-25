@@ -3,12 +3,9 @@ import sys
 import traci
 import math
 from enum import Enum
-from Message import BSM
-from Message import BSMplus
-from Message import EDM
-from Message import DMM
-from Message import DNMReq
-from Message import DNMResp
+from Message import *
+from Channel import *
+
 
 class Maneuver(Enum):
 		NONE				= 0
@@ -34,14 +31,14 @@ class Vehicle:
 		self.x_location = x_location	# Location of the roundabout
 		self.distance = self.get_distance()
 
-	def update_location(self, new_location):
+	def update_location(self, new_location) -> None:
 		self.cur_location = new_location
 
-	def get_distance(self):
+	def get_distance(self) -> float:
 		self.distance = math.sqrt((self.x_location[0] - self.cur_location[0])**2 + (self.x_location[1] - self.cur_location[1])**2)
 		return self.distance
 	
-	def show_info(self):
+	def show_info(self) -> None:
 		print("Vehicle ID: {}, Type: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.distance))
 
 
@@ -67,14 +64,14 @@ class N_VEH(Vehicle):
 		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
 		self.state = N_VEH.State.INITIAL
 
-	def update_location(self, new_location):
+	def update_location(self, new_location) -> None:
 		super().update_location(new_location)
 		self.update_state()
 
-	def get_location(self):
+	def get_location(self) -> tuple:
 		return (self.x_location, self.y_location)
 
-	def show_info(self):
+	def show_info(self) -> None:
 		print("[N-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
@@ -102,26 +99,27 @@ class C_VEH(Vehicle):
 		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
 		self.state = C_VEH.State.INITIAL
 
-	def update_location(self, new_location):
+	def update_location(self, new_location) -> None:
 		super().update_location(new_location)
 		self.update_state()
 
-	def get_location(self):
+	def get_location(self) -> tuple:
 		return (self.x_location, self.y_location)
 	
-	def create_bsm(self):
+	def create_bsm(self) -> BSM:
 		bsm = BSM(self.vehicle_id, self.vehicle_type, self.get_location())
 		return bsm
 
-	def send_bsm(self, channel):
+	def send_bsm(self, channel:Channel) -> None:
 		print("BSM sent")
 		channel.append(self.create_bsm())
 
-	def receive_bsm(self, bsm):
+	def receive_bsm(self, bsm:BSM) -> None:
 		print("BSM received")
 		# TODO: process bsm
 
-	def update_state(self):
+
+	def update_state(self) -> None:
 		if self.state == C_VEH.State.INITIAL:
 			print("INITIAL -> ADDED")
 			self.state = C_VEH.State.ADDED
@@ -138,7 +136,7 @@ class C_VEH(Vehicle):
 			print("EXITING -> REMOVED")
 			self.state = C_VEH.State.REMOVED
 
-	def show_info(self):
+	def show_info(self) -> None:
 		print("[C-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
@@ -164,35 +162,36 @@ class CE_VEH(Vehicle):
 		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
 		self.state = CE_VEH.State.INITIAL
 
-	def update_location(self, new_location):
+	def update_location(self, new_location) -> None:
 		super().update_location(new_location)
 		self.update_state()
 
-	def create_bsm_plus(self):
+	def create_bsm(self) -> BSMplus:
 		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
 		return bsm_plus
 	
-	def create_edm(self):
+	def create_edm(self) -> EDM:
 		edm = EDM(self.vehicle_id, self.vehicle_type, self.get_location())
 		return edm
 	
-	def send_bsm_plus(self, channel):
+	def send_bsm(self, channel:Channel) -> None:
 		print("BSM+ sent")
 		channel.append(self.create_bsm_plus())
 
-	def send_edm(self, channel):
+	def send_edm(self, channel:Channel) -> None:
 		print("EDM sent")
 		channel.append(self.create_edm())
 
-	def receive_bsm_plus(self, bsm_plus):
+	def receive_bsm(self, bsm_plus:BSMplus) -> None:
 		print("BSM_ received")
 		# TODO: process bsm+
 
-	def receive_edm(self, edm):
+	def receive_edm(self, edm:EDM) -> None:
 		print("EDM received")
 		# TODO: process edm
 
-	def update_state(self):
+
+	def update_state(self) -> None:
 		if self.state == CE_VEH.State.INITIAL:
 			print("INITIAL -> ADDED")
 			self.state = CE_VEH.State.ADDED
@@ -209,7 +208,7 @@ class CE_VEH(Vehicle):
 			print("EXITING -> REMOVED")
 			self.state = CE_VEH.State.REMOVED
 
-	def show_info(self):
+	def show_info(self) -> None:
 		print("[CE-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
@@ -235,59 +234,61 @@ class E_CDA(Vehicle):
 		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
 		self.state = E_CDA.State.INITIAL
 
-	def update_location(self, new_location):
+	def update_location(self, new_location) -> None:
 		super().update_location(new_location)
 		self.update_state()
 
-	def create_bsm_plus(self):
+	def create_bsm_plus(self) -> BSMplus:
 		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
 		return bsm_plus
 	
-	def create_dmm(self):
+	def create_dmm(self) -> DMM:
 		dmm = DMM(self.vehicle_id, self.vehicle_type, self.get_location())
 		return dmm
 	
-	def create_dnm_req(self):
+	def create_dnm_req(self) -> DNMReq:
 		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.get_location())
 		return dnm_req
 	
-	def create_dnm_resp(self):
+	def create_dnm_resp(self) -> DNMResp:
 		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.get_location())
 		return dnm_resp
 	
-	def send_bsm_plus(self, channel):
+	def send_bsm(self, channel:Channel) -> None:
 		print("BSM+ sent")
 		channel.append(self.create_bsm_plus())
 
-	def send_dmm(self, channel):
+	def send_dmm(self, channel:Channel) -> None:
 		print("DMM sent")
 		channel.append(self.create_dmm())
 
-	def send_dnm_req(self, channel):
+	def send_dnm_req(self, channel:Channel) -> None:
 		print("DNMReq sent")
 		channel.append(self.create_dnm_req())
 
-	def send_dnm_resp(self, channel):
+	def send_dnm_resp(self, channel:Channel) -> None:
 		print("DNMResp sent")
 		channel.append(self.create_dnm_resp())
 
-	def receive_bsm_plus(self, bsm_plus):
-		print("BSM_ received")
+	def receive_bsm(self, bsm_plus:BSMplus) -> None:
+		print("BSM+ received")
 		# TODO: process bsm+
 
-	def receive_dmm(self, dmm):
+	def receive_dmm(self, dmm:DMM) -> None:
 		print("DMM_ received")
 		# TODO: process dmm
 
-	def receive_dnm_req(self, dnm_req):
+	def receive_dnm_req(self, dnm_req:DNMReq) -> None:
 		print("DNMReq received")
 		# TODO: process dnm_req
 
-	def receive_dnm_resp(self, dnm_resp):
+	def receive_dnm_resp(self, dnm_resp:DNMResp) -> None:
 		print("DNMResp received")
 		# TODO: process dnm_resp
 
-	def update_state(self):
+	
+
+	def update_state(self) -> None:
 		if self.state == E_CDA.State.INITIAL:
 			print("INITIAL -> ADDED")
 			self.state = E_CDA.State.ADDED
@@ -304,7 +305,7 @@ class E_CDA(Vehicle):
 			print("EXITING -> REMOVED")
 			self.state = E_CDA.State.REMOVED
 
-	def show_info(self):
+	def show_info(self) -> None:
 		print("[E-CDA] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
@@ -330,11 +331,63 @@ class T_CDA(Vehicle):
 		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
 		self.state = T_CDA.State.INITIAL
 
-	def update_location(self, new_location):
+	def update_location(self, new_location) -> None:
 		super().update_location(new_location)
 		self.update_state()
 
-	def update_state(self):
+	def create_bsm_plus(self) -> BSMplus:
+		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
+		return bsm_plus
+	
+	def create_dmm(self) -> DMM:
+		dmm = DMM(self.vehicle_id, self.vehicle_type, self.get_location())
+		return dmm
+	
+	def create_dnm_req(self) -> DNMReq:
+		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.get_location())
+		return dnm_req
+	
+	def create_dnm_resp(self) -> DNMResp:
+		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.get_location())
+		return dnm_resp
+	
+	def send_bsm(self, channel:Channel) -> None:
+		print("BSM+ sent")
+		channel.append(self.create_bsm_plus())
+
+	def send_dmm(self, channel:Channel) -> None:
+		print("DMM sent")
+		channel.append(self.create_dmm())
+
+	def send_dnm_req(self, channel:Channel) -> None:
+		print("DNMReq sent")
+		channel.append(self.create_dnm_req())
+
+	def send_dnm_resp(self, channel:Channel) -> None:
+		print("DNMResp sent")
+		channel.append(self.create_dnm_resp())
+
+	def receive(self) -> None:
+		print("Message received")
+
+	def receive_bsm(self, bsm_plus:BSMplus) -> None:
+		print("BSM+ received")
+		# TODO: process bsm+
+
+	def receive_dmm(self, dmm:DMM) -> None:
+		print("DMM_ received")
+		# TODO: process dmm
+
+	def receive_dnm_req(self, dnm_req:DNMReq) -> None:
+		print("DNMReq received")
+		# TODO: process dnm_req
+
+	def receive_dnm_resp(self, dnm_resp:DNMResp) -> None:
+		print("DNMResp received")
+		# TODO: process dnm_resp
+
+
+	def update_state(self) -> None:
 		if self.state == T_CDA.State.INITIAL:
 			print("INITIAL -> ADDED")
 			self.state = T_CDA.State.ADDED
@@ -351,7 +404,7 @@ class T_CDA(Vehicle):
 			print("EXITING -> REMOVED")
 			self.state = T_CDA.State.REMOVED
 
-	def show_info(self):
+	def show_info(self) -> None:
 		print("[T-CDA] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
 
 
