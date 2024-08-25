@@ -34,9 +34,9 @@ import traci
 import math
 from enum import Enum
 from typing import Union, List
-from Vehicle import *
-from Message import *
-from Channel import *
+from Vehicle import Vehicle, T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH
+from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
+from Channel import Channel
 
 
 # Add the SUMO tools directory to the PYTHONPATH
@@ -51,6 +51,7 @@ else:
 vehicles: List[Vehicle] = []
 channel = Channel()
 
+
 def get_vehicle_by_id(vehicle_id) -> Vehicle:
 	global vehicles
 
@@ -58,7 +59,7 @@ def get_vehicle_by_id(vehicle_id) -> Vehicle:
 		if vehicle.vehicle_id == vehicle_id:
 			print("Found, vehicle ID: {}".format(vehicle_id))
 			return vehicle
-	print("None")
+	print("No vehicle Found")
 	return None
 
 def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
@@ -68,26 +69,26 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	print("Vehicle {} type: {}".format(vehicle_id, vehicle_type))
 
 	vehicle_speed = traci.vehicle.getSpeed(vehicle_id)
-	print("Vehicle {} speed: {}".format(vehicle_id, vehicle_speed))
+	# print("Vehicle {} speed: {}".format(vehicle_id, vehicle_speed))
 	vehicle_max_speed = traci.vehicle.getMaxSpeed(vehicle_id)
-	print("Vehicle {} max speed: {}".format(vehicle_id, vehicle_max_speed))
+	# print("Vehicle {} max speed: {}".format(vehicle_id, vehicle_max_speed))
 	vehicle_allowed_speed = traci.vehicle.getAllowedSpeed(vehicle_id)
-	print("Vehicle {} allowed speed: {}".format(vehicle_id, vehicle_allowed_speed))
+	# print("Vehicle {} allowed speed: {}".format(vehicle_id, vehicle_allowed_speed))
 	vehicle_acceleration = traci.vehicle.getAcceleration(vehicle_id)
-	print("Vehicle {} acceleration: {}".format(vehicle_id, vehicle_acceleration))
+	# print("Vehicle {} acceleration: {}".format(vehicle_id, vehicle_acceleration))
 	vehicle_speed_factor = traci.vehicle.getSpeedFactor(vehicle_id)
-	print("Vehicle {} speed factor: {}".format(vehicle_id, vehicle_speed_factor))
+	# print("Vehicle {} speed factor: {}".format(vehicle_id, vehicle_speed_factor))
 	vehicle_speed_mode = traci.vehicle.getSpeedMode(vehicle_id)
-	print("Vehicle {} speed mode: {}".format(vehicle_id, vehicle_speed_mode))
+	# print("Vehicle {} speed mode: {}".format(vehicle_id, vehicle_speed_mode))
 
 	vehicle_position = traci.vehicle.getPosition(vehicle_id)
 	print("Vehicle {} position: {}".format(vehicle_id, vehicle_position))
 	vehicle_angle = traci.vehicle.getAngle(vehicle_id)
-	print("Vehicle {} angle: {}".format(vehicle_id, vehicle_angle))
+	# print("Vehicle {} angle: {}".format(vehicle_id, vehicle_angle))
 	vehicle_lane = traci.vehicle.getLaneID(vehicle_id)
 	print("Vehicle {} lane: {}".format(vehicle_id, vehicle_lane))
 	vehicle_edge = traci.vehicle.getRoadID(vehicle_id)
-	print("Vehicle {} edge: {}".format(vehicle_id, vehicle_edge))
+	# print("Vehicle {} edge: {}".format(vehicle_id, vehicle_edge))
 
 	vehicle_route = traci.vehicle.getRoute(vehicle_id)
 	print("Vehicle {} route: {}".format(vehicle_id, vehicle_route))
@@ -95,21 +96,21 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	print("Vehicle {} route index: {}".format(vehicle_id, vehicle_route_index))
 
 	vehicle_color = traci.vehicle.getColor(vehicle_id)
-	print("Vehicle {} color: {}".format(vehicle_id, vehicle_color))
+	# print("Vehicle {} color: {}".format(vehicle_id, vehicle_color))
 	vehicle_length = traci.vehicle.getLength(vehicle_id)
-	print("Vehicle {} length: {}".format(vehicle_id, vehicle_length))
+	# print("Vehicle {} length: {}".format(vehicle_id, vehicle_length))
 	vehicle_width = traci.vehicle.getWidth(vehicle_id)
-	print("Vehicle {} width: {}".format(vehicle_id, vehicle_width))
+	# print("Vehicle {} width: {}".format(vehicle_id, vehicle_width))
 		
 	vehicle_stop = traci.vehicle.getStopState(vehicle_id)
-	print("Vehicle {} stop: {}".format(vehicle_id, vehicle_stop))
+	# print("Vehicle {} stop: {}".format(vehicle_id, vehicle_stop))
 	vehicle_stop_state = traci.vehicle.getStopState(vehicle_id)
-	print("Vehicle {} stop state: {}".format(vehicle_id, vehicle_stop_state))
+	# print("Vehicle {} stop state: {}".format(vehicle_id, vehicle_stop_state))
 		
 	vehicle_waiting_time = traci.vehicle.getWaitingTime(vehicle_id)
-	print("Vehicle {} waiting time: {}".format(vehicle_id, vehicle_waiting_time))
+	# print("Vehicle {} waiting time: {}".format(vehicle_id, vehicle_waiting_time))
 	vehicle_accumulated_waiting_time = traci.vehicle.getAccumulatedWaitingTime(vehicle_id)
-	print("Vehicle {} accumulated waiting time: {}".format(vehicle_id, vehicle_accumulated_waiting_time))
+	# print("Vehicle {} accumulated waiting time: {}".format(vehicle_id, vehicle_accumulated_waiting_time))
 		
 	# vehicle_co2_emission = traci.vehicle.getCO2Emission(vehicle_id)
 	# print("Vehicle {} CO2 emission: {}".format(vehicle_id, vehicle_co2_emission))
@@ -171,7 +172,7 @@ def custom_code_at_step(step) -> None:
 		# Then,
 		# E-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, T-CDA's BSM+, DMM, DNM)
 		# T-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, E-CDA's BSM+, DMM, DNM)
-		if the_vehicle is not None:
+		if the_vehicle is not None and not N_VEH: 
 			the_vehicle.send_bsm(channel)
 
 		# Roundabout (Class A)
@@ -194,6 +195,9 @@ def custom_code_at_step(step) -> None:
 	# Receive the BSM from the vehicles via channel
 	for the_vehicle in vehicles:
 		the_vehicle.receive(channel)
+
+	# Remove all vehicles from the list
+	vehicles.clear()
 
 
 def run_simulation() -> None:

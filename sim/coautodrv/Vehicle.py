@@ -3,8 +3,8 @@ import sys
 import traci
 import math
 from enum import Enum
-from Message import *
-from Channel import *
+from Channel import Channel
+from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
 
 
 class Maneuver(Enum):
@@ -19,6 +19,7 @@ class Maneuver(Enum):
 		STOP				= 8
 		PARK				= 9
 		EMERGENCY_STOP		= 10
+
 
 class Vehicle:
 	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
@@ -111,11 +112,20 @@ class C_VEH(Vehicle):
 		return bsm
 
 	def send_bsm(self, channel:Channel) -> None:
-		print("BSM sent")
-		channel.append(self.create_bsm())
+		channel.add_message(self.create_bsm())
+		print("Vehicle {}: BSM sent".format(self.vehicle_id))
+
+
+	def receive(self, channel:Channel) -> None:
+		print("Vehicle {}: Message received".format(self.vehicle_id))
+		for message in channel.messages:
+			if isinstance(message, BSMplus):
+				self.receive_bsm(message)
+			else:
+				print("Vehicle {}: Unknown message type".format(self.vehicle_id))
 
 	def receive_bsm(self, bsm:BSM) -> None:
-		print("BSM received")
+		print("Vehicle {}: BSM received".format(self.vehicle_id))
 		# TODO: process bsm
 
 
@@ -175,19 +185,30 @@ class CE_VEH(Vehicle):
 		return edm
 	
 	def send_bsm(self, channel:Channel) -> None:
-		print("BSM+ sent")
-		channel.append(self.create_bsm_plus())
+		channel.add_message(self.create_bsm())
+		print("Vehicle {}: BSM+ sent".format(self.vehicle_id))
 
 	def send_edm(self, channel:Channel) -> None:
-		print("EDM sent")
-		channel.append(self.create_edm())
+		channel.add_message(self.create_edm())
+		print("Vehicle {}: EDM sent".format(self.vehicle_id))
+
+
+	def receive(self, channel:Channel) -> None:
+		print("Vehicle {}: Message received".format(self.vehicle_id))
+		for message in channel.messages:
+			if isinstance(message, BSMplus):
+				self.receive_bsm(message)
+			elif isinstance(message, EDM):
+				self.receive_edm(message)
+			else:
+				print("Vehicle {}: Unknown message type".format(self.vehicle_id))
 
 	def receive_bsm(self, bsm_plus:BSMplus) -> None:
-		print("BSM_ received")
+		print("Vehicle {}: BSM_ received".format(self.vehicle_id))
 		# TODO: process bsm+
 
 	def receive_edm(self, edm:EDM) -> None:
-		print("EDM received")
+		print("Vehicle {}: EDM received".format(self.vehicle_id))
 		# TODO: process edm
 
 
@@ -238,7 +259,7 @@ class E_CDA(Vehicle):
 		super().update_location(new_location)
 		self.update_state()
 
-	def create_bsm_plus(self) -> BSMplus:
+	def create_bsm(self) -> BSMplus:
 		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
 		return bsm_plus
 	
@@ -255,37 +276,51 @@ class E_CDA(Vehicle):
 		return dnm_resp
 	
 	def send_bsm(self, channel:Channel) -> None:
-		print("BSM+ sent")
-		channel.append(self.create_bsm_plus())
+		channel.add_message(self.create_bsm())
+		print("Vehicle {}: BSM+ sent".format(self.vehicle_id))
 
 	def send_dmm(self, channel:Channel) -> None:
-		print("DMM sent")
-		channel.append(self.create_dmm())
+		channel.add_message(self.create_dmm())
+		print("Vehicle {}: DMM sent".format(self.vehicle_id))
 
 	def send_dnm_req(self, channel:Channel) -> None:
-		print("DNMReq sent")
-		channel.append(self.create_dnm_req())
+		channel.add_message(self.create_dnm_req())
+		print("Vehicle {}: DNMReq sent".format(self.vehicle_id))
 
 	def send_dnm_resp(self, channel:Channel) -> None:
-		print("DNMResp sent")
-		channel.append(self.create_dnm_resp())
+		channel.add_message(self.create_dnm_resp())
+		print("Vehicle {}: DNMResp sent".format(self.vehicle_id))
 
-	def receive_bsm(self, bsm_plus:BSMplus) -> None:
-		print("BSM+ received")
+
+	def receive(self, channel:Channel) -> None:
+		print("Vehicle {}: Message received".format(self.vehicle_id))
+		for message in channel.messages:
+			if isinstance(message, BSMplus):
+				self.receive_bsm(message)
+			elif isinstance(message, DMM):
+				self.receive_dmm(message)
+			elif isinstance(message, DNMReq):
+				self.receive_dnm_req(message)
+			elif isinstance(message, DNMResp):
+				self.receive_dnm_resp(message)
+			else:
+				print("Vehicle {}: Unknown message type".format(self.vehicle_id))
+
+	def receive_bsm(self, bsm:BSMplus) -> None:
+		print("Vehicle {}: BSM+ received".format(self.vehicle_id))
 		# TODO: process bsm+
 
 	def receive_dmm(self, dmm:DMM) -> None:
-		print("DMM_ received")
+		print("Vehicle {}: DMM_ received".format(self.vehicle_id))
 		# TODO: process dmm
 
 	def receive_dnm_req(self, dnm_req:DNMReq) -> None:
-		print("DNMReq received")
+		print("Vehicle {}: DNMReq received".format(self.vehicle_id))
 		# TODO: process dnm_req
 
 	def receive_dnm_resp(self, dnm_resp:DNMResp) -> None:
-		print("DNMResp received")
+		print("Vehicle {}: DNMResp received".format(self.vehicle_id))
 		# TODO: process dnm_resp
-
 	
 
 	def update_state(self) -> None:
@@ -335,9 +370,9 @@ class T_CDA(Vehicle):
 		super().update_location(new_location)
 		self.update_state()
 
-	def create_bsm_plus(self) -> BSMplus:
-		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
-		return bsm_plus
+	def create_bsm(self) -> BSMplus:
+		bsm = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
+		return bsm
 	
 	def create_dmm(self) -> DMM:
 		dmm = DMM(self.vehicle_id, self.vehicle_type, self.get_location())
@@ -352,38 +387,49 @@ class T_CDA(Vehicle):
 		return dnm_resp
 	
 	def send_bsm(self, channel:Channel) -> None:
-		print("BSM+ sent")
-		channel.append(self.create_bsm_plus())
+		channel.add_message(self.create_bsm())
+		print("Vehicle {}: BSM+ sent".format(self.vehicle_id))
 
 	def send_dmm(self, channel:Channel) -> None:
-		print("DMM sent")
-		channel.append(self.create_dmm())
+		channel.add_message(self.create_dmm())
+		print("Vehicle {}: DMM sent".format(self.vehicle_id))
 
 	def send_dnm_req(self, channel:Channel) -> None:
-		print("DNMReq sent")
-		channel.append(self.create_dnm_req())
+		channel.add_message(self.create_dnm_req())
+		print("Vehicle {}: DNMReq sent".format(self.vehicle_id))
 
 	def send_dnm_resp(self, channel:Channel) -> None:
-		print("DNMResp sent")
-		channel.append(self.create_dnm_resp())
+		channel.add_message(self.create_dnm_resp())
+		print("Vehicle {}: DNMResp sent".format(self.vehicle_id))
 
-	def receive(self) -> None:
-		print("Message received")
+	def receive(self, channel:Channel) -> None:
+		print("Vehicle {}: Message received".format(self.vehicle_id))
+		for message in channel.messages:
+			if isinstance(message, BSMplus):
+				self.receive_bsm(message)
+			elif isinstance(message, DMM):
+				self.receive_dmm(message)
+			elif isinstance(message, DNMReq):
+				self.receive_dnm_req(message)
+			elif isinstance(message, DNMResp):
+				self.receive_dnm_resp(message)
+			else:
+				print("Vehicle {}: Unknown message type".format(self.vehicle_id))
 
 	def receive_bsm(self, bsm_plus:BSMplus) -> None:
-		print("BSM+ received")
+		print("Vehielc {}: BSM+ received".format(self.vehicle_id))
 		# TODO: process bsm+
 
 	def receive_dmm(self, dmm:DMM) -> None:
-		print("DMM_ received")
+		print("Vehielc {}: DMM_ received".format(self.vehicle_id))
 		# TODO: process dmm
 
 	def receive_dnm_req(self, dnm_req:DNMReq) -> None:
-		print("DNMReq received")
+		print("Vehielc {}: DNMReq received".format(self.vehicle_id))
 		# TODO: process dnm_req
 
 	def receive_dnm_resp(self, dnm_resp:DNMResp) -> None:
-		print("DNMResp received")
+		print("Vehielc {}: DNMResp received".format(self.vehicle_id))
 		# TODO: process dnm_resp
 
 

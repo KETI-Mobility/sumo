@@ -11,8 +11,11 @@ import sys
 import traci
 import math
 from enum import Enum
-from Vehicle import *
-from Channel import *
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from Vehicle import Vehicle, T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH
+	from Channel import Channel
 
 
 # Global variable to accumulate a number to use as an ID
