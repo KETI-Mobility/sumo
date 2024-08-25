@@ -55,7 +55,7 @@ class Message:
 
 class BSM(Message):
 
-	def __init__(self, timestamp, sender_vehicle_id, sender_vehicle_type, sender_x_location, sender_y_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_x_location, sender_y_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
 		super().__init__(Message.Type.MSG_BSM, timestamp, sender_vehicle_id, sender_vehicle_type)
 		self.sender_x_location	= sender_x_location
 		self.sender_y_location	= sender_y_location

@@ -22,21 +22,18 @@ class Maneuver(Enum):
 
 
 class Vehicle:
-	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
+	def __init__(self, vehicle_id, vehicle_type, rsu_location):
 		self.vehicle_id = vehicle_id
 		self.vehicle_type = vehicle_type
-		self.vehicle_color = vehicle_color
-		self.vehicle_length = vehicle_length
-		self.vehicle_width = vehicle_width
 		self.cur_location = (0,0)	# Initial location of the vehicle
-		self.x_location = x_location	# Location of the roundabout
+		self.rsu_location = rsu_location	# Location of the roundabout
 		self.distance = self.get_distance()
 
 	def update_location(self, new_location) -> None:
 		self.cur_location = new_location
 
 	def get_distance(self) -> float:
-		self.distance = math.sqrt((self.x_location[0] - self.cur_location[0])**2 + (self.x_location[1] - self.cur_location[1])**2)
+		self.distance = math.sqrt((self.rsu_location[0] - self.cur_location[0])**2 + (self.rsu_location[1] - self.cur_location[1])**2)
 		return self.distance
 	
 	def show_info(self) -> None:
@@ -61,8 +58,8 @@ class N_VEH(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
-		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
+	def __init__(self, vehicle_id, vehicle_type, rsu_location):
+		super().__init__(vehicle_id, vehicle_type, rsu_location)
 		self.state = N_VEH.State.INITIAL
 
 	def update_location(self, new_location) -> None:
@@ -96,8 +93,8 @@ class C_VEH(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
-		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
+	def __init__(self, vehicle_id, vehicle_type, rsu_location):
+		super().__init__(vehicle_id, vehicle_type, rsu_location)
 		self.state = C_VEH.State.INITIAL
 
 	def update_location(self, new_location) -> None:
@@ -168,8 +165,8 @@ class CE_VEH(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
-		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
+	def __init__(self, vehicle_id, vehicle_type, rsu_location):
+		super().__init__(vehicle_id, vehicle_type, rsu_location)
 		self.state = CE_VEH.State.INITIAL
 
 	def update_location(self, new_location) -> None:
@@ -251,8 +248,8 @@ class E_CDA(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
-		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
+	def __init__(self, vehicle_id, vehicle_type, rsu_location):
+		super().__init__(vehicle_id, vehicle_type, rsu_location)
 		self.state = E_CDA.State.INITIAL
 
 	def update_location(self, new_location) -> None:
@@ -260,7 +257,7 @@ class E_CDA(Vehicle):
 		self.update_state()
 
 	def create_bsm(self) -> BSMplus:
-		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
+		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location)
 		return bsm_plus
 	
 	def create_dmm(self) -> DMM:
@@ -362,8 +359,8 @@ class T_CDA(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location):
-		super().__init__(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, x_location)
+	def __init__(self, vehicle_id, vehicle_type, rsu_location):
+		super().__init__(vehicle_id, vehicle_type, rsu_location)
 		self.state = T_CDA.State.INITIAL
 
 	def update_location(self, new_location) -> None:

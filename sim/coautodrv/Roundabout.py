@@ -48,6 +48,8 @@ else:
 
 
 # Global variables for Vehicle class
+step = 0
+rsu_location = (0, 0)
 vehicles: List[Vehicle] = []
 channel = Channel()
 
@@ -63,7 +65,7 @@ def get_vehicle_by_id(vehicle_id) -> Vehicle:
 	return None
 
 def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
-	global vehicles
+	global vehicles, rsu_location
 
 	vehicle_type = traci.vehicle.getTypeID(vehicle_id)
 	print("Vehicle {} type: {}".format(vehicle_id, vehicle_type))
@@ -128,16 +130,16 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	# Search the vehicle_id in vehicles
 	the_vehicle = get_vehicle_by_id(vehicle_id)
 	if the_vehicle is None:
-		if vehicle_type == "T_CDA":
-			the_vehicle = T_CDA(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
-		elif vehicle_type == "C_VEH":
-			the_vehicle = C_VEH(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
-		elif vehicle_type == "CE_VEH":
-			the_vehicle = CE_VEH(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
-		elif vehicle_type == "E_CDA":
-			the_vehicle = E_CDA(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
-		elif vehicle_type == "N_VEH":
-			the_vehicle = N_VEH(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
+		if vehicle_type == "T-CDA":
+			the_vehicle = T_CDA(vehicle_id, vehicle_type, rsu_location)
+		elif vehicle_type == "C-VEH":
+			the_vehicle = C_VEH(vehicle_id, vehicle_type, rsu_location)
+		elif vehicle_type == "CE-VEH":
+			the_vehicle = CE_VEH(vehicle_id, vehicle_type, rsu_location)
+		elif vehicle_type == "E-CDA":
+			the_vehicle = E_CDA(vehicle_id, vehicle_type, rsu_location)
+		elif vehicle_type == "N-VEH":
+			the_vehicle = N_VEH(vehicle_id, vehicle_type, rsu_location)
 		else:
 			print("Vehicle {} type not found".format(vehicle_id))
 			return None
@@ -152,8 +154,8 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 
 	return the_vehicle
 
-def custom_code_at_step(step) -> None:
-	global vehicles
+def custom_code_at_step() -> None:
+	global step, vehicles
 
 	# Add your custom code here
 	print("Simulation step: {}".format(step))
@@ -172,8 +174,9 @@ def custom_code_at_step(step) -> None:
 		# Then,
 		# E-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, T-CDA's BSM+, DMM, DNM)
 		# T-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, E-CDA's BSM+, DMM, DNM)
-		if the_vehicle is not None and not N_VEH: 
-			the_vehicle.send_bsm(channel)
+		if the_vehicle is not None:
+			if the_vehicle is not N_VEH: 
+				the_vehicle.send_bsm(channel)
 
 		# Roundabout (Class A)
 		# E-CDA evaulates C-VEH's existence on roundabout (to check C-VEH's speed, TTB(Time-to-Break) at cross point)
@@ -201,16 +204,16 @@ def custom_code_at_step(step) -> None:
 
 
 def run_simulation() -> None:
+	global step
 	# Start the SUMO simulation
 	#traci.start(["sumo-gui", "-c", "~/sumo/sim/coautodrv/Roundabout_8_1.sumocfg", "--remote-port", "1337"])
 
 	# Connect to the SUMO simulation on the specified port
 	traci.init(1337)
 
-	step = 0
 	while True: #traci.simulation.getMinExpectedNumber() > 0:
 		traci.simulationStep()  # Advance the simulation by one step
-		custom_code_at_step(step)  # Call your custom code
+		custom_code_at_step()  # Call your custom code
 		step += 1
 		
 	traci.close()
