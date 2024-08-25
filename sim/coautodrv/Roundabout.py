@@ -33,7 +33,7 @@ import sys
 import traci
 import math
 from enum import Enum
-from typing import Union
+from typing import Union, List
 from Vehicle import *
 from Message import *
 from Channel import *
@@ -48,11 +48,12 @@ else:
 
 
 # Global variables for Vehicle class
-vehicles = []
-shared_data = []
+vehicles: List[Vehicle] = []
 channel = Channel()
 
-def get_vehicle_by_id(vehicle_id, vehicles) -> Vehicle:
+def get_vehicle_by_id(vehicle_id) -> Vehicle:
+	global vehicles
+
 	for vehicle in vehicles:
 		if vehicle.vehicle_id == vehicle_id:
 			print("Found, vehicle ID: {}".format(vehicle_id))
@@ -60,8 +61,9 @@ def get_vehicle_by_id(vehicle_id, vehicles) -> Vehicle:
 	print("None")
 	return None
 
-def get_data(self, vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
-	print("Vehicle ID: {}".format(vehicle_id))
+def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
+	global vehicles
+
 	vehicle_type = traci.vehicle.getTypeID(vehicle_id)
 	print("Vehicle {} type: {}".format(vehicle_id, vehicle_type))
 
@@ -123,7 +125,7 @@ def get_data(self, vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	# print("Vehicle {} fuel consumption: {}".format(vehicle_id, vehicle_fuel_consumption))
 
 	# Search the vehicle_id in vehicles
-	the_vehicle = get_vehicle_by_id(vehicle_id, vehicles)
+	the_vehicle = get_vehicle_by_id(vehicle_id)
 	if the_vehicle is None:
 		if vehicle_type == "T_CDA":
 			the_vehicle = T_CDA(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
@@ -150,6 +152,8 @@ def get_data(self, vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	return the_vehicle
 
 def custom_code_at_step(step) -> None:
+	global vehicles
+
 	# Add your custom code here
 	print("Simulation step: {}".format(step))
 	vehicle_ids = traci.vehicle.getIDList()
