@@ -33,6 +33,7 @@ import sys
 import traci
 import math
 from enum import Enum
+from typing import Union
 from Vehicle import *
 from Message import *
 from Channel import *
@@ -51,7 +52,7 @@ vehicles = []
 shared_data = []
 channel = Channel()
 
-def get_vehicle_by_id(vehicle_id, vehicles):
+def get_vehicle_by_id(vehicle_id, vehicles) -> Vehicle:
 	for vehicle in vehicles:
 		if vehicle.vehicle_id == vehicle_id:
 			print("Found, vehicle ID: {}".format(vehicle_id))
@@ -59,7 +60,7 @@ def get_vehicle_by_id(vehicle_id, vehicles):
 	print("None")
 	return None
 
-def get_data(self, vehicle_id):
+def get_data(self, vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	print("Vehicle ID: {}".format(vehicle_id))
 	vehicle_type = traci.vehicle.getTypeID(vehicle_id)
 	print("Vehicle {} type: {}".format(vehicle_id, vehicle_type))
@@ -132,6 +133,8 @@ def get_data(self, vehicle_id):
 			the_vehicle = CE_VEH(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
 		elif vehicle_type == "E_CDA":
 			the_vehicle = E_CDA(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
+		elif vehicle_type == "N_VEH":
+			the_vehicle = N_VEH(vehicle_id, vehicle_type, vehicle_color, vehicle_length, vehicle_width, vehicle_position)
 		else:
 			print("Vehicle {} type not found".format(vehicle_id))
 			return None
@@ -146,7 +149,7 @@ def get_data(self, vehicle_id):
 
 	return the_vehicle
 
-def custom_code_at_step(step):
+def custom_code_at_step(step) -> None:
 	# Add your custom code here
 	print("Simulation step: {}".format(step))
 	vehicle_ids = traci.vehicle.getIDList()
@@ -189,7 +192,7 @@ def custom_code_at_step(step):
 		the_vehicle.receive(channel)
 
 
-def run_simulation():
+def run_simulation() -> None:
 	# Start the SUMO simulation
 	#traci.start(["sumo-gui", "-c", "~/sumo/sim/coautodrv/Roundabout_8_1.sumocfg", "--remote-port", "1337"])
 
