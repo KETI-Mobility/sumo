@@ -12,15 +12,12 @@ import traci
 import math
 from enum import Enum
 from typing import TYPE_CHECKING
-import Roundabout
+import GlobalSim
 
 if TYPE_CHECKING:
 	from Vehicle import Vehicle, T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH, Maneuver
 	from Channel import Channel
 
-
-# Global variable to accumulate a number to use as an ID
-global_msg_id = 0
 
 class Message:
 	
@@ -34,17 +31,16 @@ class Message:
 		MSG_EDM	 	= 6
 	
 	def __init__(self, msg_type, sender_vehicle_id, sender_vehicle_type):
-		global global_msg_id
 		
-		global_msg_id += 1
-		self.msg_id					= global_msg_id
+		GlobalSim.msg_id += 1
+		self.msg_id					= GlobalSim.msg_id
 		
 		self.msg_type				= msg_type
 		self.sender_vehicle_id		= sender_vehicle_id
 		self.sender_vehicle_type	= sender_vehicle_type
 
 	def show_msg(self) -> None:
-		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}".format(GlobalSim.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type))
 
 
 ##############################################################################
@@ -63,7 +59,7 @@ class BSM(Message):
 		self.sender_speed		= sender_speed
 
 	def show_msg(self) -> None:
-		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}".format(GlobalSim.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed))
 
 
 ##############################################################################
@@ -83,7 +79,7 @@ class BSMplus(BSM):
 		self.sender_lane_id		= sender_lane_id
 		
 	def show_msg(self) -> None:
-		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(GlobalSim.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
 
 
 ##############################################################################
@@ -105,7 +101,7 @@ class DMM(BSM):
 		self.maneuver 			= Maneuver.NONE
 
 	def show_msg(self) -> None:
-		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(GlobalSim.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
 
 
 ##############################################################################
@@ -122,7 +118,7 @@ class EDM(BSM):
 		super().__init__(Message.Type.MSG_EDM, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed)
 
 	def show_msg(self) -> None:
-		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}".format(GlobalSim.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed))
 
 
 ##############################################################################
@@ -142,7 +138,7 @@ class DNMReq(BSM):
 		self.sender_lane_id		= sender_lane_id
 
 	def show_msg(self) -> None:
-		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(GlobalSim.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
 
 
 class DNMResp(Message):
@@ -154,5 +150,5 @@ class DNMResp(Message):
 		self.sender_lane_id		= sender_lane_id
 
 	def show_msg(self) -> None:
-		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(GlobalSim.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
 

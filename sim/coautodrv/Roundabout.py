@@ -37,6 +37,7 @@ from typing import Union, List
 from Vehicle import Vehicle, T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH
 from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
 from Channel import Channel
+import GlobalSim
 
 
 # Add the SUMO tools directory to the PYTHONPATH
@@ -48,7 +49,6 @@ else:
 
 
 # Global variables for Vehicle class
-step = 0
 rsu_location = (0, 0)
 vehicles: List[Vehicle] = []
 channel = Channel()
@@ -59,73 +59,73 @@ def get_vehicle_by_id(vehicle_id) -> Vehicle:
 
 	for vehicle in vehicles:
 		if vehicle.vehicle_id == vehicle_id:
-			print("Step({}) Vehicle id:{}, Found".format(step, vehicle_id))
+			print("Step({}) Vehicle id:{}, Found".format(GlobalSim.step, vehicle_id))
 			return vehicle
-	print("Step({}) No vehicle Found".format(step))
+	print("Step({}) No vehicle Found".format(GlobalSim.step))
 	return None
 
 def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	global vehicles, rsu_location
 
 	vehicle_type = traci.vehicle.getTypeID(vehicle_id)
-	print("Step({}) Vehicle id:{} type: {}".format(step, vehicle_id, vehicle_type))
+	print("Step({}) Vehicle id:{} type: {}".format(GlobalSim.step, vehicle_id, vehicle_type))
 
 	vehicle_speed = traci.vehicle.getSpeed(vehicle_id)
-	# print("Step({}) Vehicle id:{} speed: {}".format(step, vehicle_id, vehicle_speed))
+	# print("Step({}) Vehicle id:{} speed: {}".format(GlobalSim.step, vehicle_id, vehicle_speed))
 	vehicle_max_speed = traci.vehicle.getMaxSpeed(vehicle_id)
-	# print("Step({}) Vehicle id:{} max speed: {}".format(step, vehicle_id, vehicle_max_speed))
+	# print("Step({}) Vehicle id:{} max speed: {}".format(GlobalSim.step, vehicle_id, vehicle_max_speed))
 	vehicle_allowed_speed = traci.vehicle.getAllowedSpeed(vehicle_id)
-	# print("Step({}) Vehicle id:{} allowed speed: {}".format(step, vehicle_id, vehicle_allowed_speed))
+	# print("Step({}) Vehicle id:{} allowed speed: {}".format(GlobalSim.step, vehicle_id, vehicle_allowed_speed))
 	vehicle_acceleration = traci.vehicle.getAcceleration(vehicle_id)
-	# print("Step({}) Vehicle id:{} acceleration: {}".format(step, vehicle_id, vehicle_acceleration))
+	# print("Step({}) Vehicle id:{} acceleration: {}".format(GlobalSim.step, vehicle_id, vehicle_acceleration))
 	vehicle_speed_factor = traci.vehicle.getSpeedFactor(vehicle_id)
-	# print("Step({}) Vehicle id:{} speed factor: {}".format(step, vehicle_id, vehicle_speed_factor))
+	# print("Step({}) Vehicle id:{} speed factor: {}".format(GlobalSim.step, vehicle_id, vehicle_speed_factor))
 	vehicle_speed_mode = traci.vehicle.getSpeedMode(vehicle_id)
-	# print("Vehicle id:{} speed mode: {}".format(step, vehicle_id, vehicle_speed_mode))
+	# print("Vehicle id:{} speed mode: {}".format(GlobalSim.step, vehicle_id, vehicle_speed_mode))
 
 	vehicle_position = traci.vehicle.getPosition(vehicle_id)
-	print("Step({}) Vehicle id:{} position: {}".format(step, vehicle_id, vehicle_position))
+	print("Step({}) Vehicle id:{} position: {}".format(GlobalSim.step, vehicle_id, vehicle_position))
 	vehicle_angle = traci.vehicle.getAngle(vehicle_id)
-	# print("Step({}) Vehicle id:{} angle: {}".format(step, vehicle_id, vehicle_angle))
+	# print("Step({}) Vehicle id:{} angle: {}".format(GlobalSim.step, vehicle_id, vehicle_angle))
 	vehicle_lane = traci.vehicle.getLaneID(vehicle_id)
-	print("Step({}) Vehicle id:{} lane: {}".format(step, vehicle_id, vehicle_lane))
+	print("Step({}) Vehicle id:{} lane: {}".format(GlobalSim.step, vehicle_id, vehicle_lane))
 	vehicle_edge = traci.vehicle.getRoadID(vehicle_id)
-	# print("Step({}) Vehicle id:{} edge: {}".format(step, vehicle_id, vehicle_edge))
+	# print("Step({}) Vehicle id:{} edge: {}".format(GlobalSim.step, vehicle_id, vehicle_edge))
 
 	vehicle_route = traci.vehicle.getRoute(vehicle_id)
-	print("Step({}) Vehicle id:{} route: {}".format(step, vehicle_id, vehicle_route))
+	print("Step({}) Vehicle id:{} route: {}".format(GlobalSim.step, vehicle_id, vehicle_route))
 	vehicle_route_index = traci.vehicle.getRouteIndex(vehicle_id)
-	print("Step({}) Vehicle id:{} route index: {}".format(step, vehicle_id, vehicle_route_index))
+	print("Step({}) Vehicle id:{} route index: {}".format(GlobalSim.step, vehicle_id, vehicle_route_index))
 
 	vehicle_color = traci.vehicle.getColor(vehicle_id)
-	# print("Step({}) Vehicle id:{} color: {}".format(step, vehicle_id, vehicle_color))
+	# print("Step({}) Vehicle id:{} color: {}".format(GlobalSim.step, vehicle_id, vehicle_color))
 	vehicle_length = traci.vehicle.getLength(vehicle_id)
-	# print("Step({}) Vehicle id:{} length: {}".format(step, vehicle_id, vehicle_length))
+	# print("Step({}) Vehicle id:{} length: {}".format(GlobalSim.step, vehicle_id, vehicle_length))
 	vehicle_width = traci.vehicle.getWidth(vehicle_id)
-	# print("Step({}) Vehicle id:{} width: {}".format(step, vehicle_id, vehicle_width))
+	# print("Step({}) Vehicle id:{} width: {}".format(GlobalSim.step, vehicle_id, vehicle_width))
 		
 	vehicle_stop = traci.vehicle.getStopState(vehicle_id)
-	# print("Step({}) Vehicle id:{} stop: {}".format(step, vehicle_id, vehicle_stop))
+	# print("Step({}) Vehicle id:{} stop: {}".format(GlobalSim.step, vehicle_id, vehicle_stop))
 	vehicle_stop_state = traci.vehicle.getStopState(vehicle_id)
-	# print("Step({}) Vehicle id:{} stop state: {}".format(step, vehicle_id, vehicle_stop_state))
+	# print("Step({}) Vehicle id:{} stop state: {}".format(GlobalSim.step, vehicle_id, vehicle_stop_state))
 		
 	vehicle_waiting_time = traci.vehicle.getWaitingTime(vehicle_id)
-	# print("Step({}) Vehicle id:{} waiting time: {}".format(step, vehicle_id, vehicle_waiting_time))
+	# print("Step({}) Vehicle id:{} waiting time: {}".format(GlobalSim.step, vehicle_id, vehicle_waiting_time))
 	vehicle_accumulated_waiting_time = traci.vehicle.getAccumulatedWaitingTime(vehicle_id)
-	# print("Step({}) Vehicle id:{} accumulated waiting time: {}".format(step, vehicle_id, vehicle_accumulated_waiting_time))
+	# print("Step({}) Vehicle id:{} accumulated waiting time: {}".format(GlobalSim.step, vehicle_id, vehicle_accumulated_waiting_time))
 		
 	# vehicle_co2_emission = traci.vehicle.getCO2Emission(vehicle_id)
-	# print("Step({}) Vehicle id:{} CO2 emission: {}".format(vehicle_id, vehicle_co2_emission))
+	# print("Step({}) Vehicle id:{} CO2 emission: {}".format(GlobalSim.step, vehicle_id, vehicle_co2_emission))
 	# vehicle_co_emission = traci.vehicle.getCOEmission(vehicle_id)
-	# print("Step({}) Vehicle id:{} CO emission: {}".format(vehicle_id, vehicle_co_emission))
+	# print("Step({}) Vehicle id:{} CO emission: {}".format(GlobalSim.step, vehicle_id, vehicle_co_emission))
 	# vehicle_hc_emission = traci.vehicle.getHCEmission(vehicle_id)
-	# print("Step({}) Vehicle id:{} HC emission: {}".format(vehicle_id, vehicle_hc_emission))
+	# print("Step({}) Vehicle id:{} HC emission: {}".format(GlobalSim.step, vehicle_id, vehicle_hc_emission))
 	# vehicle_pm_x_emission = traci.vehicle.getPMxEmission(vehicle_id)
-	# print("Step({}) Vehicle id:{} PMx emission: {}".format(vehicle_id, vehicle_pm_x_emission))
+	# print("Step({}) Vehicle id:{} PMx emission: {}".format(GlobalSim.step, vehicle_id, vehicle_pm_x_emission))
 	# vehicle_nox_emission = traci.vehicle.getNOxEmission(vehicle_id)
-	# print("Step({}) Vehicle id:{} NOx emission: {}".format(vehicle_id, vehicle_nox_emission))
+	# print("Step({}) Vehicle id:{} NOx emission: {}".format(GlobalSim.step, vehicle_id, vehicle_nox_emission))
 	# vehicle_fuel_consumption = traci.vehicle.getFuelConsumption(vehicle_id)
-	# print("Step({}) Vehicle id:{} fuel consumption: {}".format(vehicle_id, vehicle_fuel_consumption))
+	# print("Step({}) Vehicle id:{} fuel consumption: {}".format(GlobalSim.step, vehicle_id, vehicle_fuel_consumption))
 
 	# Search the vehicle_id in vehicles
 	the_vehicle = get_vehicle_by_id(vehicle_id)
@@ -141,26 +141,26 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 		elif vehicle_type == "N-VEH":
 			the_vehicle = N_VEH(vehicle_id, vehicle_type)
 		else:
-			print("Step({}) Vehicle id:{}, type:{} type not found".format(step, vehicle_id, vehicle_type))
+			print("Step({}) Vehicle id:{}, type:{} type not found".format(GlobalSim.step, vehicle_id, vehicle_type))
 			return None
 			
 		# Add the vehicle to the vehicles list
 		vehicles.append(the_vehicle)
-		print("Step({}) Vehicle id:{} added to the list".format(step, vehicle_id))
+		print("Step({}) Vehicle id:{} added to the list".format(GlobalSim.step, vehicle_id))
 	else:
 		# Update the location of the vehicle
 		the_vehicle.update_location(vehicle_position)
-		print("Step({}) Vehicle id:{} updated".format(step, vehicle_id))
+		print("Step({}) Vehicle id:{} updated".format(GlobalSim.step, vehicle_id))
 		the_vehicle.show_info()
 
 	return the_vehicle
 
 def custom_code_at_step() -> None:
-	global step, vehicles
+	global vehicles
 
 	# Add your custom code here
 	vehicle_ids = traci.vehicle.getIDList()
-	print("Step({}) Vehicle IDs at step :{}".format(step, vehicle_ids))
+	print("Step({}) Vehicle IDs at step :{}".format(GlobalSim.step, vehicle_ids))
 
 	# vehicle_id로 차량의 정보를 가져와서 the_vehicle로 반환
 	# vehicles 리스트 아네 the_vehicle이 없으면 추가
@@ -203,7 +203,6 @@ def custom_code_at_step() -> None:
 
 
 def run_simulation() -> None:
-	global step
 	# Start the SUMO simulation
 	#traci.start(["sumo-gui", "-c", "~/sumo/sim/coautodrv/Roundabout_8_1.sumocfg", "--remote-port", "1337"])
 
@@ -213,7 +212,7 @@ def run_simulation() -> None:
 	while True: #traci.simulation.getMinExpectedNumber() > 0:
 		traci.simulationStep()  # Advance the simulation by one step
 		custom_code_at_step()  # Call your custom code
-		step += 1
+		GlobalSim.step += 1
 		
 	traci.close()
 

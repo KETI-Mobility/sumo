@@ -5,7 +5,7 @@ import math
 from enum import Enum
 from typing import List
 from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
-
+import GlobalSim
 
 class Channel:
 	def __init__(self):
@@ -20,5 +20,5 @@ class Channel:
 		self.messages.append(message)	
 
 	def show_info(self) -> None:
-		print("V2X: Messages: {}".format(len(self.messages)))
+		print("Step({}) V2X: Messages: {}".format(GlobalSim.step, len(self.messages)))
 
