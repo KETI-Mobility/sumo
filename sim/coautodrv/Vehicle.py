@@ -3,6 +3,7 @@ import sys
 import traci
 import math
 from enum import Enum
+import Roundabout
 from Channel import Channel
 from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
 
@@ -22,22 +23,12 @@ class Maneuver(Enum):
 
 
 class Vehicle:
-	def __init__(self, vehicle_id, vehicle_type, rsu_location):
+	def __init__(self, vehicle_id, vehicle_type):
 		self.vehicle_id = vehicle_id
 		self.vehicle_type = vehicle_type
-		self.cur_location = (0,0)	# Initial location of the vehicle
-		self.rsu_location = rsu_location	# Location of the roundabout
-		self.distance = self.get_distance()
 
-	def update_location(self, new_location) -> None:
-		self.cur_location = new_location
-
-	def get_distance(self) -> float:
-		self.distance = math.sqrt((self.rsu_location[0] - self.cur_location[0])**2 + (self.rsu_location[1] - self.cur_location[1])**2)
-		return self.distance
-	
 	def show_info(self) -> None:
-		print("Vehicle ID: {}, Type: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.distance))
+		print("Vehicle ID: {}, Type: {}".format(self.vehicle_id, self.vehicle_type))
 
 
 ##############################################################################
@@ -58,19 +49,12 @@ class N_VEH(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location):
-		super().__init__(vehicle_id, vehicle_type, rsu_location)
+	def __init__(self, vehicle_id, vehicle_type):
+		super().__init__(vehicle_id, vehicle_type)
 		self.state = N_VEH.State.INITIAL
 
-	def update_location(self, new_location) -> None:
-		super().update_location(new_location)
-		self.update_state()
-
-	def get_location(self) -> tuple:
-		return (self.x_location, self.y_location)
-
 	def show_info(self) -> None:
-		print("[N-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
+		print("[N-VEH] Vehicle ID: {}, Type: {}".format(self.vehicle_id, self.vehicle_type))
 
 
 
@@ -93,58 +77,63 @@ class C_VEH(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location):
-		super().__init__(vehicle_id, vehicle_type, rsu_location)
+	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
+		super().__init__(vehicle_id, vehicle_type)
+		self.rsu_location = rsu_location
+		self.sender_speed = vehicle_speed
+		self.sender_location = vehicle_location
 		self.state = C_VEH.State.INITIAL
 
 	def update_location(self, new_location) -> None:
-		super().update_location(new_location)
+		self.vehicle_location = new_location
 		self.update_state()
 
 	def get_location(self) -> tuple:
-		return (self.x_location, self.y_location)
+		return self.vehicle_location 
+	
+	def get_distance(self) -> float:
+		return math.sqrt((self.vehicle_location[0] - self.rsu_location[0])**2 + (self.vehicle_location[1] - self.rsu_location[1])**2)
 	
 	def create_bsm(self) -> BSM:
-		bsm = BSM(self.vehicle_id, self.vehicle_type, self.get_location())
+		bsm = BSM(self.vehicle_id, self.vehicle_type, self.vehicle_location, self.vehicle_speed)
 		return bsm
 
 	def send_bsm(self, channel:Channel) -> None:
 		channel.add_message(self.create_bsm())
-		print("Vehicle {}: BSM sent".format(self.vehicle_id))
-
+		print("Step({}) Vehicle id:{}: BSM sent".format(Roundabout.step, self.vehicle_id))
 
 	def receive(self, channel:Channel) -> None:
-		print("Vehicle {}: Message received".format(self.vehicle_id))
+		print("Step({}) Vehicle id:{}: Message received".format(Roundabout.step, self.vehicle_id))
 		for message in channel.messages:
 			if isinstance(message, BSMplus):
 				self.receive_bsm(message)
 			else:
-				print("Vehicle {}: Unknown message type".format(self.vehicle_id))
+				print("Step({}) Vehicle id:{}: Unknown message type".format(Roundabout.step, self.vehicle_id))
 
 	def receive_bsm(self, bsm:BSM) -> None:
-		print("Vehicle {}: BSM received".format(self.vehicle_id))
+		print("Step({}) Vehicle id:{}: BSM received".format(Roundabout.step, self.vehicle_id))
 		# TODO: process bsm
 
 
 	def update_state(self) -> None:
 		if self.state == C_VEH.State.INITIAL:
-			print("INITIAL -> ADDED")
+			print("Step({}) INITIAL -> ADDED".format(Roundabout.step))
 			self.state = C_VEH.State.ADDED
 		elif self.state == C_VEH.State.ADDED and self.get_distance(self) < 100:
-			print("ADDED -> APPROACHING")
+			print("Step({}) ADDED -> APPROACHING".format(Roundabout.step))
 			self.state = C_VEH.State.APPROACHING
 		elif self.state == C_VEH.State.APPROACHING and self.get_distance(self) < 50:
-			print("APPROACHING -> INSIDE")
+			print("Step({}) APPROACHING -> INSIDE".format(Roundabout.step, ))
 			self.state = C_VEH.State.INSIDE
 		elif self.state == C_VEH.State.INSIDE and self.get_distance(self) > 50:
-			print("INSIDE -> EXITING")
+			print("Step({}) INSIDE -> EXITING".format(Roundabout.step))
 			self.state = C_VEH.State.EXITING
 		elif self.state == C_VEH.State.EXITING and self.get_distance(self) > 100:
-			print("EXITING -> REMOVED")
+			print("Step({}) EXITING -> REMOVED".format(Roundabout.step))
 			self.state = C_VEH.State.REMOVED
 
 	def show_info(self) -> None:
-		print("[C-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
+		print("Step({}) Vehicle ID: {}, Vehicle Type: {}, State: {}, Distance: {}".format(Roundabout.step, self.vehicle_id, self.vehicle_type, self.state, self.get_distance()))
 
 
 ##############################################################################
@@ -155,7 +144,7 @@ class C_VEH(Vehicle):
 #
 ##############################################################################
 
-class CE_VEH(Vehicle):
+class CE_VEH(C_VEH):
 
 	class State(Enum):
 		INITIAL = 1
@@ -165,14 +154,18 @@ class CE_VEH(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location):
-		super().__init__(vehicle_id, vehicle_type, rsu_location)
+	
+	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
+		super().__init__(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+
 		self.state = CE_VEH.State.INITIAL
 
 	def update_location(self, new_location) -> None:
-		super().update_location(new_location)
+		self.location = new_location
 		self.update_state()
 
+	# def get_distance(self) -> float:
+	
 	def create_bsm(self) -> BSMplus:
 		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
 		return bsm_plus
@@ -183,51 +176,50 @@ class CE_VEH(Vehicle):
 	
 	def send_bsm(self, channel:Channel) -> None:
 		channel.add_message(self.create_bsm())
-		print("Vehicle {}: BSM+ sent".format(self.vehicle_id))
+		print("Step({}) Vehicle {}: BSM+ sent".format(Roundabout.setp, self.vehicle_id))
 
 	def send_edm(self, channel:Channel) -> None:
 		channel.add_message(self.create_edm())
-		print("Vehicle {}: EDM sent".format(self.vehicle_id))
-
+		print("Step({}) Vehicle {}: EDM sent".format(Roundabout.setp, self.vehicle_id))
 
 	def receive(self, channel:Channel) -> None:
-		print("Vehicle {}: Message received".format(self.vehicle_id))
+		print("Step({}) Vehicle {}: Message received".format(Roundabout.setp, self.vehicle_id))
 		for message in channel.messages:
 			if isinstance(message, BSMplus):
 				self.receive_bsm(message)
 			elif isinstance(message, EDM):
 				self.receive_edm(message)
 			else:
-				print("Vehicle {}: Unknown message type".format(self.vehicle_id))
+				print("Step({}) Vehicle {}: Unknown message type".format(Roundabout.setp, self.vehicle_id))
 
 	def receive_bsm(self, bsm_plus:BSMplus) -> None:
-		print("Vehicle {}: BSM_ received".format(self.vehicle_id))
+		print("Step({}) Vehicle {}: BSM_ received".format(Roundabout.setp, self.vehicle_id))
 		# TODO: process bsm+
 
 	def receive_edm(self, edm:EDM) -> None:
-		print("Vehicle {}: EDM received".format(self.vehicle_id))
+		print("Step({}) Vehicle {}: EDM received".format(Roundabout.setp, self.vehicle_id))
 		# TODO: process edm
 
 
 	def update_state(self) -> None:
 		if self.state == CE_VEH.State.INITIAL:
-			print("INITIAL -> ADDED")
+			print("Step({}) INITIAL -> ADDED".format(Roundabout.setp))
 			self.state = CE_VEH.State.ADDED
 		elif self.state == CE_VEH.State.ADDED and self.get_distance(self) < 100:
-			print("ADDED -> APPROACHING")
+			print("Step({}) ADDED -> APPROACHING".format(Roundabout.setp))
 			self.state = CE_VEH.State.APPROACHING
 		elif self.state == CE_VEH.State.APPROACHING and self.get_distance(self) < 50:
-			print("APPROACHING -> INSIDE")
+			print("Step({}) APPROACHING -> INSIDE".format(Roundabout.setp))
 			self.state = CE_VEH.State.INSIDE
 		elif self.state == CE_VEH.State.INSIDE and self.get_distance(self) > 50:
-			print("INSIDE -> EXITING")
+			print("Step({}) INSIDE -> EXITING".format(Roundabout.setp))
 			self.state = CE_VEH.State.EXITING
 		elif self.state == CE_VEH.State.EXITING and self.get_distance(self) > 100:
-			print("EXITING -> REMOVED")
+			print("Step({}) EXITING -> REMOVED".format(Roundabout.setp))
 			self.state = CE_VEH.State.REMOVED
 
 	def show_info(self) -> None:
-		print("[CE-VEH] Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.distance))
+		print("Step({}) Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(self.vehicle_id, self.vehicle_type, self.state, self.get_distance()))
 
 
 ##############################################################################
@@ -238,7 +230,7 @@ class CE_VEH(Vehicle):
 #
 ##############################################################################
 
-class E_CDA(Vehicle):
+class E_CDA(C_VEH):
 
 	class State(Enum):
 		INITIAL = 1
@@ -248,16 +240,24 @@ class E_CDA(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location):
-		super().__init__(vehicle_id, vehicle_type, rsu_location)
+	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
+		super().__init__(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+		self.sender_acceleration = vehicle_acceleration
+		self.sender_lane = vehicle_lane
+		self.sender_route = vehicle_route
+
 		self.state = E_CDA.State.INITIAL
 
 	def update_location(self, new_location) -> None:
-		super().update_location(new_location)
+		self.location = new_location
 		self.update_state()
 
-	def create_bsm(self) -> BSMplus:
-		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location)
+	# def get_distance(self) -> float:
+	
+	# def create_bsm(self) -> float:
+
+	def create_bsm_plus(self) -> BSMplus:
+		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.sender_speed, self.sender_acceleration, self.sender_lane, self.sender_route)
 		return bsm_plus
 	
 	def create_dmm(self) -> DMM:
@@ -359,12 +359,15 @@ class T_CDA(Vehicle):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location):
-		super().__init__(vehicle_id, vehicle_type, rsu_location)
+	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
+		super().__init__(vehicle_id, vehicle_type)
+		self.rsu_location = rsu_location
+		self.speed = vehicle_speed
+		self.location = vehicle_location
 		self.state = T_CDA.State.INITIAL
 
 	def update_location(self, new_location) -> None:
-		super().update_location(new_location)
+		self.location = new_location
 		self.update_state()
 
 	def create_bsm(self) -> BSMplus:

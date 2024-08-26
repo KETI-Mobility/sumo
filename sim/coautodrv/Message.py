@@ -12,9 +12,10 @@ import traci
 import math
 from enum import Enum
 from typing import TYPE_CHECKING
+import Roundabout
 
 if TYPE_CHECKING:
-	from Vehicle import Vehicle, T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH
+	from Vehicle import Vehicle, T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH, Maneuver
 	from Channel import Channel
 
 
@@ -32,7 +33,9 @@ class Message:
 		MSG_DNMRESP = 5
 		MSG_EDM	 	= 6
 	
-	def __init__(self, msg_type, timestamp, sender_vehicle_id, sender_vehicle_type):
+	def __init__(self, msg_type, sender_vehicle_id, sender_vehicle_type):
+		global global_msg_id
+		
 		global_msg_id += 1
 		self.msg_id					= global_msg_id
 		
@@ -41,8 +44,7 @@ class Message:
 		self.sender_vehicle_type	= sender_vehicle_type
 
 	def show_msg(self) -> None:
-		print("Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
-		print("  + Sender: ID: {}, Type: {}".format(self.sender_vehicle_id, self.sender_vehicle_type))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type))
 
 
 ##############################################################################
@@ -55,19 +57,13 @@ class Message:
 
 class BSM(Message):
 
-	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_x_location, sender_y_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_BSM, timestamp, sender_vehicle_id, sender_vehicle_type)
-		self.sender_x_location	= sender_x_location
-		self.sender_y_location	= sender_y_location
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed):
+		super().__init__(Message.Type.MSG_BSM, sender_vehicle_id, sender_vehicle_type)
+		self.sender_location	= sender_location
 		self.sender_speed		= sender_speed
-		self.sender_acceleration= sender_acceleration
-		self.sender_heading		= sender_heading
-		self.sender_lane_id		= sender_lane_id
-		
 
 	def show_msg(self) -> None:
-		print("[BSM] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
-		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed))
 
 
 ##############################################################################
@@ -78,21 +74,16 @@ class BSM(Message):
 #
 ##############################################################################
 
-class BSMplus(Message):
+class BSMplus(BSM):
 
-	def __init__(self, timestamp, sender_vehicle_id, sender_vehicle_type, sender_x_location, sender_y_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_BSMplus, timestamp, sender_vehicle_id, sender_vehicle_type)
-		self.sender_x_location	= sender_x_location
-		self.sender_y_location	= sender_y_location
-		self.sender_speed		= sender_speed
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
+		super().__init__(Message.Type.MSG_BSMplus, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed)
 		self.sender_acceleration= sender_acceleration
 		self.sender_heading		= sender_heading
 		self.sender_lane_id		= sender_lane_id
 		
-
 	def show_msg(self) -> None:
-		print("[BSM+] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
-		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
 
 
 ##############################################################################
@@ -103,13 +94,10 @@ class BSMplus(Message):
 #
 ##############################################################################
 
-class DMM(Message):
-	
-	def __init__(self, timestamp, sender_vehicle_id, sender_vehicle_type, sender_x_location, sender_y_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_DMM, timestamp, sender_vehicle_id, sender_vehicle_type)
-		self.sender_x_location	= sender_x_location
-		self.sender_y_location	= sender_y_location
-		self.sender_speed		= sender_speed
+class DMM(BSM):
+
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
+		super().__init__(Message.Type.MSG_DMM, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed)
 		self.sender_acceleration= sender_acceleration
 		self.sender_heading		= sender_heading
 		self.sender_lane_id		= sender_lane_id
@@ -117,8 +105,7 @@ class DMM(Message):
 		self.maneuver 			= Maneuver.NONE
 
 	def show_msg(self) -> None:
-		print("[DMM] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
-		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
 
 
 ##############################################################################
@@ -129,21 +116,13 @@ class DMM(Message):
 #
 ##############################################################################
 
-class EDM(Message):
+class EDM(BSM):
 
-	def __init__(self, timestamp, sender_vehicle_id, sender_vehicle_type, sender_x_location, sender_y_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_EDM, timestamp, sender_vehicle_id, sender_vehicle_type)
-		self.sender_x_location	= sender_x_location
-		self.sender_y_location	= sender_y_location
-		self.sender_speed		= sender_speed
-		self.sender_acceleration= sender_acceleration
-		self.sender_heading		= sender_heading
-		self.sender_lane_id		= sender_lane_id
-		
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed):
+		super().__init__(Message.Type.MSG_EDM, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed)
 
 	def show_msg(self) -> None:
-		print("[BSM] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
-		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed))
 
 
 ##############################################################################
@@ -154,36 +133,26 @@ class EDM(Message):
 #
 ##############################################################################
 
-class DNMReq(Message):
+class DNMReq(BSM):
 
-	def __init__(self, timestamp, sender_vehicle_id, sender_vehicle_type, sender_x_location, sender_y_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_DNMREQ, timestamp, sender_vehicle_id, sender_vehicle_type)
-		self.sender_x_location	= sender_x_location
-		self.sender_y_location	= sender_y_location
-		self.sender_speed		= sender_speed
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
+		super().__init__(Message.Type.MSG_DNMREQ, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed)
 		self.sender_acceleration= sender_acceleration
 		self.sender_heading		= sender_heading
 		self.sender_lane_id		= sender_lane_id
 
-
 	def show_msg(self) -> None:
-		print("[DNM Req] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
-		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
 
 
 class DNMResp(Message):
 
-	def __init__(self, timestamp, sender_vehicle_id, sender_vehicle_type, sender_x_location, sender_y_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_DNMRESP, timestamp, sender_vehicle_id, sender_vehicle_type)
-		self.sender_x_location	= sender_x_location
-		self.sender_y_location	= sender_y_location
-		self.sender_speed		= sender_speed
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
+		super().__init__(Message.Type.MSG_DNMRESP, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed)
 		self.sender_acceleration= sender_acceleration
 		self.sender_heading		= sender_heading
 		self.sender_lane_id		= sender_lane_id
 
-
 	def show_msg(self) -> None:
-		print("[DNM Res] Msg ID: {}, Type: {}, Time: {}".format(self.msg_id, self.msg_type, self.timestamp))
-		print("  + Sender: ID: {}, Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}".format(self.sender_vehicle_id, self.sender_vehicle_type, self.sender_x_location, self.sender_y_location, self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id))
+		print("Step({}) Msg ID: {}, Type: {} from Sender ID: {}, Sender Vehicle Type: {}, ({}, {}), Speed: {}, Accel: {}, Heading: {}, Lane: {}, Maneuver: {}".format(Roundabout.step, self.msg_id, self.msg_type, self.sender_vehicle_id, self.sender_vehicle_type, self.sender_location[0], self.sender_location[1], self.sender_speed, self.sender_acceleration, self.sender_heading, self.sender_lane_id, self.maneuver))
 
