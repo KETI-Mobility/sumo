@@ -22,9 +22,11 @@ class Maneuver(Enum):
 
 
 class Vehicle:
-	def __init__(self, vehicle_id, vehicle_type):
+	def __init__(self, time_birth, vehicle_id, vehicle_type):
+		self.time_birth = time_birth
 		self.vehicle_id = vehicle_id
 		self.vehicle_type = vehicle_type
+		self.stay = True
 
 	def show_info(self) -> None:
 		print("Vehicle ID: {}, Type: {}".format(self.vehicle_id, self.vehicle_type))
@@ -40,8 +42,8 @@ class Vehicle:
 
 class N_VEH(Vehicle):
 
-	def __init__(self, vehicle_id, vehicle_type):
-		super().__init__(vehicle_id, vehicle_type)
+	def __init__(self, time_birth, vehicle_id, vehicle_type):
+		super().__init__(time_birth, vehicle_id, vehicle_type)
 		self.state = N_VEH.State.INITIAL
 
 	def show_info(self) -> None:
@@ -60,13 +62,14 @@ class N_VEH(Vehicle):
 
 class _C_VEH(Vehicle):
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
-		super().__init__(vehicle_id, vehicle_type)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
+		super().__init__(time_birth, vehicle_id, vehicle_type)
 		self.rsu_location = rsu_location
 		self.vehicle_speed = vehicle_speed
 		self.vehicle_location = vehicle_location
 		
 	def update(self, new_location, new_speed) -> None:
+		self.stay = True
 		self.vehicle_location = new_location
 		self.vehicle_speed = new_speed
 	
@@ -104,8 +107,8 @@ class C_VEH(_C_VEH):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
-		super().__init__(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
 		
 		self.state = C_VEH.State.INITIAL
 
@@ -117,14 +120,16 @@ class C_VEH(_C_VEH):
 	# def send_bsm(self, channel:Channel) -> None:
 	
 	def receive(self, channel:Channel) -> None:
-		print("Step({}) Vehicle id:{}: Message received".format(GlobalSim.step, self.vehicle_id))
 		for message in channel.messages:
-			if isinstance(message, BSM):
-				self.receive_bsm(message)
-			else:
-				print("Step({}) Vehicle id:{}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
+			if message.sender_vehicle_id != self.vehicle_id:
+				if isinstance(message, BSM):
+					self.receive_bsm(message)
+				else:
+					print("Step({}) Vehicle id:{}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
 
 	def receive_bsm(self, bsm:BSM) -> None:
+		print("Step({}) Vehicle id:{}: BSM received".format(GlobalSim.step, self.vehicle_id))
+
 		bsm.show_msg()
 		# TODO: process bsm
 		
@@ -168,8 +173,8 @@ class CE_VEH(_C_VEH):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
-		super().__init__(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
 
 		self.state = CE_VEH.State.INITIAL
 
@@ -189,20 +194,24 @@ class CE_VEH(_C_VEH):
 		print("Step({}) Vehicle {}: EDM sent".format(GlobalSim.step, self.vehicle_id))
 
 	def receive(self, channel:Channel) -> None:
-		print("Step({}) Vehicle {}: Message received".format(GlobalSim.step, self.vehicle_id))
 		for message in channel.messages:
-			if isinstance(message, BSM):
-				self.receive_bsm(message)
-			elif isinstance(message, EDM):
-				self.receive_edm(message)
-			else:
-				print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
+			if message.sender_vehicle_id != self.vehicle_id:
+				if isinstance(message, BSM):
+					self.receive_bsm(message)
+				elif isinstance(message, EDM):
+					self.receive_edm(message)
+				else:
+					print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
 
 	def receive_bsm(self, bsm:BSM) -> None:
+		print("Step({}) Vehicle id:{}: BSM received".format(GlobalSim.step, self.vehicle_id))
+
 		bsm.show_msg()
 		# TODO: process BSM
 
 	def receive_edm(self, edm:EDM) -> None:
+		print("Step({}) Vehicle id:{}: EDM received".format(GlobalSim.step, self.vehicle_id))
+
 		edm.show_msg()
 		# TODO: process edm
 
@@ -245,8 +254,8 @@ class E_CDA(_C_VEH):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
-		super().__init__(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
 		self.vehicle_acceleration = vehicle_acceleration
 		self.vehicle_lane = vehicle_lane
 		self.vehicle_route = vehicle_route
@@ -293,38 +302,48 @@ class E_CDA(_C_VEH):
 		print("Step({}) Vehicle {}: DNMResp sent".format(GlobalSim.step, self.vehicle_id))
 
 	def receive(self, channel:Channel) -> None:
-		print("Step({}) Vehicle {}: Message received".format(GlobalSim.step, self.vehicle_id))
 		for message in channel.messages:
-			if isinstance(message, BSM):
-				self.receive_bsm(message)
-			elif isinstance(message, BSMplus):
-				self.receive_bsm_plus(message)
-			elif isinstance(message, DMM):
-				self.receive_dmm(message)
-			elif isinstance(message, DNMReq):
-				self.receive_dnm_req(message)
-			elif isinstance(message, DNMResp):
-				self.receive_dnm_resp(message)
-			else:
-				print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
+			if message.sender_vehicle_id != self.vehicle_id:
+				if isinstance(message, BSM):
+					self.receive_bsm(message)
+				elif isinstance(message, BSMplus):
+					self.receive_bsm_plus(message)
+				elif isinstance(message, DMM):
+					self.receive_dmm(message)
+				elif isinstance(message, DNMReq):
+					self.receive_dnm_req(message)
+				elif isinstance(message, DNMResp):
+					self.receive_dnm_resp(message)
+				else:
+					print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
 
 	def receive_bsm(self, bsm:BSM) -> None:
+		print("Step({}) Vehicle id:{}: BSM received".format(GlobalSim.step, self.vehicle_id))
+
 		bsm.show_msg()
 		# TODO: process BSM
 
 	def receive_bsm_plus(self, bsm_plus:BSMplus) -> None:
+		print("Step({}) Vehicle id:{}: BSM+ received".format(GlobalSim.step, self.vehicle_id))
+
 		bsm_plus.show_msg()
 		# TODO: process BSM+
 
 	def receive_dmm(self, dmm:DMM) -> None:
+		print("Step({}) Vehicle id:{}: DMM received".format(GlobalSim.step, self.vehicle_id))
+
 		dmm.show_msg()
 		# TODO: process DMM
 
 	def receive_dnm_req(self, dnm_req:DNMReq) -> None:
+		print("Step({}) Vehicle id:{}: DNMReq received".format(GlobalSim.step, self.vehicle_id))
+
 		dnm_req.show_msg()
 		# TODO: process DNMReq
 
 	def receive_dnm_resp(self, dnm_resp:DNMResp) -> None:
+		print("Step({}) Vehicle id:{}: DNMResp received".format(GlobalSim.step, self.vehicle_id))
+		
 		dnm_resp.show_msg()
 		# TODO: process DNMResp
 	
@@ -346,7 +365,7 @@ class E_CDA(_C_VEH):
 			self.state = E_CDA.State.REMOVED
 
 	def show_info(self) -> None:
-		print("Step({}) Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(GlobalSim.step, self.vehicle_id, self.vehicle_type, self.state, self.distance))
+		print("Step({}) Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(GlobalSim.step, self.vehicle_id, self.vehicle_type, self.state, self.get_distance()))
 
 
 ##############################################################################
@@ -367,8 +386,8 @@ class T_CDA(_C_VEH):
 		EXITING = 5
 		REMOVED = 6
 
-	def __init__(self, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
-		super().__init__(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
 		self.vehicle_acceleration = vehicle_acceleration
 		self.vehicle_lane = vehicle_lane
 		self.vehicle_route = vehicle_route
@@ -415,25 +434,25 @@ class T_CDA(_C_VEH):
 		print("Step({}) Vehicle {}: DNMResp sent".format(GlobalSim.step, self.vehicle_id))
 
 	def receive(self, channel:Channel) -> None:
-		print("Step({}) Vehicle {}: Message received".format(GlobalSim.step, self.vehicle_id))
 		for message in channel.messages:
-			if isinstance(message, BSMplus):
-				self.receive_bsm(message)
-			elif isinstance(message, DMM):
-				self.receive_dmm(message)
-			elif isinstance(message, DNMReq):
-				self.receive_dnm_req(message)
-			elif isinstance(message, DNMResp):
-				self.receive_dnm_resp(message)
-			else:
-				print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
+			if message.sender_vehicle_id != self.vehicle_id:
+				if isinstance(message, BSMplus):
+					self.receive_bsm(message)
+				elif isinstance(message, DMM):
+					self.receive_dmm(message)
+				elif isinstance(message, DNMReq):
+					self.receive_dnm_req(message)
+				elif isinstance(message, DNMResp):
+					self.receive_dnm_resp(message)
+				else:
+					print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
 
 	def receive_bsm(self, bsm_plus:BSMplus) -> None:
 		print("Step({}) Vehicle {}: BSM+ received".format(GlobalSim.step, self.vehicle_id))
 		# TODO: process bsm+
 
 	def receive_dmm(self, dmm:DMM) -> None:
-		print("Step({}) Vehicle {}: DMM_ received".format(GlobalSim.step, self.vehicle_id))
+		print("Step({}) Vehicle {}: DMM received".format(GlobalSim.step, self.vehicle_id))
 		# TODO: process dmm
 
 	def receive_dnm_req(self, dnm_req:DNMReq) -> None:

@@ -131,15 +131,15 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	the_vehicle = get_vehicle_by_id(vehicle_id)
 	if the_vehicle is None:
 		if vehicle_type == "C-VEH":
-			the_vehicle = C_VEH(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position)
+			the_vehicle = C_VEH(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position)
 		elif vehicle_type == "CE-VEH":
-			the_vehicle = CE_VEH(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position)
+			the_vehicle = CE_VEH(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position)
 		elif vehicle_type == "T-CDA":
-			the_vehicle = T_CDA(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position, vehicle_acceleration, vehicle_lane, vehicle_route)
+			the_vehicle = T_CDA(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position, vehicle_acceleration, vehicle_lane, vehicle_route)
 		elif vehicle_type == "E-CDA":
-			the_vehicle = E_CDA(vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position, vehicle_acceleration, vehicle_lane, vehicle_route)
+			the_vehicle = E_CDA(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position, vehicle_acceleration, vehicle_lane, vehicle_route)
 		elif vehicle_type == "N-VEH":
-			the_vehicle = N_VEH(vehicle_id, vehicle_type)
+			the_vehicle = N_VEH(GlobalSim.step, vehicle_id, vehicle_type)
 		else:
 			print("Step({}) Vehicle id:{}, type:{} type not found".format(GlobalSim.step, vehicle_id, vehicle_type))
 			return None
@@ -149,7 +149,7 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 		print("Step({}) Vehicle id:{} added to the list".format(GlobalSim.step, vehicle_id))
 	else:
 		# Update the location of the vehicle
-		the_vehicle.update_location(vehicle_position)
+		the_vehicle.update(vehicle_position, vehicle_speed)
 		print("Step({}) Vehicle id:{} updated".format(GlobalSim.step, vehicle_id))
 		the_vehicle.show_info()
 
@@ -197,9 +197,19 @@ def custom_code_at_step() -> None:
 	# Receive the BSM from the vehicles via channel
 	for the_vehicle in vehicles:
 		the_vehicle.receive(channel)
+	channel.reset()
 
 	# Remove all vehicles from the list
-	vehicles.clear()
+	for the_vehicle in vehicles:
+		if the_vehicle.stay == False:
+			print("Step({}) Vehicle id:{}, the vehicle should be removed".format(GlobalSim.step, the_vehicle.vehicle_id))
+			print("Step({}) time_birth:{}, time_exit:{}, time_life:{}".format(GlobalSim.step, the_vehicle.time_birth, GlobalSim.step, GlobalSim.step - the_vehicle.time_birth))
+
+			vehicles.remove(the_vehicle)
+
+	# Reset the stay flag
+	for the_vehicle in vehicles:
+		the_vehicle.stay = False
 
 
 def run_simulation() -> None:
