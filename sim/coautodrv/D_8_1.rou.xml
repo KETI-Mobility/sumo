@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="C-VEH" color="red" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="CE-VEH" vClass="truck" carFollowModel="ACC"/>
+    <vType id="E-CDA" color="yellow" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="N-VEH" color="white" carFollowModel="ACC"/>
+    <vType id="T-CDA" color="0,156,255" carFollowModel="ACC"/>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <trip id="CE_VEH" type="CE-VEH" depart="0.00" departLane="0" from="WI" to="NO"/>
+    <trip id="E_CDA" type="E-CDA" depart="0.00" departLane="0" from="EI" to="NO"/>
+</routes>
