@@ -2,11 +2,11 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <!-- VTypes -->
-    <vType id="C-VEH" color="red" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
-    <vType id="CE-VEH" vClass="truck" carFollowModel="ACC"/>
-    <vType id="E-CDA" color="yellow" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
-    <vType id="N-VEH" color="white" carFollowModel="ACC"/>
-    <vType id="T-CDA" color="0,156,255" carFollowModel="ACC"/>
+    <vType id="C-VEH" color="red" width="1.86" length="4.9" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="CE-VEH" vClass="truck" width="2.1" length="6.0" color="white" carFollowModel="ACC"/>
+    <vType id="E-CDA" color="yellow" width="1.86" length="4.9" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="N-VEH" color="white" width="1.86" length="4.9" carFollowModel="ACC"/>
+    <vType id="T-CDA" color="blue" width="1.86" length="4.9" carFollowModel="ACC"/>
 
     <!-- Vehicles, persons and containers (sorted by depart) -->
     <trip id="trip0" type="E-CDA" depart="0.00" departLane="0" from="SI" to="NO"/>
