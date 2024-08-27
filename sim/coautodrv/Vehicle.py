@@ -186,17 +186,17 @@ class CE_VEH(_C_VEH):
 
 	def send_edm(self, channel:Channel) -> None:
 		channel.add_message(self.create_edm())
-		print("Step({}) Vehicle {}: EDM sent".format(GlobalSim.setp, self.vehicle_id))
+		print("Step({}) Vehicle {}: EDM sent".format(GlobalSim.step, self.vehicle_id))
 
 	def receive(self, channel:Channel) -> None:
-		print("Step({}) Vehicle {}: Message received".format(GlobalSim.setp, self.vehicle_id))
+		print("Step({}) Vehicle {}: Message received".format(GlobalSim.step, self.vehicle_id))
 		for message in channel.messages:
 			if isinstance(message, BSM):
 				self.receive_bsm(message)
 			elif isinstance(message, EDM):
 				self.receive_edm(message)
 			else:
-				print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.setp, self.vehicle_id))
+				print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
 
 	def receive_bsm(self, bsm:BSM) -> None:
 		bsm.show_msg()
@@ -208,19 +208,19 @@ class CE_VEH(_C_VEH):
 
 	def update_state(self) -> None:
 		if self.state == CE_VEH.State.INITIAL:
-			print("Step({}) INITIAL -> ADDED".format(GlobalSim.setp))
+			print("Step({}) INITIAL -> ADDED".format(GlobalSim.step))
 			self.state = CE_VEH.State.ADDED
 		elif self.state == CE_VEH.State.ADDED and self.get_distance(self) < 100:
-			print("Step({}) ADDED -> APPROACHING".format(GlobalSim.setp))
+			print("Step({}) ADDED -> APPROACHING".format(GlobalSim.step))
 			self.state = CE_VEH.State.APPROACHING
 		elif self.state == CE_VEH.State.APPROACHING and self.get_distance(self) < 50:
-			print("Step({}) APPROACHING -> INSIDE".format(GlobalSim.setp))
+			print("Step({}) APPROACHING -> INSIDE".format(GlobalSim.step))
 			self.state = CE_VEH.State.INSIDE
 		elif self.state == CE_VEH.State.INSIDE and self.get_distance(self) > 50:
-			print("Step({}) INSIDE -> EXITING".format(GlobalSim.setp))
+			print("Step({}) INSIDE -> EXITING".format(GlobalSim.step))
 			self.state = CE_VEH.State.EXITING
 		elif self.state == CE_VEH.State.EXITING and self.get_distance(self) > 100:
-			print("Step({}) EXITING -> REMOVED".format(GlobalSim.setp))
+			print("Step({}) EXITING -> REMOVED".format(GlobalSim.step))
 			self.state = CE_VEH.State.REMOVED
 
 	def show_info(self) -> None:
