@@ -14,6 +14,8 @@
 # Usage:
 # 
 # On the Apple MacBook Pro M3 Pro,
+# - Install the Python GUI package:
+#   brew install python-tk 
 # - Set the Python evnrionment on the specific directory:
 #   python3 -m venv env_sumo
 #   source env_sumo/bin/activate
