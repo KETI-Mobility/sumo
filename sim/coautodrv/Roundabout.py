@@ -32,6 +32,8 @@
 
 import os
 import sys
+import socket
+import json
 import traci
 import math
 from enum import Enum
@@ -157,6 +159,24 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 
 	return the_vehicle
 
+def send_vehicle_info(vehicle: Vehicle, udp_ip: str, udp_port: int):
+	# Convert the Vehicle instance to a dictionary and then to a JSON string
+	vehicle_info_json = json.dumps(vehicle.to_dict())
+
+	# Create a UDP socket
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+	# Send the JSON data through the UDP socket
+	sock.sendto(vehicle_info_json.encode('utf-8'), (udp_ip, udp_port))
+
+	# Close the socket
+	sock.close()
+
+def send_all_vehicles_info(vehicles: List[Vehicle], udp_ip: str, udp_port: int):
+	for vehicle in vehicles:
+		send_vehicle_info(vehicle, udp_ip, udp_port)
+
+
 def custom_code_at_step() -> None:
 	global vehicles
 
@@ -212,6 +232,12 @@ def custom_code_at_step() -> None:
 	# Reset the stay flag
 	for the_vehicle in vehicles:
 		the_vehicle.stay = False
+
+	# Send all vehicle information via UDP
+	UDP_IP = "127.0.0.1"
+	UDP_PORT = 5005
+	send_all_vehicles_info(vehicles, UDP_IP, UDP_PORT)
+
 
 
 def run_simulation() -> None:
