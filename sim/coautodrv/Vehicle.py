@@ -28,6 +28,13 @@ class Vehicle:
 		self.vehicle_type = vehicle_type
 		self.stay = True
 
+	def to_dict(self):
+		return {
+            "vehicle_id": self.vehicle_id,
+            "vehicle_type": self.vehicle_type,
+            "time_birth": self.time_birth
+        }
+	
 	def show_info(self) -> None:
 		print("Vehicle ID: {}, Type: {}".format(self.vehicle_id, self.vehicle_type))
 
@@ -41,11 +48,27 @@ class Vehicle:
 ##############################################################################
 
 class N_VEH(Vehicle):
+	
+	class State(Enum):
+		INITIAL = 1
+		ADDED = 2
+		APPROACHING = 3
+		INSIDE = 4
+		EXITING = 5
+		REMOVED = 6
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type):
 		super().__init__(time_birth, vehicle_id, vehicle_type)
 		self.state = N_VEH.State.INITIAL
 
+	def to_dict(self):
+		return {
+            "vehicle_id": self.vehicle_id,
+            "vehicle_type": self.vehicle_type,
+            "time_birth": self.time_birth,
+			"state": self.state
+        }
+	
 	def show_info(self) -> None:
 		print("[N-VEH] Vehicle ID: {}, Type: {}".format(self.vehicle_id, self.vehicle_type))
 
@@ -67,6 +90,16 @@ class _C_VEH(Vehicle):
 		self.rsu_location = rsu_location
 		self.vehicle_speed = vehicle_speed
 		self.vehicle_location = vehicle_location
+	
+	def to_dict(self):
+		return {
+            "vehicle_id": self.vehicle_id,
+            "vehicle_type": self.vehicle_type,
+            "time_birth": self.time_birth,
+			"rsu_location": self.rsu_location,
+			"vehicle_speed": self.vehicle_speed,
+			"vehicle_location": self.vehicle_location
+        }
 		
 	def update(self, new_location, new_speed) -> None:
 		self.stay = True
@@ -112,6 +145,17 @@ class C_VEH(_C_VEH):
 		
 		self.state = C_VEH.State.INITIAL
 
+	def to_dict(self):
+		return {
+            "vehicle_id": self.vehicle_id,
+            "vehicle_type": self.vehicle_type,
+            "time_birth": self.time_birth,
+			"rsu_location": self.rsu_location,
+			"vehicle_speed": self.vehicle_speed,
+			"vehicle_location": self.vehicle_location,
+			"state": self.state
+        }
+	
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
 	# def get_distance(self) -> float:
@@ -178,6 +222,17 @@ class CE_VEH(_C_VEH):
 
 		self.state = CE_VEH.State.INITIAL
 
+	def to_dict(self):
+		return {
+            "vehicle_id": self.vehicle_id,
+            "vehicle_type": self.vehicle_type,
+            "time_birth": self.time_birth,
+			"rsu_location": self.rsu_location,
+			"vehicle_speed": self.vehicle_speed,
+			"vehicle_location": self.vehicle_location,
+			"state": self.state
+        }
+	
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
 	# def get_distance(self) -> float:
@@ -262,6 +317,17 @@ class E_CDA(_C_VEH):
 
 		self.state = E_CDA.State.INITIAL
 
+	def to_dict(self):
+		return {
+            "vehicle_id": self.vehicle_id,
+            "vehicle_type": self.vehicle_type,
+            "time_birth": self.time_birth,
+			"rsu_location": self.rsu_location,
+			"vehicle_speed": self.vehicle_speed,
+			"vehicle_location": self.vehicle_location,
+			"state": self.state
+        }
+	
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
 	# def get_distance(self) -> float:
@@ -394,6 +460,20 @@ class T_CDA(_C_VEH):
 
 		self.state = T_CDA.State.INITIAL
 
+	def to_dict(self):
+		return {
+            "vehicle_id": self.vehicle_id,
+            "vehicle_type": self.vehicle_type,
+            "time_birth": self.time_birth,
+			"rsu_location": self.rsu_location,
+			"vehicle_speed": self.vehicle_speed,
+			"vehicle_location": self.vehicle_location,
+			"vehicle_acceleration": self.vehicle_acceleration,
+			"vehicle_lane": self.vehicle_lane,
+			"vehicle_route": self.vehicle_route,
+			"state": self.state
+        }
+	
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
 	# def get_distance(self) -> float:
