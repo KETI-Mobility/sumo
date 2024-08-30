@@ -63,16 +63,16 @@ def get_vehicle_by_id(vehicle_id) -> Vehicle:
 
 	for vehicle in vehicles:
 		if vehicle.vehicle_id == vehicle_id:
-			print("Step({}) Vehicle id:{}, Found".format(GlobalSim.step, vehicle_id))
+			# print("Step({}) Vehicle id:{}, Found".format(GlobalSim.step, vehicle_id))
 			return vehicle
-	print("Step({}) No vehicle Found".format(GlobalSim.step))
+	# print("Step({}) No vehicle Found".format(GlobalSim.step))
 	return None
 
 def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	global vehicles, rsu_location
 
 	vehicle_type = traci.vehicle.getTypeID(vehicle_id)
-	print("Step({}) Vehicle id:{} type: {}".format(GlobalSim.step, vehicle_id, vehicle_type))
+	# print("Step({}) Vehicle id:{} type: {}".format(GlobalSim.step, vehicle_id, vehicle_type))
 
 	vehicle_speed = traci.vehicle.getSpeed(vehicle_id)
 	# print("Step({}) Vehicle id:{} speed: {}".format(GlobalSim.step, vehicle_id, vehicle_speed))
@@ -88,18 +88,18 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	# print("Vehicle id:{} speed mode: {}".format(GlobalSim.step, vehicle_id, vehicle_speed_mode))
 
 	vehicle_position = traci.vehicle.getPosition(vehicle_id)
-	print("Step({}) Vehicle id:{} position: {}".format(GlobalSim.step, vehicle_id, vehicle_position))
+	# print("Step({}) Vehicle id:{} position: {}".format(GlobalSim.step, vehicle_id, vehicle_position))
 	vehicle_angle = traci.vehicle.getAngle(vehicle_id)
 	# print("Step({}) Vehicle id:{} angle: {}".format(GlobalSim.step, vehicle_id, vehicle_angle))
 	vehicle_lane = traci.vehicle.getLaneID(vehicle_id)
-	print("Step({}) Vehicle id:{} lane: {}".format(GlobalSim.step, vehicle_id, vehicle_lane))
+	# print("Step({}) Vehicle id:{} lane: {}".format(GlobalSim.step, vehicle_id, vehicle_lane))
 	vehicle_edge = traci.vehicle.getRoadID(vehicle_id)
 	# print("Step({}) Vehicle id:{} edge: {}".format(GlobalSim.step, vehicle_id, vehicle_edge))
 
 	vehicle_route = traci.vehicle.getRoute(vehicle_id)
-	print("Step({}) Vehicle id:{} route: {}".format(GlobalSim.step, vehicle_id, vehicle_route))
+	# print("Step({}) Vehicle id:{} route: {}".format(GlobalSim.step, vehicle_id, vehicle_route))
 	vehicle_route_index = traci.vehicle.getRouteIndex(vehicle_id)
-	print("Step({}) Vehicle id:{} route index: {}".format(GlobalSim.step, vehicle_id, vehicle_route_index))
+	# print("Step({}) Vehicle id:{} route index: {}".format(GlobalSim.step, vehicle_id, vehicle_route_index))
 
 	vehicle_color = traci.vehicle.getColor(vehicle_id)
 	# print("Step({}) Vehicle id:{} color: {}".format(GlobalSim.step, vehicle_id, vehicle_color))
@@ -145,17 +145,17 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 		elif vehicle_type == "N-VEH":
 			the_vehicle = N_VEH(GlobalSim.step, vehicle_id, vehicle_type)
 		else:
-			print("Step({}) Vehicle id:{}, type:{} type not found".format(GlobalSim.step, vehicle_id, vehicle_type))
+			# print("Step({}) Vehicle id:{}, type:{} type not found".format(GlobalSim.step, vehicle_id, vehicle_type))
 			return None
 			
 		# Add the vehicle to the vehicles list
 		vehicles.append(the_vehicle)
-		print("Step({}) Vehicle id:{} added to the list".format(GlobalSim.step, vehicle_id))
+		# print("Step({}) Vehicle id:{} added to the list".format(GlobalSim.step, vehicle_id))
 	else:
 		# Update the location of the vehicle
 		the_vehicle.update(vehicle_position, vehicle_speed)
-		print("Step({}) Vehicle id:{} updated".format(GlobalSim.step, vehicle_id))
-		the_vehicle.show_info()
+		# print("Step({}) Vehicle id:{} updated".format(GlobalSim.step, vehicle_id))
+		# the_vehicle.show_info()
 
 	return the_vehicle
 
@@ -182,7 +182,7 @@ def custom_code_at_step() -> None:
 
 	# Add your custom code here
 	vehicle_ids = traci.vehicle.getIDList()
-	print("Step({}) Vehicle IDs at step :{}".format(GlobalSim.step, vehicle_ids))
+	# print("Step({}) Vehicle IDs at step :{}".format(GlobalSim.step, vehicle_ids))
 
 	# vehicle_id로 차량의 정보를 가져와서 the_vehicle로 반환
 	# vehicles 리스트 아네 the_vehicle이 없으면 추가
@@ -198,6 +198,10 @@ def custom_code_at_step() -> None:
 		# T-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, E-CDA's BSM+, DMM, DNM)
 		if the_vehicle is not None and the_vehicle is not N_VEH:
 			the_vehicle.send_bsm(channel)
+
+			print("Type: {}".format(the_vehicle.vehicle_type))
+			if the_vehicle.vehicle_type == "CE-VEH":
+				the_vehicle.send_edm(channel)
 
 		# Roundabout (Class A)
 		# E-CDA evaulates C-VEH's existence on roundabout (to check C-VEH's speed, TTB(Time-to-Break) at cross point)
@@ -224,8 +228,8 @@ def custom_code_at_step() -> None:
 	# Remove all vehicles from the list
 	for the_vehicle in vehicles:
 		if the_vehicle.stay == False:
-			print("Step({}) Vehicle id:{}, the vehicle should be removed".format(GlobalSim.step, the_vehicle.vehicle_id))
-			print("Step({}) time_birth:{}, time_exit:{}, time_life:{}".format(GlobalSim.step, the_vehicle.time_birth, GlobalSim.step, GlobalSim.step - the_vehicle.time_birth))
+			# print("Step({}) Vehicle id:{}, the vehicle should be removed".format(GlobalSim.step, the_vehicle.vehicle_id))
+			# print("Step({}) time_birth:{}, time_exit:{}, time_life:{}".format(GlobalSim.step, the_vehicle.time_birth, GlobalSim.step, GlobalSim.step - the_vehicle.time_birth))
 
 			vehicles.remove(the_vehicle)
 
@@ -235,7 +239,7 @@ def custom_code_at_step() -> None:
 
 	# Send all vehicle information via UDP
 	UDP_IP = "127.0.0.1"
-	UDP_PORT = 5005
+	UDP_PORT = 12345
 	send_all_vehicles_info(vehicles, UDP_IP, UDP_PORT)
 
 

@@ -20,5 +20,6 @@ class Channel:
 		self.messages.append(message)	
 
 	def show_info(self) -> None:
-		print("Step({}) V2X: Messages: {}".format(GlobalSim.step, len(self.messages)))
+		pass
+		# print("Step({}) V2X: Messages: {}".format(GlobalSim.step, len(self.messages)))
 

@@ -34,6 +34,8 @@ def udp_receiver_thread(vehicles, update_callback, port, stop_event):
 	while not stop_event.is_set():
 		try:
 			data, _ = sock.recvfrom(1024)  # Buffer size is 1024 bytes
+			print("Rx data:", data)
+			
 			if data:
 				# Assuming data is TLV formatted
 				type_field = data[0]
