@@ -262,7 +262,7 @@ class CE_VEH(_C_VEH):
 	# def send_bsm(self, channel:Channel) -> None:
 	
 	def create_edm(self) -> EDM:
-		edm = EDM(self.vehicle_id, self.vehicle_type, self.get_location())
+		edm = EDM(self.vehicle_id, self.vehicle_type, self.get_location(), self.vehicle_speed)
 		return edm
 
 	def send_edm(self, channel:Channel) -> None:
