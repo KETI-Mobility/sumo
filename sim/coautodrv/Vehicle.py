@@ -145,6 +145,7 @@ class C_VEH(_C_VEH):
 		
 		self.max_speed_normal = traci.vehicle.getMaxSpeed(self.vehicle_id)
 		self.max_speed_emergency = 8.33	# 8.33 m/s (30km/h)
+		self.max_speed = self.max_speed_normal
 		# print("**** Max speed: {}".format(self.max_speed_normal))
 		self.state = C_VEH.State.INITIAL
 
