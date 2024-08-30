@@ -48,14 +48,14 @@ class Vehicle:
 ##############################################################################
 
 class N_VEH(Vehicle):
-	
-	class State(Enum):
-		INITIAL = 1
-		ADDED = 2
-		APPROACHING = 3
-		INSIDE = 4
-		EXITING = 5
-		REMOVED = 6
+
+	class State(str, Enum):
+		INITIAL = "INITIAL"
+		ADDED = "ADDED"
+		APPROACHING = "APPROACHING"
+		INSIDE = "INSIDE"
+		EXITING = "EXITING"
+		REMOVED = "REMOVED"
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type):
 		super().__init__(time_birth, vehicle_id, vehicle_type)
@@ -132,13 +132,13 @@ class _C_VEH(Vehicle):
 ##############################################################################
 class C_VEH(_C_VEH):
 
-	class State(Enum):
-		INITIAL = 1
-		ADDED = 2
-		APPROACHING = 3
-		INSIDE = 4
-		EXITING = 5
-		REMOVED = 6
+	class State(str, Enum):
+		INITIAL = "INITIAL"
+		ADDED = "ADDED"
+		APPROACHING = "APPROACHING"
+		INSIDE = "INSIDE"
+		EXITING = "EXITING"
+		REMOVED = "REMOVED"
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
@@ -209,13 +209,13 @@ class C_VEH(_C_VEH):
 
 class CE_VEH(_C_VEH):
 
-	class State(Enum):
-		INITIAL = 1
-		ADDED = 2
-		APPROACHING = 3
-		INSIDE = 4
-		EXITING = 5
-		REMOVED = 6
+	class State(str, Enum):
+		INITIAL = "INITIAL"
+		ADDED = "ADDED"
+		APPROACHING = "APPROACHING"
+		INSIDE = "INSIDE"
+		EXITING = "EXITING"
+		REMOVED = "REMOVED"
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
@@ -301,13 +301,13 @@ class CE_VEH(_C_VEH):
 
 class E_CDA(_C_VEH):
 
-	class State(Enum):
-		INITIAL = 1
-		ADDED = 2
-		APPROACHING = 3
-		INSIDE = 4
-		EXITING = 5
-		REMOVED = 6
+	class State(str, Enum):
+		INITIAL = "INITIAL"
+		ADDED = "ADDED"
+		APPROACHING = "APPROACHING"
+		INSIDE = "INSIDE"
+		EXITING = "EXITING"
+		REMOVED = "REMOVED"
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
@@ -444,13 +444,13 @@ class E_CDA(_C_VEH):
 
 class T_CDA(_C_VEH):
 
-	class State(Enum):
-		INITIAL = 1
-		ADDED = 2
-		APPROACHING = 3
-		INSIDE = 4
-		EXITING = 5
-		REMOVED = 6
+	class State(str, Enum):
+		INITIAL = "INITIAL"
+		ADDED = "ADDED"
+		APPROACHING = "APPROACHING"
+		INSIDE = "INSIDE"
+		EXITING = "EXITING"
+		REMOVED = "REMOVED"
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
