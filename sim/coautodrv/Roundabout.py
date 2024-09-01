@@ -54,19 +54,20 @@ else:
 
 # Global variables for Vehicle class
 rsu_location = (0, 0)
-vehicles: List[Vehicle] = []
+vehicles = {}
 channel = Channel()
 
-
+"""
 def get_vehicle_by_id(vehicle_id) -> Vehicle:
 	global vehicles
 
 	for vehicle in vehicles:
 		if vehicle.vehicle_id == vehicle_id:
-			# print("Step({}) Vehicle id:{}, Found".format(GlobalSim.step, vehicle_id))
+			print(f"Step({GlobalSim.step}) {vehicle_id} found")
 			return vehicle
-	# print("Step({}) No vehicle Found".format(GlobalSim.step))
+	print(f"Step({GlobalSim.step}) No vehicle found")
 	return None
+"""
 
 def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	global vehicles, rsu_location
@@ -132,7 +133,8 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	# print("Step({}) Vehicle id:{} fuel consumption: {}".format(GlobalSim.step, vehicle_id, vehicle_fuel_consumption))
 
 	# Search the vehicle_id in vehicles
-	the_vehicle = get_vehicle_by_id(vehicle_id)
+	# the_vehicle = get_vehicle_by_id(vehicle_id)
+	the_vehicle = vehicles.get(vehicle_id)
 	if the_vehicle is None:
 		if vehicle_type == "C-VEH":
 			the_vehicle = C_VEH(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position)
@@ -145,12 +147,12 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 		elif vehicle_type == "N-VEH":
 			the_vehicle = N_VEH(GlobalSim.step, vehicle_id, vehicle_type)
 		else:
-			# print("Step({}) Vehicle id:{}, type:{} type not found".format(GlobalSim.step, vehicle_id, vehicle_type))
+			print(f"Step({GlobalSim.step}) {vehicle_id}, type: {vehicle_type} is not supported")
 			return None
 		
 		# Add the vehicle to the vehicles list
-		vehicles.append(the_vehicle)
-		# print("Step({}) Vehicle id:{} added to the list".format(GlobalSim.step, vehicle_id))
+		vehicles[vehicle_id] = the_vehicle
+		print(f"Step({GlobalSim.step}) {the_vehicle.vehicle_id} is the new vehicle")
 	else:
 		# Update the location of the vehicle
 		if vehicle_type == "C-VEH" and vehicle_type == "CE_VEH":
@@ -158,9 +160,8 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 		elif vehicle_type == "T-CDA" and vehicle_type == "E-CDA":
 			the_vehicle.update(vehicle_position, vehicle_speed, vehicle_acceleration, vehicle_lane, vehicle_route)
 			
-		# print("Step({}) Vehicle id:{} updated".format(GlobalSim.step, vehicle_id))
-		# the_vehicle.show_info()
-
+		print(f"Step({GlobalSim.step}) {the_vehicle.vehicle_id} is updated")
+		
 	return the_vehicle
 
 def send_vehicle_info(vehicle: Vehicle, udp_ip: str, udp_port: int):
@@ -176,9 +177,11 @@ def send_vehicle_info(vehicle: Vehicle, udp_ip: str, udp_port: int):
 	# Close the socket
 	sock.close()
 
-def send_all_vehicles_info(vehicles: List[Vehicle], udp_ip: str, udp_port: int):
-	for vehicle in vehicles:
-		send_vehicle_info(vehicle, udp_ip, udp_port)
+def send_all_vehicles_info(vehicles, udp_ip: str, udp_port: int):
+	for vehicle_id in vehicles:
+		v = vehicles[vehicle_id]
+
+		send_vehicle_info(v, udp_ip, udp_port)
 
 
 def custom_code_at_step() -> None:
@@ -227,28 +230,28 @@ def custom_code_at_step() -> None:
 		# E-CDA determines pass or yield to CE-VEH
 
 	# Receive the BSM from the vehicles via channel
-	for the_vehicle in vehicles:
-		the_vehicle.receive(GlobalSim.step, channel)
+	for vehicle_id in vehicles:
+		v = vehicles[vehicle_id]
+		v.receive(GlobalSim.step, channel)
 
-		if the_vehicle is C_VEH and the_vehicle.new_event == True:
-			print(f"New event(Id: {the_vehicle.vehicle_id}): max speed: {the_vehicle.max_speed}")
-			traci.vehicle.setMaxSpeed(vehicle_id, the_vehicle.max_speed)
-
+		if v is C_VEH and v.new_event == True:
+			print(f"New event(Id: {v.vehicle_id}): max speed: {v.max_speed}")
+			traci.vehicle.setMaxSpeed(v.vehicle_id, v.max_speed)
 
 	channel.reset()
 
 
-	# Remove all vehicles from the list
-	for the_vehicle in vehicles:
-		if the_vehicle.stay == False:
-			# print("Step({}) Vehicle id:{}, the vehicle should be removed".format(GlobalSim.step, the_vehicle.vehicle_id))
-			# print("Step({}) time_birth:{}, time_exit:{}, time_life:{}".format(GlobalSim.step, the_vehicle.time_birth, GlobalSim.step, GlobalSim.step - the_vehicle.time_birth))
-
-			vehicles.remove(the_vehicle)
+	# Remove the vehicle from vehicles if stay is False
+	for vehicle_id in vehicles:
+		v = vehicles[vehicle_id]
+		if v.stay == False:
+			break
+	del vehicles[vehicle_id]
 
 	# Reset the stay flag
-	for the_vehicle in vehicles:
-		the_vehicle.stay = False
+	for vehicle_id in vehicles:
+		v = vehicles[vehicle_id]
+		v.stay = False
 
 	# Send all vehicle information via UDP
 	UDP_IP = "127.0.0.1"
