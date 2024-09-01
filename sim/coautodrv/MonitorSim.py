@@ -120,7 +120,7 @@ def refresh_vehicle_list(vehicles):
 		elif vehicle.vehicle_type == "E-CDA":
 			tree.insert("", "end", values=(step, vehicle.vehicle_id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location, vehicle.vehicle_acceleration, vehicle.vehicle_lane, vehicle.vehicle_route))
 		else:
-			print("Unknown vehicle type")
+			print(f"Unknown vehicle type: {vehicle.vehicle_type}")
 
 # Start or stop the server based on the button click
 def toggle_server():

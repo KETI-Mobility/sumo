@@ -144,7 +144,7 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 		# print(f"Step({GlobalSim.step}) {the_vehicle.vehicle_id} is the new vehicle")
 	else:
 		# Update the location of the vehicle
-		if vehicle_type == "C-VEH" or vehicle_type == "CE_VEH":
+		if vehicle_type == "C-VEH" or vehicle_type == "CE-VEH":
 			the_vehicle.update(vehicle_position, vehicle_speed)
 		elif vehicle_type == "T-CDA" or vehicle_type == "E-CDA":
 			the_vehicle.update(vehicle_position, vehicle_speed, vehicle_acceleration, vehicle_lane, vehicle_route)

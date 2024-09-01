@@ -74,7 +74,7 @@ class BSM(Message):
 class EDM(Message):
 
 	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed):
-		super().__init__(Message.Type.MSG_BSMplus, sender_vehicle_id, sender_vehicle_type)
+		super().__init__(Message.Type.MSG_EDM, sender_vehicle_id, sender_vehicle_type)
 		self.sender_location = sender_location
 		self.sender_speed = sender_speed
 
