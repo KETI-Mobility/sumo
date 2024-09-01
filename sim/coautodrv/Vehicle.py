@@ -213,29 +213,23 @@ class C_VEH(_C_VEH):
 	# def get_distance(self) -> float:
 	# def get_speed(self) -> float:
 	# def create_bsm(self) -> BSM:
-	# def send_bsm(self, channel:Channel) -> None:
+	# def send_bsm(self, step, channel:Channel) -> None:
 	
 	def receive(self, step, channel:Channel) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSM):
-					self.receive_bsm(message)
+					self.receive_bsm(step, message)
 				elif isinstance(message, EDM):
-					self.receive_edm(message)
+					self.receive_edm(step, message)
 				else:
-					pass
-					# print(f"Step({step}) Vehicle id:{self.vehicle_id}: Unknown message type")
+					print(f"Step({step}) {self.vehicle_id} received a unknown message sent by {message.sender_vehicle_id}")
 
 	def receive_bsm(self, step, bsm:BSM) -> None:
-		# print(f"Step({step}) {self.vehicle_id} received BSM")
+		print(f"Step({step}) {self.vehicle_id} received BSM sent by {bsm.sender_vehicle_id}")
 
-		bsm.show_msg()
-		# TODO: process bsm
-		
 	def receive_edm(self, step, edm:EDM) -> None:
-		# print(f"Step({step}) {self.vehicle_id} received EDM")
-
-		print(f"Step({step}) receive_edm, max_speed: {self.max_speed}")
+		print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
 
 		edm.show_msg()
 		if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING and self.get_distance_to(edm.sender_location) < 300.0:
@@ -244,8 +238,6 @@ class C_VEH(_C_VEH):
 		elif self.max_speed == self.max_speed_emergency and (self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED):
 			self.max_speed = self.max_speed_normal
 			self.new_event = True
-
-	
 
 	def show_info(self) -> None:
 		pass
@@ -291,38 +283,31 @@ class CE_VEH(_C_VEH):
 	# def get_distance(self) -> float:
 	# def get_speed(self) -> float:
 	# def create_bsm(self) -> BSM:
-	# def send_bsm(self, channel:Channel) -> None:
+	# def send_bsm(self, step, channel:Channel) -> None:
 	
 	def create_edm(self) -> EDM:
 		edm = EDM(self.vehicle_id, self.vehicle_type, self.get_location(), self.vehicle_speed)
 		return edm
 
-	def send_edm(self, channel:Channel) -> None:
+	def send_edm(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_edm())
-		print("Step({}) Vehicle {}: EDM sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent EDM")
 
-	def receive(self, channel:Channel) -> None:
+	def receive(self, step, channel:Channel) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSM):
-					self.receive_bsm(message)
+					self.receive_bsm(step, message)
 				elif isinstance(message, EDM):
-					self.receive_edm(message)
+					self.receive_edm(step, message)
 				else:
-					pass
-					# print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
+					print(f"Step({step}) {self.vehicle_id} received a unknown message sent by {message.sender_vehicle_id}")
 
-	def receive_bsm(self, bsm:BSM) -> None:
-		# print("Step({}) Vehicle id:{}: BSM received".format(GlobalSim.step, self.vehicle_id))
+	def receive_bsm(self, step, bsm:BSM) -> None:
+		print(f"Step({step}) {self.vehicle_id} received BSM sent by {bsm.sender_vehicle_id}")
 
-		bsm.show_msg()
-		# TODO: process BSM
-
-	def receive_edm(self, edm:EDM) -> None:
-		# print("Step({}) Vehicle id:{}: EDM received".format(GlobalSim.step, self.vehicle_id))
-
-		edm.show_msg()
-		# TODO: process edm
+	def receive_edm(self, step, edm:EDM) -> None:
+		print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
 
 	def show_info(self) -> None:
 		pass
@@ -381,7 +366,7 @@ class E_CDA(_C_VEH):
 	# def get_distance(self) -> float:
 	# def get_speed(self) -> float:
 	# def create_bsm(self) -> BSM:
-	# def send_bsm(self, channel:Channel) -> None:
+	# def send_bsm(self, step, channel:Channel) -> None:
 	
 	def create_bsm_plus(self) -> BSMplus:
 		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_route)
@@ -399,71 +384,56 @@ class E_CDA(_C_VEH):
 		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.get_location())
 		return dnm_resp
 	
-	def send_bsm_plus(self, channel:Channel) -> None:
+	def send_bsm_plus(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_bsm_plus())
-		# print("Step({}) Vehicle {}: BSM+ sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent BSM+")
 
-	def send_dmm(self, channel:Channel) -> None:
+	def send_dmm(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_dmm())
-		# print("Step({}) Vehicle {}: DMM sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent DMM")
 
-	def send_dnm_req(self, channel:Channel) -> None:
+	def send_dnm_req(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_dnm_req())
-		# print("Step({}) Vehicle {}: DNMReq sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent DNMReq")
 
-	def send_dnm_resp(self, channel:Channel) -> None:
+	def send_dnm_resp(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_dnm_resp())
-		# print("Step({}) Vehicle {}: DNMResp sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent DNMResp")
 
-	def receive(self, channel:Channel) -> None:
+	def receive(self, step, channel:Channel) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSM):
-					self.receive_bsm(message)
+					self.receive_bsm(step, message)
 				elif isinstance(message, BSMplus):
-					self.receive_bsm_plus(message)
+					self.receive_bsm_plus(step, message)
 				elif isinstance(message, DMM):
-					self.receive_dmm(message)
+					self.receive_dmm(step, message)
 				elif isinstance(message, DNMReq):
-					self.receive_dnm_req(message)
+					self.receive_dnm_req(step, message)
 				elif isinstance(message, DNMResp):
-					self.receive_dnm_resp(message)
+					self.receive_dnm_resp(step, message)
 				else:
-					pass
-					# print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
+					print(f"Step({step}) {self.vehicle_id} received a unknown message")
 
-	def receive_bsm(self, bsm:BSM) -> None:
-		# print("Step({}) Vehicle id:{}: BSM received".format(GlobalSim.step, self.vehicle_id))
+	def receive_bsm(self, step, bsm:BSM) -> None:
+		print(f"Step({step}) {self.vehicle_id} received BSM sent by {bsm.sender_vehicle_id}")
 
-		bsm.show_msg()
-		# TODO: process BSM
+	def receive_bsm_plus(self, step, bsm_plus:BSMplus) -> None:
+		print(f"Step({step}) {self.vehicle_id} received BSM+ sent by {bsm_plus.sender_vehicle_id}")
 
-	def receive_bsm_plus(self, bsm_plus:BSMplus) -> None:
-		# print("Step({}) Vehicle id:{}: BSM+ received".format(GlobalSim.step, self.vehicle_id))
+	def receive_dmm(self, step, dmm:DMM) -> None:
+		print(f"Step({step}) {self.vehicle_id} received DMM sent by {dmm.sender_vehicle_id}")
 
-		bsm_plus.show_msg()
-		# TODO: process BSM+
+	def receive_dnm_req(self, step, dnm_req:DNMReq) -> None:
+		print(f"Step({step}) {self.vehicle_id} received DNMReq sent by {dnm_req.sender_vehicle_id}")
 
-	def receive_dmm(self, dmm:DMM) -> None:
-		# print("Step({}) Vehicle id:{}: DMM received".format(GlobalSim.step, self.vehicle_id))
-
-		dmm.show_msg()
-		# TODO: process DMM
-
-	def receive_dnm_req(self, dnm_req:DNMReq) -> None:
-		# print("Step({}) Vehicle id:{}: DNMReq received".format(GlobalSim.step, self.vehicle_id))
-
-		dnm_req.show_msg()
-		# TODO: process DNMReq
-
-	def receive_dnm_resp(self, dnm_resp:DNMResp) -> None:
-		# print("Step({}) Vehicle id:{}: DNMResp received".format(GlobalSim.step, self.vehicle_id))
+	def receive_dnm_resp(self, step, dnm_resp:DNMResp) -> None:
+		print(f"Step({step}) {self.vehicle_id} received DNMResp sent by {dnm_resp.sender_vehicle_id}")
 		
-		dnm_resp.show_msg()
-		# TODO: process DNMResp
-
 	def show_info(self) -> None:
-		print("Step({}) Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(GlobalSim.step, self.vehicle_id, self.vehicle_type, self.state, self.get_distance()))
+		pass
+		# print("Step({}) Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(GlobalSim.step, self.vehicle_id, self.vehicle_type, self.state, self.get_distance()))
 
 
 ##############################################################################
@@ -536,55 +506,50 @@ class T_CDA(_C_VEH):
 		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.get_location())
 		return dnm_resp
 	
-	def send_bsm_plus(self, channel:Channel) -> None:
+	def send_bsm_plus(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_bsm())
-		# print("Step({}) Vehicle {}: BSM+ sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent BSM+")
 
-	def send_dmm(self, channel:Channel) -> None:
+	def send_dmm(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_dmm())
-		# print("Step({}) Vehicle {}: DMM sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent DMM")
 
-	def send_dnm_req(self, channel:Channel) -> None:
+	def send_dnm_req(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_dnm_req())
-		# print("Step({}) Vehicle {}: DNMReq sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent DNMReq")
 
-	def send_dnm_resp(self, channel:Channel) -> None:
+	def send_dnm_resp(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_dnm_resp())
-		# print("Step({}) Vehicle {}: DNMResp sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent DNMResp")
 
-	def receive(self, channel:Channel) -> None:
+	def receive(self, step, channel:Channel) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSMplus):
-					self.receive_bsm(message)
+					self.receive_bsm(step, message)
 				elif isinstance(message, DMM):
-					self.receive_dmm(message)
+					self.receive_dmm(step, message)
 				elif isinstance(message, DNMReq):
-					self.receive_dnm_req(message)
+					self.receive_dnm_req(step, message)
 				elif isinstance(message, DNMResp):
-					self.receive_dnm_resp(message)
+					self.receive_dnm_resp(step, message)
 				else:
-					pass
-					# print("Step({}) Vehicle {}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
+					print(f"Step({step}) {self.vehicle_id} received a unknown message sent by {message.sender_vehicle_id}")
 
-	def receive_bsm(self, bsm_plus:BSMplus) -> None:
-		pass
-		# print("Step({}) Vehicle {}: BSM+ received".format(GlobalSim.step, self.vehicle_id))
+	def receive_bsm(self, step, bsm_plus:BSMplus) -> None:
+		print(f"Step({step}) {self.vehicle_id} received BSM+ sent by {bsm_plus.sender_vehicle_id}")
 		# TODO: process bsm+
 
-	def receive_dmm(self, dmm:DMM) -> None:
-		pass
-		# print("Step({}) Vehicle {}: DMM received".format(GlobalSim.step, self.vehicle_id))
+	def receive_dmm(self, step, dmm:DMM) -> None:
+		print(f"Step({step}) {self.vehicle_id} received DMM sent by {dmm.sender_vehicle_id}")
 		# TODO: process dmm
 
-	def receive_dnm_req(self, dnm_req:DNMReq) -> None:
-		pass
-		# print("Step({}) Vehicle {}: DNMReq received".format(GlobalSim.step, self.vehicle_id))
+	def receive_dnm_req(self, step, dnm_req:DNMReq) -> None:
+		print(f"Step({step}) {self.vehicle_id} received DNMReq sent by {dnm_req.sender_vehicle_id}")
 		# TODO: process dnm_req
 
-	def receive_dnm_resp(self, dnm_resp:DNMResp) -> None:
-		pass
-		# print("Step({}) Vehicle {}: DNMResp received".format(GlobalSim.step, self.vehicle_id))
+	def receive_dnm_resp(self, step, dnm_resp:DNMResp) -> None:
+		print(f"Step({step}) {self.vehicle_id} received DNMResp sent by {dnm_resp.sender_vehicle_id}")
 		# TODO: process dnm_resp
 
 	def show_info(self) -> None:

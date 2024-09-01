@@ -203,11 +203,11 @@ def custom_code_at_step() -> None:
 		# E-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, T-CDA's BSM+, DMM, DNM)
 		# T-CDA knows the information of all vehicles (C-VEH's BSM, CE-VEH's BSM, EDM, E-CDA's BSM+, DMM, DNM)
 		if the_vehicle is not None and the_vehicle is not N_VEH:
-			the_vehicle.send_bsm(channel)
+			the_vehicle.send_bsm(GlobalSim.step, channel)
 
 			# print("Type: {}".format(the_vehicle.vehicle_type))
 			if the_vehicle.vehicle_type == "CE-VEH":
-				the_vehicle.send_edm(channel)
+				the_vehicle.send_edm(GlobalSim.step, channel)
 
 		# Roundabout (Class A)
 		# E-CDA evaulates C-VEH's existence on roundabout (to check C-VEH's speed, TTB(Time-to-Break) at cross point)
@@ -228,7 +228,7 @@ def custom_code_at_step() -> None:
 
 	# Receive the BSM from the vehicles via channel
 	for the_vehicle in vehicles:
-		the_vehicle.receive(channel)
+		the_vehicle.receive(GlobalSim.step, channel)
 
 		if the_vehicle is C_VEH and the_vehicle.new_event == True:
 			print(f"New event(Id: {the_vehicle.vehicle_id}): max speed: {the_vehicle.max_speed}")

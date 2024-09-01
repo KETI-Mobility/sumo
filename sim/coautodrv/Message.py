@@ -8,7 +8,6 @@
 
 import os
 import sys
-import traci
 import math
 from enum import Enum
 from typing import TYPE_CHECKING
