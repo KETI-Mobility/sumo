@@ -2,7 +2,7 @@
 
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
     <input>
-        <net-file value="Roundabout.net.xml"/>
+        <net-file value="RoundaboutNormal.net.xml"/>
         <route-files value="Roundabout.rou.xml"/>
         <gui-settings-file value="Roundabout.settings.xml"/>
     </input>
