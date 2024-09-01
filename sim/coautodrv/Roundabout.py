@@ -59,6 +59,7 @@ channel = Channel()
 min_gap = 0.0
 tau = 0.0
 mode = 0
+ENABLE = True
 
 def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	global vehicles, rsu_location
@@ -224,36 +225,37 @@ def custom_code_at_step() -> None:
 	for vehicle_id in vehicles:
 		v = vehicles[vehicle_id]
 		v.receive(GlobalSim.step, channel)
-		"""
-		if v.vehicle_type == "C-VEH" and v.new_event == True:
-			if v.max_speed == v.max_speed_emergency:
-				# print(f"New event(Id: {v.vehicle_id}): Emergency")
-				# traci.vehicle.setMaxSpeed(v.vehicle_id, v.max_speed)
-				try:
-					# traci.vehicle.setSpeed(v.vehicle_id, v.max_speed)
-					tau = traci.vehicle.getTau(v.vehicle_id)
-					traci.vehicle.setTau(v.vehicle_id, 20.0)
-					mode = traci.vehicle.getSpeedMode(v.vehicle_id)
-					# print(f"{v.vehicle_id} getSpeedMode: {mode}")
-					traci.vehicle.setSpeedMode(v.vehicle_id, 1)
-					
-					min_gap = traci.vehicle.getMinGap(v.vehicle_id)
-					traci.vehicle.setMinGap(v.vehicle_id, 20.0)
-				except:
-					pass
-			elif v.max_speed == v.max_speed_normal:
-				# print(f"New event(Id: {v.vehicle_id}): Normal")
-				try:
-					# traci.vehicle.setSpeed(v.vehicle_id, v.max_speed)
-					traci.vehicle.setTau(v.vehicle_id, tau)
-					# print(f"{v.vehicle_id} setSpeedMode: {mode}")
-					traci.vehicle.setSpeedMode(v.vehicle_id, mode)
+		
+		if ENABLE == True:	# True/False로 시뮬레이션 하기
+			if v.vehicle_type == "C-VEH" and v.new_event == True:
+				if v.max_speed == v.max_speed_emergency:
+					# print(f"New event(Id: {v.vehicle_id}): Emergency")
+					# traci.vehicle.setMaxSpeed(v.vehicle_id, v.max_speed)
+					try:
+						# traci.vehicle.setSpeed(v.vehicle_id, v.max_speed)
+						tau = traci.vehicle.getTau(v.vehicle_id)
+						traci.vehicle.setTau(v.vehicle_id, 20.0)
+						mode = traci.vehicle.getSpeedMode(v.vehicle_id)
+						# print(f"{v.vehicle_id} getSpeedMode: {mode}")
+						traci.vehicle.setSpeedMode(v.vehicle_id, 1)
+						
+						min_gap = traci.vehicle.getMinGap(v.vehicle_id)
+						traci.vehicle.setMinGap(v.vehicle_id, 20.0)
+					except:
+						pass
+				elif v.max_speed == v.max_speed_normal:
+					# print(f"New event(Id: {v.vehicle_id}): Normal")
+					try:
+						# traci.vehicle.setSpeed(v.vehicle_id, v.max_speed)
+						traci.vehicle.setTau(v.vehicle_id, tau)
+						# print(f"{v.vehicle_id} setSpeedMode: {mode}")
+						traci.vehicle.setSpeedMode(v.vehicle_id, mode)
 
-					traci.vehicle.setMinGap(v.vehicle_id, min_gap)
-				except:
-					pass
-			v.new_event = False
-		"""
+						traci.vehicle.setMinGap(v.vehicle_id, min_gap)
+					except:
+						pass
+				v.new_event = False
+		
 	channel.reset()
 
 
