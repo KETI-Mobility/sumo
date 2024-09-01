@@ -147,13 +147,17 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 		else:
 			# print("Step({}) Vehicle id:{}, type:{} type not found".format(GlobalSim.step, vehicle_id, vehicle_type))
 			return None
-			
+		
 		# Add the vehicle to the vehicles list
 		vehicles.append(the_vehicle)
 		# print("Step({}) Vehicle id:{} added to the list".format(GlobalSim.step, vehicle_id))
 	else:
 		# Update the location of the vehicle
-		the_vehicle.update(vehicle_position, vehicle_speed)
+		if vehicle_type == "C-VEH" and vehicle_type == "CE_VEH":
+			the_vehicle.update(vehicle_position, vehicle_speed)
+		elif vehicle_type == "T-CDA" and vehicle_type == "E-CDA":
+			the_vehicle.update(vehicle_position, vehicle_speed, vehicle_acceleration, vehicle_lane, vehicle_route)
+			
 		# print("Step({}) Vehicle id:{} updated".format(GlobalSim.step, vehicle_id))
 		# the_vehicle.show_info()
 
@@ -189,7 +193,9 @@ def custom_code_at_step() -> None:
 	# the_vehicle의 BSM을 channel로 전송
 	for vehicle_id in vehicle_ids:
 		the_vehicle = get_data(vehicle_id)
-		
+
+		the_vehicle.update_state(GlobalSim.step)
+
 		# C-VEH sends its own information(BSM) to E-CDA and T-CDA
 		# CE-VEH sends its own information(BSM, EDM) to E-CDA and T-CDA 
 		# T-CDA sends its own information(BSM+, DMM, DNM) to E-CDA
@@ -199,7 +205,7 @@ def custom_code_at_step() -> None:
 		if the_vehicle is not None and the_vehicle is not N_VEH:
 			the_vehicle.send_bsm(channel)
 
-			print("Type: {}".format(the_vehicle.vehicle_type))
+			# print("Type: {}".format(the_vehicle.vehicle_type))
 			if the_vehicle.vehicle_type == "CE-VEH":
 				the_vehicle.send_edm(channel)
 
@@ -223,7 +229,14 @@ def custom_code_at_step() -> None:
 	# Receive the BSM from the vehicles via channel
 	for the_vehicle in vehicles:
 		the_vehicle.receive(channel)
+
+		if the_vehicle is C_VEH and the_vehicle.new_event == True:
+			print(f"New event(Id: {the_vehicle.vehicle_id}): max speed: {the_vehicle.max_speed}")
+			traci.vehicle.setMaxSpeed(vehicle_id, the_vehicle.max_speed)
+
+
 	channel.reset()
+
 
 	# Remove all vehicles from the list
 	for the_vehicle in vehicles:

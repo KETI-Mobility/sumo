@@ -1,12 +1,11 @@
 import os
 import sys
 import json
-# import traci
 import math
 from enum import Enum
 from Channel import Channel
 from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
-import GlobalSim
+
 
 class Maneuver(Enum):
 		NONE				= 0
@@ -100,7 +99,14 @@ class N_VEH(Vehicle):
 ##############################################################################
 
 class _C_VEH(Vehicle):
-
+	class State(str, Enum):
+		INITIAL = "INITIAL"
+		ADDED = "ADDED"
+		APPROACHING = "APPROACHING"
+		INSIDE = "INSIDE"
+		EXITING = "EXITING"
+		REMOVED = "REMOVED"
+		
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
 		super().__init__(time_birth, vehicle_id, vehicle_type)
 		self.rsu_location = rsu_location
@@ -121,7 +127,24 @@ class _C_VEH(Vehicle):
 			"vehicle_speed": self.vehicle_speed,
 			"vehicle_location": self.vehicle_location
         }
-		
+	
+	def update_state(self, step) -> None:
+		if self.state == _C_VEH.State.INITIAL:
+			print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
+			self.state = _C_VEH.State.ADDED
+		elif self.state == _C_VEH.State.ADDED and self.get_distance_to_rsu() < 100:
+			print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			self.state = _C_VEH.State.APPROACHING
+		elif self.state == _C_VEH.State.APPROACHING and self.get_distance_to_rsu() < 30:
+			print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			self.state = _C_VEH.State.INSIDE
+		elif self.state == _C_VEH.State.INSIDE and self.get_distance_to_rsu() > 50:
+			print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			self.state = _C_VEH.State.EXITING
+		elif self.state == _C_VEH.State.EXITING and self.get_distance_to_rsu() > 200:
+			print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			self.state = _C_VEH.State.REMOVED
+
 	def update(self, new_location, new_speed) -> None:
 		self.stay = True
 		self.vehicle_location = new_location
@@ -130,7 +153,11 @@ class _C_VEH(Vehicle):
 	def get_location(self) -> tuple:
 		return self.vehicle_location 
 	
-	def get_distance(self) -> float:
+	# New function to calculate distance between vehicle and another vehicle's location as a tuple
+	def get_distance_to(self, another_location) -> float:
+		return math.sqrt((self.vehicle_location[0] - another_location[0])**2 + (self.vehicle_location[1] - another_location[1])**2)
+	
+	def get_distance_to_rsu(self) -> float:
 		return math.sqrt((self.vehicle_location[0] - self.rsu_location[0])**2 + (self.vehicle_location[1] - self.rsu_location[1])**2)
 	
 	def get_speed(self) -> float:
@@ -140,9 +167,9 @@ class _C_VEH(Vehicle):
 		bsm = BSM(self.vehicle_id, self.vehicle_type, self.vehicle_location, self.vehicle_speed)
 		return bsm
 
-	def send_bsm(self, channel:Channel) -> None:
+	def send_bsm(self, step, channel:Channel) -> None:
 		channel.add_message(self.create_bsm())
-		print("Step({}) Vehicle id:{}: BSM sent".format(GlobalSim.step, self.vehicle_id))
+		print(f"Step({step}) {self.vehicle_id} sent BSM")
 
 ##############################################################################
 #  Connected Emergency Vehicle (CE-VEH) class
@@ -153,22 +180,14 @@ class _C_VEH(Vehicle):
 ##############################################################################
 class C_VEH(_C_VEH):
 
-	class State(str, Enum):
-		INITIAL = "INITIAL"
-		ADDED = "ADDED"
-		APPROACHING = "APPROACHING"
-		INSIDE = "INSIDE"
-		EXITING = "EXITING"
-		REMOVED = "REMOVED"
-
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
 		
-		# self.max_speed_normal = traci.vehicle.getMaxSpeed(self.vehicle_id)
-		self.max_speed_normal = 22.22	# 22.22 m/s (80km/h)
+		self.max_speed_normal = 55.55	# 55.55 m/s (200km/h)
 		self.max_speed_emergency = 8.33	# 8.33 m/s (30km/h)
 		self.max_speed = self.max_speed_normal
-		# print("**** Max speed: {}".format(self.max_speed_normal))
+		
+		self.new_event = False
 		self.state = C_VEH.State.INITIAL
 	
 	@classmethod
@@ -196,7 +215,7 @@ class C_VEH(_C_VEH):
 	# def create_bsm(self) -> BSM:
 	# def send_bsm(self, channel:Channel) -> None:
 	
-	def receive(self, channel:Channel) -> None:
+	def receive(self, step, channel:Channel) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSM):
@@ -205,45 +224,28 @@ class C_VEH(_C_VEH):
 					self.receive_edm(message)
 				else:
 					pass
-					# print("Step({}) Vehicle id:{}: Unknown message type".format(GlobalSim.step, self.vehicle_id))
+					# print(f"Step({step}) Vehicle id:{self.vehicle_id}: Unknown message type")
 
-	def receive_bsm(self, bsm:BSM) -> None:
-		# print("Step({}) Vehicle id:{}: BSM received".format(GlobalSim.step, self.vehicle_id))
+	def receive_bsm(self, step, bsm:BSM) -> None:
+		# print(f"Step({step}) {self.vehicle_id} received BSM")
 
 		bsm.show_msg()
 		# TODO: process bsm
 		
-	def receive_edm(self, edm:EDM) -> None:
-		# print("Step({}) Vehicle id:{}: EDM received".format(GlobalSim.step, self.vehicle_id))
+	def receive_edm(self, step, edm:EDM) -> None:
+		# print(f"Step({step}) {self.vehicle_id} received EDM")
 
-		print("Step({}) receive_edm, max_speed: {}".format(GlobalSim.step, self.max_speed))
+		print(f"Step({step}) receive_edm, max_speed: {self.max_speed}")
 
 		edm.show_msg()
-		if self.max_speed != self.max_speed_emergency and self.get_distance() < 300.0:
+		if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING and self.get_distance_to(edm.sender_location) < 300.0:
 			self.max_speed = self.max_speed_emergency
-			# traci.vehicle.setMaxSpeed(self.vehicle_id, self.max_speed_emergency)
-			print("Step({}) Max speed decreases {}".format(GlobalSim.step, self.max_speed))
-		elif self.max_speed == self.max_speed_emergency and self.get_distance() >= 300.0:
+			self.new_event = True
+		elif self.max_speed == self.max_speed_emergency and (self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED):
 			self.max_speed = self.max_speed_normal
-			# traci.vehicle.setMaxSpeed(self.vehicle_id, self.max_speed_normal)
-			print("Step({}) Max speed restore {}".format(GlobalSim.step, self.max_speed))
+			self.new_event = True
 
-	def update_state(self) -> None:
-		if self.state == C_VEH.State.INITIAL:
-			# print("Step({}) INITIAL -> ADDED".format(GlobalSim.step))
-			self.state = C_VEH.State.ADDED
-		elif self.state == C_VEH.State.ADDED and self.get_distance(self) < 100:
-			# print("Step({}) ADDED -> APPROACHING".format(GlobalSim.step))
-			self.state = C_VEH.State.APPROACHING
-		elif self.state == C_VEH.State.APPROACHING and self.get_distance(self) < 50:
-			# print("Step({}) APPROACHING -> INSIDE".format(GlobalSim.step, ))
-			self.state = C_VEH.State.INSIDE
-		elif self.state == C_VEH.State.INSIDE and self.get_distance(self) > 50:
-			# print("Step({}) INSIDE -> EXITING".format(GlobalSim.step))
-			self.state = C_VEH.State.EXITING
-		elif self.state == C_VEH.State.EXITING and self.get_distance(self) > 100:
-			# print("Step({}) EXITING -> REMOVED".format(GlobalSim.step))
-			self.state = C_VEH.State.REMOVED
+	
 
 	def show_info(self) -> None:
 		pass
@@ -259,14 +261,6 @@ class C_VEH(_C_VEH):
 ##############################################################################
 
 class CE_VEH(_C_VEH):
-
-	class State(str, Enum):
-		INITIAL = "INITIAL"
-		ADDED = "ADDED"
-		APPROACHING = "APPROACHING"
-		INSIDE = "INSIDE"
-		EXITING = "EXITING"
-		REMOVED = "REMOVED"
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
@@ -330,23 +324,6 @@ class CE_VEH(_C_VEH):
 		edm.show_msg()
 		# TODO: process edm
 
-	def update_state(self) -> None:
-		if self.state == CE_VEH.State.INITIAL:
-			# print("Step({}) INITIAL -> ADDED".format(GlobalSim.step))
-			self.state = CE_VEH.State.ADDED
-		elif self.state == CE_VEH.State.ADDED and self.get_distance(self) < 100:
-			# print("Step({}) ADDED -> APPROACHING".format(GlobalSim.step))
-			self.state = CE_VEH.State.APPROACHING
-		elif self.state == CE_VEH.State.APPROACHING and self.get_distance(self) < 50:
-			# print("Step({}) APPROACHING -> INSIDE".format(GlobalSim.step))
-			self.state = CE_VEH.State.INSIDE
-		elif self.state == CE_VEH.State.INSIDE and self.get_distance(self) > 50:
-			# print("Step({}) INSIDE -> EXITING".format(GlobalSim.step))
-			self.state = CE_VEH.State.EXITING
-		elif self.state == CE_VEH.State.EXITING and self.get_distance(self) > 100:
-			# print("Step({}) EXITING -> REMOVED".format(GlobalSim.step))
-			self.state = CE_VEH.State.REMOVED
-
 	def show_info(self) -> None:
 		pass
 		# print("Step({}) Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(GlobalSim.step, self.vehicle_id, self.vehicle_type, self.state, self.get_distance()))
@@ -361,14 +338,6 @@ class CE_VEH(_C_VEH):
 ##############################################################################
 
 class E_CDA(_C_VEH):
-
-	class State(str, Enum):
-		INITIAL = "INITIAL"
-		ADDED = "ADDED"
-		APPROACHING = "APPROACHING"
-		INSIDE = "INSIDE"
-		EXITING = "EXITING"
-		REMOVED = "REMOVED"
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
@@ -399,6 +368,14 @@ class E_CDA(_C_VEH):
 			"state": self.state
         }
 	
+	def update(self, new_location, new_speed, new_acceleration, new_lane, new_route) -> None:
+		self.stay = True
+		self.vehicle_location = new_location
+		self.vehicle_speed = new_speed
+		self.vehicle_acceleration = new_acceleration
+		self.vehicle_lane = new_lane
+		self.vehicle_route = new_route
+
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
 	# def get_distance(self) -> float:
@@ -484,23 +461,6 @@ class E_CDA(_C_VEH):
 		
 		dnm_resp.show_msg()
 		# TODO: process DNMResp
-	
-	def update_state(self) -> None:
-		if self.state == E_CDA.State.INITIAL:
-			# print("Step({}) INITIAL -> ADDED".format(GlobalSim.step))
-			self.state = E_CDA.State.ADDED
-		elif self.state == E_CDA.State.ADDED and self.get_distance(self) < 100:
-			# print("Step({}) ADDED -> APPROACHING".format(GlobalSim.step))
-			self.state = E_CDA.State.APPROACHING
-		elif self.state == E_CDA.State.APPROACHING and self.get_distance(self) < 50:
-			# print("Step({}) APPROACHING -> INSIDE".format(GlobalSim.step))
-			self.state = E_CDA.State.INSIDE
-		elif self.state == E_CDA.State.INSIDE and self.get_distance(self) > 50:
-			# print("Step({}) INSIDE -> EXITING".format(GlobalSim.step))
-			self.state = E_CDA.State.EXITING
-		elif self.state == E_CDA.State.EXITING and self.get_distance(self) > 100:
-			print("Step({}) EXITING -> REMOVED".format(GlobalSim.step))
-			self.state = E_CDA.State.REMOVED
 
 	def show_info(self) -> None:
 		print("Step({}) Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(GlobalSim.step, self.vehicle_id, self.vehicle_type, self.state, self.get_distance()))
@@ -515,14 +475,6 @@ class E_CDA(_C_VEH):
 ##############################################################################
 
 class T_CDA(_C_VEH):
-
-	class State(str, Enum):
-		INITIAL = "INITIAL"
-		ADDED = "ADDED"
-		APPROACHING = "APPROACHING"
-		INSIDE = "INSIDE"
-		EXITING = "EXITING"
-		REMOVED = "REMOVED"
 
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
@@ -553,6 +505,14 @@ class T_CDA(_C_VEH):
 			"state": self.state
         }
 	
+	def update(self, new_location, new_speed, new_acceleration, new_lane, new_route) -> None:
+		self.stay = True
+		self.vehicle_location = new_location
+		self.vehicle_speed = new_speed
+		self.vehicle_acceleration = new_acceleration
+		self.vehicle_lane = new_lane
+		self.vehicle_route = new_route
+
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
 	# def get_distance(self) -> float:
@@ -626,23 +586,6 @@ class T_CDA(_C_VEH):
 		pass
 		# print("Step({}) Vehicle {}: DNMResp received".format(GlobalSim.step, self.vehicle_id))
 		# TODO: process dnm_resp
-
-	def update_state(self) -> None:
-		if self.state == T_CDA.State.INITIAL:
-			# print("Step({}) INITIAL -> ADDED".format(GlobalSim.step))
-			self.state = T_CDA.State.ADDED
-		elif self.state == T_CDA.State.ADDED and self.get_distance(self) < 100:
-			# print("Step({}) ADDED -> APPROACHING".format(GlobalSim.step))
-			self.state = T_CDA.State.APPROACHING
-		elif self.state == T_CDA.State.APPROACHING and self.get_distance(self) < 50:
-			# print("Step({}) APPROACHING -> INSIDE".format(GlobalSim.step))
-			self.state = T_CDA.State.INSIDE
-		elif self.state == T_CDA.State.INSIDE and self.get_distance(self) > 50:
-			# print("Step({}) INSIDE -> EXITING".format(GlobalSim.step))
-			self.state = T_CDA.State.EXITING
-		elif self.state == T_CDA.State.EXITING and self.get_distance(self) > 100:
-			# print("Step({}) EXITING -> REMOVED".format(GlobalSim.step))
-			self.state = T_CDA.State.REMOVED
 
 	def show_info(self) -> None:
 		pass

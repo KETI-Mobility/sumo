@@ -131,7 +131,7 @@ class _C_VEH(Vehicle):
 	def get_location(self) -> tuple:
 		return self.vehicle_location 
 	
-	def get_distance(self) -> float:
+	def get_distance_to_rsu(self) -> float:
 		return math.sqrt((self.vehicle_location[0] - self.rsu_location[0])**2 + (self.vehicle_location[1] - self.rsu_location[1])**2)
 	
 	def get_speed(self) -> float:
