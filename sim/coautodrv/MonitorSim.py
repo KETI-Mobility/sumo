@@ -1,51 +1,100 @@
+import os
 import sys
 import json
 import socket
+import math
+import json
 import threading
 import tkinter as tk
 from tkinter import ttk
+from enum import Enum
+from typing import Union, List
+from Vehicle import Vehicle, T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH
+from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
+from Channel import Channel
 
-
-# Vehicle class to handle JSON serialization and deserialization
-class Vehicle:
-	def __init__(self, vehicle_id, speed, location):
-		self.id = vehicle_id
-		self.speed = speed
-		self.location = location
-
-	def to_json(self):
-		return json.dumps({
-			"id": self.id,
-			"speed": self.speed,
-			"location": self.location
-		})
-
-	@staticmethod
-	def from_json(data):
-		obj = json.loads(data)
-		return Vehicle(obj['id'], obj['speed'], obj['location'])
-
+# Global variables
+root = tk.Tk()
+tree = None
+sock = None
+port_entry = None
+toggle_button = None
+status_label = None
+vehicles = {}  # Dictionary to store vehicle objects
+server_running = False  # Server running state
+udp_thread = None
+stop_event = None  # Event to stop the server thread
+step = 0
 
 # Thread function to handle UDP socket communication
 def udp_receiver_thread(vehicles, update_callback, port, stop_event):
-	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	sock.bind(('', port))
+	global sock, step
+
+	try:
+		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		sock.bind(('', port))
+	except Exception as e:
+		print(f"Error setting up socket: {e}")
+		return
 
 	while not stop_event.is_set():
 		try:
 			data, _ = sock.recvfrom(1024)  # Buffer size is 1024 bytes
-			print("Rx data:", data)
-			
 			if data:
-				# Assuming data is TLV formatted
-				type_field = data[0]
-				length_field = data[1]
-				if type_field == 1:  # T=1 for JSON
-					json_data = data[2:2 + length_field].decode('utf-8')
-					vehicle = Vehicle.from_json(json_data)
+				json_data = data.decode('utf-8')
+				print("Rx data:", json_data)
+			
+				# Parse the JSON data
+				data_dict = json.loads(json_data)
+
+				# Extract the "time_birst" value
+				step = data_dict.get("time_birth")		
+				vehicle_id = data_dict.get("vehicle_id")
+				vehicle_type = data_dict.get("vehicle_type")
+				rsu_location = data_dict.get("rsu_location")
+				vehicle_speed = data_dict.get("vehicle_speed")
+				vehicle_location = data_dict.get("vehicle_location")
+				vehicle_acceleration = data_dict.get("vehicle_acceleration")
+				vehicle_lane = data_dict.get("vehicle_lane")
+				vehicle_route = data_dict.get("vehicle_route")
+
+				print("Vehicle Type:", vehicle_speed)
+
+				if vehicle_type == "N-VEH":
+					update_callback(vehicles, step, vehicle_id, vehicle_type, None, None, None, None, None, None)
+				elif vehicle_type == "C-VEH":
+					update_callback(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, None, None, None)
+				elif vehicle_type == "CE-VEH":
+					update_callback(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, None, None, None)
+				elif vehicle_type == "T-CDA":
+					update_callback(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route)
+				elif vehicle_type == "E-CDA":
+					update_callback(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route)
+				else:
+					print("Unknown vehicle type")
+
+
+				""" # Mapping of vehicle types to their respective classes
+				vehicle_class_map = {
+						"N-VEH": N_VEH,
+						"C-VEH": C_VEH,
+						"CE-VEH": CE_VEH,
+						"T-CDA": T_CDA,
+						"E-CDA": E_CDA
+				}
+				# Get the appropriate class based on vehicle_type
+				vehicle_class = vehicle_class_map.get(vehicle_type)
+				print("Vehicle Class:", vehicle_class)
+				if vehicle_class:
+					vehicle = vehicle_class.from_json(json_data)
+					print(vehicle_class)
 
 					# Update vehicle list in GUI
 					update_callback(vehicles, vehicle)
+				else:
+					print(f"Unknown vehicle type: {vehicle_type}") """
+
+				
 		except Exception as e:
 			print(f"Error processing data: {e}")
 			break
@@ -54,25 +103,69 @@ def udp_receiver_thread(vehicles, update_callback, port, stop_event):
 
 
 # Function to update vehicle list in the GUI
-def update_vehicle_list(vehicles, vehicle):
-	if vehicle.id in vehicles:
+def update_vehicle_list(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
+	if vehicle_id in vehicles:
+		print("Update existing vehicle")
+		print(vehicle_id)
+
 		# Update existing vehicle info
-		vehicles[vehicle.id] = vehicle
+		
 	else:
 		# Add new vehicle
-		vehicles[vehicle.id] = vehicle
+		print(f"Add new vehicle, type: {vehicle_id}")
+		
+		if vehicle_type == "N-VEH":
+			vehicle = N_VEH(step, vehicle_id, vehicle_type)
+		elif vehicle_type == "C-VEH":
+			vehicle = C_VEH(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+		elif vehicle_type == "CE-VEH":
+			vehicle = CE_VEH(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+		elif vehicle_type == "T-CDA":
+			vehicle = T_CDA(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route)
+		elif vehicle_type == "E-CDA":
+			vehicle = E_CDA(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route)
+		else:
+			print("Unknown vehicle type")
+		
+		print(f"New vehicle is added, type: {vehicle_id}")
+
+		# vehicles[vehicle_id] = vehicle
+
+	# refresh_vehicle_list(vehicles)
+
+"""
+def update_vehicle_list(vehicles, vehicle):
+	if vehicle.vehicle_id in vehicles:
+		# Update existing vehicle info
+		vehicles[vehicle.vehicle_id] = vehicle
+	else:
+		# Add new vehicle
+		vehicles[vehicle.vehicle_id] = vehicle
 
 	refresh_vehicle_list(vehicles)
-
+"""
 
 # Function to refresh the GUI vehicle list
 def refresh_vehicle_list(vehicles):
+	global tree, step
+
 	for row in tree.get_children():
 		tree.delete(row)
 
+	# "Time", "V ID", "V Type", "R Location", "V Speed", "V Location", "V Acceleration", "V Lane", "V Route")
 	for vehicle_id, vehicle in vehicles.items():
-		tree.insert("", "end", values=(vehicle.id, vehicle.speed, vehicle.location))
-
+		if vehicle.vehicle_type == "N_VEH":
+			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type))
+		elif vehicle.vehicle_type == "C_VEH":
+			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location))
+		elif vehicle.vehicle_type == "CE_VEH":
+			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location))
+		elif vehicle.vehicle_type == "T_CDA":
+			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location, vehicle.vehicle_acceleration, vehicle.vehicle_lane, vehicle.vehicle_route))
+		elif vehicle.vehicle_type == "E_CDA":
+			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location, vehicle.vehicle_acceleration, vehicle.vehicle_lane, vehicle.vehicle_route))
+		else:
+			print("Unknown vehicle type")
 
 # Start or stop the server based on the button click
 def toggle_server():
@@ -97,10 +190,9 @@ def toggle_server():
 		except ValueError:
 			status_label.config(text="Invalid port number")
 
-
 # Main function to create the GUI
 def main():
-	global tree, port_entry, toggle_button, status_label
+	global root, tree, port_entry, toggle_button, status_label
 	global vehicles, server_running, udp_thread, stop_event
 
 	vehicles = {}  # Dictionary to store vehicle objects
@@ -108,7 +200,6 @@ def main():
 	stop_event = threading.Event()  # Event to stop the server thread
 
 	# Create main window
-	root = tk.Tk()
 	root.title("Vehicle Monitor")
 	root.geometry("500x400")
 
@@ -128,11 +219,29 @@ def main():
 	status_label.pack(pady=10)
 
 	# Treeview for displaying vehicles
-	columns = ("ID", "Speed", "Location")
+	columns = ("Time", "V ID", "V Type", "R Location", "V Speed", "V Location", "V Acceleration", "V Lane", "V Route")
 	tree = ttk.Treeview(root, columns=columns, show="headings")
-	tree.heading("ID", text="ID")
-	tree.heading("Speed", text="Speed")
-	tree.heading("Location", text="Location")
+	tree.heading("Time", text="Time")
+	tree.heading("V ID", text="V ID")
+	tree.heading("V Type", text="V Type")
+	tree.heading("R Location", text="R Location")
+	tree.heading("V Speed", text="V Speed")
+	tree.heading("V Location", text="V Location")
+	tree.heading("V Acceleration", text="V Acceleration")
+	tree.heading("V Lane", text="V Lane")
+	tree.heading("V Route", text="V Route")
+
+	# Customize column widths
+	tree.column("Time", width=60)
+	tree.column("V ID", width=60)
+	tree.column("V Type", width=60)
+	tree.column("R Location", width=100)
+	tree.column("V Speed", width=60)
+	tree.column("V Location", width=100)
+	tree.column("V Acceleration", width=60)
+	tree.column("V Lane", width=60)
+	tree.column("V Route", width=200)
+
 	tree.pack(fill=tk.BOTH, expand=True, pady=20)
 
 	# Start Tkinter event loop
