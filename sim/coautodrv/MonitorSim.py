@@ -156,7 +156,7 @@ def main():
 
 	# Create main window
 	root.title("Vehicle Monitor")
-	root.geometry("500x400")
+	root.geometry("900x500")
 
 	# Frame for port entry and control button
 	control_frame = tk.Frame(root)
@@ -188,12 +188,12 @@ def main():
 
 	# Customize column widths
 	tree.column("Time", width=60)
-	tree.column("V ID", width=60)
-	tree.column("V Type", width=60)
-	tree.column("R Location", width=100)
-	tree.column("V Speed", width=60)
-	tree.column("V Location", width=100)
-	tree.column("V Acceleration", width=60)
+	tree.column("V ID", width=80)
+	tree.column("V Type", width=80)
+	tree.column("R Location", width=120)
+	tree.column("V Speed", width=80)
+	tree.column("V Location", width=120)
+	tree.column("V Acceleration", width=80)
 	tree.column("V Lane", width=60)
 	tree.column("V Route", width=200)
 
