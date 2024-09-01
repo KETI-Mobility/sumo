@@ -57,24 +57,11 @@ def udp_receiver_thread(vehicles, update_callback, port, stop_event):
 				vehicle_acceleration = data_dict.get("vehicle_acceleration")
 				vehicle_lane = data_dict.get("vehicle_lane")
 				vehicle_route = data_dict.get("vehicle_route")
+				state = data_dict.get("state")
 
-				print("Vehicle Type:", vehicle_speed)
+				print(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route, state)
 
-				if vehicle_type == "N-VEH":
-					update_callback(vehicles, step, vehicle_id, vehicle_type, None, None, None, None, None, None)
-				elif vehicle_type == "C-VEH":
-					update_callback(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, None, None, None)
-				elif vehicle_type == "CE-VEH":
-					update_callback(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, None, None, None)
-				elif vehicle_type == "T-CDA":
-					update_callback(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route)
-				elif vehicle_type == "E-CDA":
-					update_callback(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route)
-				else:
-					print("Unknown vehicle type")
-
-
-				""" # Mapping of vehicle types to their respective classes
+				# Mapping of vehicle types to their respective classes
 				vehicle_class_map = {
 						"N-VEH": N_VEH,
 						"C-VEH": C_VEH,
@@ -92,8 +79,7 @@ def udp_receiver_thread(vehicles, update_callback, port, stop_event):
 					# Update vehicle list in GUI
 					update_callback(vehicles, vehicle)
 				else:
-					print(f"Unknown vehicle type: {vehicle_type}") """
-
+					print(f"Unknown vehicle class: {vehicle_type}")
 				
 		except Exception as e:
 			print(f"Error processing data: {e}")
@@ -103,37 +89,6 @@ def udp_receiver_thread(vehicles, update_callback, port, stop_event):
 
 
 # Function to update vehicle list in the GUI
-def update_vehicle_list(vehicles, step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
-	if vehicle_id in vehicles:
-		print("Update existing vehicle")
-		print(vehicle_id)
-
-		# Update existing vehicle info
-		
-	else:
-		# Add new vehicle
-		print(f"Add new vehicle, type: {vehicle_id}")
-		
-		if vehicle_type == "N-VEH":
-			vehicle = N_VEH(step, vehicle_id, vehicle_type)
-		elif vehicle_type == "C-VEH":
-			vehicle = C_VEH(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
-		elif vehicle_type == "CE-VEH":
-			vehicle = CE_VEH(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
-		elif vehicle_type == "T-CDA":
-			vehicle = T_CDA(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route)
-		elif vehicle_type == "E-CDA":
-			vehicle = E_CDA(step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route)
-		else:
-			print("Unknown vehicle type")
-		
-		print(f"New vehicle is added, type: {vehicle_id}")
-
-		# vehicles[vehicle_id] = vehicle
-
-	# refresh_vehicle_list(vehicles)
-
-"""
 def update_vehicle_list(vehicles, vehicle):
 	if vehicle.vehicle_id in vehicles:
 		# Update existing vehicle info
@@ -143,7 +98,7 @@ def update_vehicle_list(vehicles, vehicle):
 		vehicles[vehicle.vehicle_id] = vehicle
 
 	refresh_vehicle_list(vehicles)
-"""
+
 
 # Function to refresh the GUI vehicle list
 def refresh_vehicle_list(vehicles):
@@ -154,16 +109,16 @@ def refresh_vehicle_list(vehicles):
 
 	# "Time", "V ID", "V Type", "R Location", "V Speed", "V Location", "V Acceleration", "V Lane", "V Route")
 	for vehicle_id, vehicle in vehicles.items():
-		if vehicle.vehicle_type == "N_VEH":
-			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type))
-		elif vehicle.vehicle_type == "C_VEH":
-			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location))
-		elif vehicle.vehicle_type == "CE_VEH":
-			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location))
-		elif vehicle.vehicle_type == "T_CDA":
-			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location, vehicle.vehicle_acceleration, vehicle.vehicle_lane, vehicle.vehicle_route))
-		elif vehicle.vehicle_type == "E_CDA":
-			tree.insert("", "end", values=(step, vehicle.id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location, vehicle.vehicle_acceleration, vehicle.vehicle_lane, vehicle.vehicle_route))
+		if vehicle.vehicle_type == "N-VEH":
+			tree.insert("", "end", values=(step, vehicle.vehicle_id, vehicle.vehicle_type))
+		elif vehicle.vehicle_type == "C-VEH":
+			tree.insert("", "end", values=(step, vehicle.vehicle_id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location))
+		elif vehicle.vehicle_type == "CE-VEH":
+			tree.insert("", "end", values=(step, vehicle.vehicle_id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location))
+		elif vehicle.vehicle_type == "T-CDA":
+			tree.insert("", "end", values=(step, vehicle.vehicle_id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location, vehicle.vehicle_acceleration, vehicle.vehicle_lane, vehicle.vehicle_route))
+		elif vehicle.vehicle_type == "E-CDA":
+			tree.insert("", "end", values=(step, vehicle.vehicle_id, vehicle.vehicle_type, vehicle.rsu_location, vehicle.vehicle_speed, vehicle.vehicle_location, vehicle.vehicle_acceleration, vehicle.vehicle_lane, vehicle.vehicle_route))
 		else:
 			print("Unknown vehicle type")
 

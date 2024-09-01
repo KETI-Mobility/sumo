@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-import traci
+# import traci
 import math
 from enum import Enum
 from Channel import Channel
@@ -28,7 +28,7 @@ class Vehicle:
 		self.vehicle_id = vehicle_id
 		self.vehicle_type = vehicle_type
 		self.stay = True
-	"""
+	
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
@@ -36,12 +36,12 @@ class Vehicle:
 		vehicle_type = data.get("vehicle_type")
 		time_birth = data.get("time_birth")
 		return cls(time_birth, vehicle_id, vehicle_type) # return instance of the class
-	"""
+	
 	def to_dict(self):
 		return {
+			"time_birth": self.time_birth,
             "vehicle_id": self.vehicle_id,
-            "vehicle_type": self.vehicle_type,
-            "time_birth": self.time_birth
+            "vehicle_type": self.vehicle_type
         }
 	
 	def show_info(self) -> None:
@@ -69,20 +69,19 @@ class N_VEH(Vehicle):
 	def __init__(self, time_birth, vehicle_id, vehicle_type):
 		super().__init__(time_birth, vehicle_id, vehicle_type)
 		self.state = N_VEH.State.INITIAL
-	"""
+	
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
 		instance = cls(data['time_birth'], data['vehicle_id'], data['vehicle_type'])
 		instance.state = N_VEH.State(data['state'])
 		return instance
-	"""
 
 	def to_dict(self):
 		return {
+			"time_birth": self.time_birth,
             "vehicle_id": self.vehicle_id,
             "vehicle_type": self.vehicle_type,
-            "time_birth": self.time_birth,
 			"state": self.state
         }
 	
@@ -107,17 +106,17 @@ class _C_VEH(Vehicle):
 		self.rsu_location = rsu_location
 		self.vehicle_speed = vehicle_speed
 		self.vehicle_location = vehicle_location
-	"""
+	
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
 		return cls(data['time_birth'], data['vehicle_id'], data['vehicle_type'], data['rsu_location'], data['vehicle_speed'], data['vehicle_location'])
-	"""
+	
 	def to_dict(self):
 		return {
+			"time_birth": self.time_birth,
             "vehicle_id": self.vehicle_id,
             "vehicle_type": self.vehicle_type,
-            "time_birth": self.time_birth,
 			"rsu_location": self.rsu_location,
 			"vehicle_speed": self.vehicle_speed,
 			"vehicle_location": self.vehicle_location
@@ -165,24 +164,25 @@ class C_VEH(_C_VEH):
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
 		
-		self.max_speed_normal = traci.vehicle.getMaxSpeed(self.vehicle_id)
+		# self.max_speed_normal = traci.vehicle.getMaxSpeed(self.vehicle_id)
+		self.max_speed_normal = 22.22	# 22.22 m/s (80km/h)
 		self.max_speed_emergency = 8.33	# 8.33 m/s (30km/h)
 		self.max_speed = self.max_speed_normal
 		# print("**** Max speed: {}".format(self.max_speed_normal))
 		self.state = C_VEH.State.INITIAL
-	"""
+	
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
 		instance = cls(data['time_birth'], data['vehicle_id'], data['vehicle_type'], data['rsu_location'], data['vehicle_speed'], data['vehicle_location'])
 		instance.state = C_VEH.State(data['state'])
 		return instance
-	"""
+	
 	def to_dict(self):
 		return {
+			"time_birth": self.time_birth,
             "vehicle_id": self.vehicle_id,
             "vehicle_type": self.vehicle_type,
-            "time_birth": self.time_birth,
 			"rsu_location": self.rsu_location,
 			"vehicle_speed": self.vehicle_speed,
 			"vehicle_location": self.vehicle_location,
@@ -221,11 +221,11 @@ class C_VEH(_C_VEH):
 		edm.show_msg()
 		if self.max_speed != self.max_speed_emergency and self.get_distance() < 300.0:
 			self.max_speed = self.max_speed_emergency
-			traci.vehicle.setMaxSpeed(self.vehicle_id, self.max_speed_emergency)
+			# traci.vehicle.setMaxSpeed(self.vehicle_id, self.max_speed_emergency)
 			print("Step({}) Max speed decreases {}".format(GlobalSim.step, self.max_speed))
 		elif self.max_speed == self.max_speed_emergency and self.get_distance() >= 300.0:
 			self.max_speed = self.max_speed_normal
-			traci.vehicle.setMaxSpeed(self.vehicle_id, self.max_speed_normal)
+			# traci.vehicle.setMaxSpeed(self.vehicle_id, self.max_speed_normal)
 			print("Step({}) Max speed restore {}".format(GlobalSim.step, self.max_speed))
 
 	def update_state(self) -> None:
@@ -272,7 +272,7 @@ class CE_VEH(_C_VEH):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
 
 		self.state = CE_VEH.State.INITIAL
-	"""
+	
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
@@ -280,13 +280,12 @@ class CE_VEH(_C_VEH):
 		instance = cls(data['time_birth'], data['vehicle_id'], data['vehicle_type'], data['rsu_location'], data['vehicle_speed'], data['vehicle_location'])
 		instance.state = CE_VEH.State(data['state'])
 		return instance
-	"""
 
 	def to_dict(self):
 		return {
+			"time_birth": self.time_birth,
             "vehicle_id": self.vehicle_id,
             "vehicle_type": self.vehicle_type,
-            "time_birth": self.time_birth,
 			"rsu_location": self.rsu_location,
 			"vehicle_speed": self.vehicle_speed,
 			"vehicle_location": self.vehicle_location,
@@ -378,22 +377,25 @@ class E_CDA(_C_VEH):
 		self.vehicle_route = vehicle_route
 
 		self.state = E_CDA.State.INITIAL
-	"""
+	
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
 		instance = cls(data['time_birth'], data['vehicle_id'], data['vehicle_type'], data['rsu_location'], data['vehicle_speed'], data['vehicle_location'], data['vehicle_acceleration'], data['vehicle_lane'], data['vehicle_route'])
 		instance.state = E_CDA.State(data['state'])
 		return instance
-	"""
+	
 	def to_dict(self):
 		return {
+			"time_birth": self.time_birth,
             "vehicle_id": self.vehicle_id,
             "vehicle_type": self.vehicle_type,
-            "time_birth": self.time_birth,
 			"rsu_location": self.rsu_location,
 			"vehicle_speed": self.vehicle_speed,
 			"vehicle_location": self.vehicle_location,
+			"vehicle_acceleration": self.vehicle_acceleration,
+			"vehicle_lane": self.vehicle_lane,
+			"vehicle_route": self.vehicle_route,
 			"state": self.state
         }
 	
@@ -529,20 +531,20 @@ class T_CDA(_C_VEH):
 		self.vehicle_route = vehicle_route
 
 		self.state = T_CDA.State.INITIAL
-	"""
+	
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
 		instance = cls(data['time_birth'], data['vehicle_id'], data['vehicle_type'], data['rsu_location'], data['vehicle_speed'], data['vehicle_location'], data['vehicle_acceleration'], data['vehicle_lane'], data['vehicle_route'])
 		instance.state = T_CDA.State(data['state'])
 		return instance
-	"""
+	
 	def to_dict(self):
 		return {
-            "vehicle_id": self.vehicle_id,
-            "vehicle_type": self.vehicle_type,
             "time_birth": self.time_birth,
-			"rsu_location": self.rsu_location,
+			"vehicle_id": self.vehicle_id,
+            "vehicle_type": self.vehicle_type,
+            "rsu_location": self.rsu_location,
 			"vehicle_speed": self.vehicle_speed,
 			"vehicle_location": self.vehicle_location,
 			"vehicle_acceleration": self.vehicle_acceleration,
