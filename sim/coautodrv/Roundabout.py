@@ -56,7 +56,9 @@ else:
 rsu_location = (0, 0)
 vehicles = {}
 channel = Channel()
-
+min_gap = 0.0
+tau = 0.0
+mode = 0
 
 def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	global vehicles, rsu_location
@@ -125,15 +127,15 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 	# the_vehicle = get_vehicle_by_id(vehicle_id)
 	the_vehicle = vehicles.get(vehicle_id)
 	if the_vehicle is None:
-		if vehicle_type == "C-VEH":
+		if vehicle_type[:5] == "C-VEH":
 			the_vehicle = C_VEH(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position)
-		elif vehicle_type == "CE-VEH":
+		elif vehicle_type[:6] == "CE-VEH":
 			the_vehicle = CE_VEH(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position)
-		elif vehicle_type == "T-CDA":
+		elif vehicle_type[:5] == "T-CDA":
 			the_vehicle = T_CDA(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position, vehicle_acceleration, vehicle_lane, vehicle_route)
-		elif vehicle_type == "E-CDA":
+		elif vehicle_type[:5] == "E-CDA":
 			the_vehicle = E_CDA(GlobalSim.step, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_position, vehicle_acceleration, vehicle_lane, vehicle_route)
-		elif vehicle_type == "N-VEH":
+		elif vehicle_type[:5] == "N-VEH":
 			the_vehicle = N_VEH(GlobalSim.step, vehicle_id, vehicle_type)
 		else:
 			print(f"Step({GlobalSim.step}) {vehicle_id}, type: {vehicle_type} is not supported")
@@ -144,9 +146,9 @@ def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:
 		# print(f"Step({GlobalSim.step}) {the_vehicle.vehicle_id} is the new vehicle")
 	else:
 		# Update the location of the vehicle
-		if vehicle_type == "C-VEH" or vehicle_type == "CE-VEH":
+		if vehicle_type[:5] == "C-VEH" or vehicle_type[:6] == "CE-VEH":
 			the_vehicle.update(vehicle_position, vehicle_speed)
-		elif vehicle_type == "T-CDA" or vehicle_type == "E-CDA":
+		elif vehicle_type[:5] == "T-CDA" or vehicle_type[:5] == "E-CDA":
 			the_vehicle.update(vehicle_position, vehicle_speed, vehicle_acceleration, vehicle_lane, vehicle_route)
 			
 		# print(f"Step({GlobalSim.step}) {the_vehicle.vehicle_id} is updated")
@@ -174,7 +176,7 @@ def send_all_vehicles_info(vehicles, udp_ip: str, udp_port: int):
 
 
 def custom_code_at_step() -> None:
-	global vehicles
+	global vehicles, min_gap, tau, mode
 
 	# Add your custom code here
 	vehicle_ids = traci.vehicle.getIDList()
@@ -199,6 +201,7 @@ def custom_code_at_step() -> None:
 
 			# print("Type: {}".format(the_vehicle.vehicle_type))
 			if the_vehicle.vehicle_type == "CE-VEH":
+				# print(f"Step({GlobalSim.step}) {the_vehicle.vehicle_id} send EDM")
 				the_vehicle.send_edm(GlobalSim.step, channel)
 
 		# Roundabout (Class A)
@@ -221,11 +224,36 @@ def custom_code_at_step() -> None:
 	for vehicle_id in vehicles:
 		v = vehicles[vehicle_id]
 		v.receive(GlobalSim.step, channel)
+		"""
+		if v.vehicle_type == "C-VEH" and v.new_event == True:
+			if v.max_speed == v.max_speed_emergency:
+				# print(f"New event(Id: {v.vehicle_id}): Emergency")
+				# traci.vehicle.setMaxSpeed(v.vehicle_id, v.max_speed)
+				try:
+					# traci.vehicle.setSpeed(v.vehicle_id, v.max_speed)
+					tau = traci.vehicle.getTau(v.vehicle_id)
+					traci.vehicle.setTau(v.vehicle_id, 20.0)
+					mode = traci.vehicle.getSpeedMode(v.vehicle_id)
+					# print(f"{v.vehicle_id} getSpeedMode: {mode}")
+					traci.vehicle.setSpeedMode(v.vehicle_id, 1)
+					
+					min_gap = traci.vehicle.getMinGap(v.vehicle_id)
+					traci.vehicle.setMinGap(v.vehicle_id, 20.0)
+				except:
+					pass
+			elif v.max_speed == v.max_speed_normal:
+				# print(f"New event(Id: {v.vehicle_id}): Normal")
+				try:
+					# traci.vehicle.setSpeed(v.vehicle_id, v.max_speed)
+					traci.vehicle.setTau(v.vehicle_id, tau)
+					# print(f"{v.vehicle_id} setSpeedMode: {mode}")
+					traci.vehicle.setSpeedMode(v.vehicle_id, mode)
 
-		if v is C_VEH and v.new_event == True:
-			print(f"New event(Id: {v.vehicle_id}): max speed: {v.max_speed}")
-			traci.vehicle.setMaxSpeed(v.vehicle_id, v.max_speed)
-
+					traci.vehicle.setMinGap(v.vehicle_id, min_gap)
+				except:
+					pass
+			v.new_event = False
+		"""
 	channel.reset()
 
 
@@ -234,6 +262,8 @@ def custom_code_at_step() -> None:
 	for vehicle_id in vehicles:
 		v = vehicles[vehicle_id]
 		if v.stay == False:
+			if v.vehicle_type == "CE-VEH":
+				print(f"Step({GlobalSim.step}) {v.vehicle_id} is arrived")
 			list_vehicles_to_remove.append(vehicle_id)
 	
 	for id in list_vehicles_to_remove:

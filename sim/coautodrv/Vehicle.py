@@ -151,19 +151,19 @@ class C_VEH(_C_VEH):
 		# print(f"Step({step}) {self.vehicle_id} get_distance_to_rsu: {self.get_distance_to_rsu()}")
 		
 		if self.state == C_VEH.State.INITIAL:
-			print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
+			# print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
 			self.state = C_VEH.State.ADDED
 		elif self.state == C_VEH.State.ADDED and self.get_distance_to_rsu() < 200:
-			print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = C_VEH.State.APPROACHING
 		elif self.state == C_VEH.State.APPROACHING and self.get_distance_to_rsu() < 100:
-			print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = C_VEH.State.INSIDE
 		elif self.state == C_VEH.State.INSIDE and self.get_distance_to_rsu() > 100:
-			print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = C_VEH.State.EXITING
 		elif self.state == C_VEH.State.EXITING and self.get_distance_to_rsu() > 200:
-			print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = C_VEH.State.REMOVED
 
 	def update(self, new_location, new_speed) -> None:
@@ -204,14 +204,17 @@ class C_VEH(_C_VEH):
 
 		edm.show_msg()
 		
-		print(f"get_distance_to(CE_VEH): {self.get_distance_to(edm.sender_location)}, {self.vehicle_location} - {edm.sender_location}")
-		if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING and self.get_distance_to(edm.sender_location) < 400.0:
-			print(f"Step({step}) {self.vehicle_id} decides emergency mode")
+		# print(f"get_distance_to(CE_VEH): {self.get_distance_to(edm.sender_location)}, {self.vehicle_location} - {edm.sender_location}")
+		# if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING and self.get_distance_to(edm.sender_location) < 400.0:
+		# if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING:
+		if self.state == C_VEH.State.APPROACHING:
+			# print(f"Step({step}) {self.vehicle_id} decides emergency mode")
 	
 			self.max_speed = self.max_speed_emergency
 			self.new_event = True
-		elif self.max_speed == self.max_speed_emergency and (self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED):
-			print(f"Step({step}) {self.vehicle_id} decides normal mode")
+		#elif self.max_speed == self.max_speed_emergency and (self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED):
+		elif self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED:
+			# print(f"Step({step}) {self.vehicle_id} decides normal mode")
 			
 			self.max_speed = self.max_speed_normal
 			self.new_event = True
@@ -266,19 +269,19 @@ class CE_VEH(_C_VEH):
 		# print(f"Step({step}) {self.vehicle_id} get_distance_to_rsu: {self.get_distance_to_rsu()}")
 
 		if self.state == CE_VEH.State.INITIAL:
-			print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
+			# print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
 			self.state = CE_VEH.State.ADDED
 		elif self.state == CE_VEH.State.ADDED and self.get_distance_to_rsu() < 200:
-			print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = CE_VEH.State.APPROACHING
 		elif self.state == CE_VEH.State.APPROACHING and self.get_distance_to_rsu() < 100:
-			print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = CE_VEH.State.INSIDE
 		elif self.state == CE_VEH.State.INSIDE and self.get_distance_to_rsu() > 100:
-			print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = CE_VEH.State.EXITING
 		elif self.state == CE_VEH.State.EXITING and self.get_distance_to_rsu() > 200:
-			print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = CE_VEH.State.REMOVED
 
 	def update(self, new_location, new_speed) -> None:
@@ -381,19 +384,19 @@ class E_CDA(_C_VEH):
 		# print(f"Step({step}) {self.vehicle_id} get_distance_to_rsu: {self.get_distance_to_rsu()}")
 		
 		if self.state == E_CDA.State.INITIAL:
-			print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
+			# print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
 			self.state = E_CDA.State.ADDED
 		elif self.state == E_CDA.State.ADDED and self.get_distance_to_rsu() < 200:
-			print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = E_CDA.State.APPROACHING
 		elif self.state == E_CDA.State.APPROACHING and self.get_distance_to_rsu() < 100:
-			print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = E_CDA.State.INSIDE
 		elif self.state == E_CDA.State.INSIDE and self.get_distance_to_rsu() > 100:
-			print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = E_CDA.State.EXITING
 		elif self.state == E_CDA.State.EXITING and self.get_distance_to_rsu() > 200:
-			print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = E_CDA.State.REMOVED
 
 	def update(self, new_location, new_speed, new_acceleration, new_lane, new_route) -> None:
@@ -547,19 +550,19 @@ class T_CDA(_C_VEH):
 		# print(f"Step({step}) {self.vehicle_id} get_distance_to_rsu: {self.get_distance_to_rsu()}")
 		
 		if self.state == T_CDA.State.INITIAL:
-			print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
+			# print(f"Step({step}) {self.vehicle_id} INITIAL -> ADDED")
 			self.state = T_CDA.State.ADDED
 		elif self.state == T_CDA.State.ADDED and self.get_distance_to_rsu() < 200:
-			print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} ADDED -> APPROACHING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = T_CDA.State.APPROACHING
 		elif self.state == T_CDA.State.APPROACHING and self.get_distance_to_rsu() < 100:
-			print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} APPROACHING -> INSIDE, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = T_CDA.State.INSIDE
 		elif self.state == T_CDA.State.INSIDE and self.get_distance_to_rsu() > 100:
-			print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} INSIDE -> EXITING, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = T_CDA.State.EXITING
 		elif self.state == T_CDA.State.EXITING and self.get_distance_to_rsu() > 200:
-			print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
+			# print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = T_CDA.State.REMOVED
 
 	def update(self, new_location, new_speed, new_acceleration, new_lane, new_route) -> None:
