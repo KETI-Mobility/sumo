@@ -145,11 +145,6 @@ class _C_VEH(Vehicle):
 			print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = _C_VEH.State.REMOVED
 
-	def update(self, new_location, new_speed) -> None:
-		self.stay = True
-		self.vehicle_location = new_location
-		self.vehicle_speed = new_speed
-	
 	def get_location(self) -> tuple:
 		return self.vehicle_location 
 	
@@ -207,6 +202,11 @@ class C_VEH(_C_VEH):
 			"vehicle_location": self.vehicle_location,
 			"state": self.state
         }
+	
+	def update(self, new_location, new_speed) -> None:
+		self.stay = True
+		self.vehicle_location = new_location
+		self.vehicle_speed = new_speed
 	
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
@@ -277,6 +277,11 @@ class CE_VEH(_C_VEH):
 			"vehicle_location": self.vehicle_location,
 			"state": self.state
         }
+	
+	def update(self, new_location, new_speed) -> None:
+		self.stay = True
+		self.vehicle_location = new_location
+		self.vehicle_speed = new_speed
 	
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
