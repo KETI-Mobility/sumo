@@ -203,10 +203,16 @@ class C_VEH(_C_VEH):
 		# print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
 
 		edm.show_msg()
-		if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING and self.get_distance_to(edm.sender_location) < 300.0:
+		
+		print(f"get_distance_to(CE_VEH): {self.get_distance_to(edm.sender_location)}, {self.vehicle_location} - {edm.sender_location}")
+		if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING and self.get_distance_to(edm.sender_location) < 400.0:
+			print(f"Step({step}) {self.vehicle_id} decides emergency mode")
+	
 			self.max_speed = self.max_speed_emergency
 			self.new_event = True
 		elif self.max_speed == self.max_speed_emergency and (self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED):
+			print(f"Step({step}) {self.vehicle_id} decides normal mode")
+			
 			self.max_speed = self.max_speed_normal
 			self.new_event = True
 

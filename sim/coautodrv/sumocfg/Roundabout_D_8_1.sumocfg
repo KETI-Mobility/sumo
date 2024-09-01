@@ -4,7 +4,7 @@
 
     <input>
         <net-file value="../net/RoundaboutLarge.net.xml"/>
-        <route-files value="../rou/D_8_1.rou.xml"/>
+        <route-files value="../rou/D_8_1_Testcase1.rou.xml"/>
         <gui-settings-file value="../settings/Roundabout.settings.xml"/>
     </input>
 

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2024-09-01 14:16:01 by Eclipse SUMO netedit Version f00bd13363a
+<!-- generated on 2024-09-02 01:08:11 by Eclipse SUMO netedit Version 37435fdc2b5
 <neteditConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/neteditConfiguration.xsd">
 
     <input>
-        <sumo-net-file value="/Users/parksik/Git/sumo/sim/coautodrv/RoundaboutLarge.net.xml"/>
+        <sumo-net-file value="/Users/parksik/Git/sumo/sim/coautodrv/net/RoundaboutLarge.net.xml"/>
     </input>
 
     <output>
-        <output-file value="/Users/parksik/Git/sumo/sim/coautodrv/RoundaboutLarge.net.xml"/>
+        <output-file value="/Users/parksik/Git/sumo/sim/coautodrv/net/RoundaboutLarge.net.xml"/>
     </output>
 
     <processing>
@@ -34,7 +34,7 @@
 
 <net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
 
-    <location netOffset="0.00,0.00" convBoundary="-920.00,-320.00,920.00,320.00" origBoundary="-10000000000.00,-10000000000.00,10000000000.00,10000000000.00" projParameter="!"/>
+    <location netOffset="0.00,0.00" convBoundary="-920.00,-920.00,920.00,620.00" origBoundary="-10000000000.00,-10000000000.00,10000000000.00,10000000000.00" projParameter="!"/>
 
     <edge id=":eround_0" function="internal">
         <lane id=":eround_0_0" index="0" disallow="pedestrian" speed="6.53" length="8.20" shape="85.89,4.80 83.70,5.10 82.05,6.02 80.93,7.54 80.34,9.67"/>
@@ -89,12 +89,12 @@
         <lane id="EO_1" index="1" disallow="pedestrian" speed="22.22" length="834.11" shape="85.89,-1.60 920.00,-1.60"/>
     </edge>
     <edge id="NI" from="n" to="nround" priority="-1">
-        <lane id="NI_0" index="0" disallow="pedestrian" speed="22.22" length="234.11" shape="-4.80,320.00 -4.80,85.89"/>
-        <lane id="NI_1" index="1" disallow="pedestrian" speed="22.22" length="234.11" shape="-1.60,320.00 -1.60,85.89"/>
+        <lane id="NI_0" index="0" disallow="pedestrian" speed="22.22" length="534.11" shape="-4.80,620.00 -4.80,85.89"/>
+        <lane id="NI_1" index="1" disallow="pedestrian" speed="22.22" length="534.11" shape="-1.60,620.00 -1.60,85.89"/>
     </edge>
     <edge id="NO" from="nround" to="n" priority="-1">
-        <lane id="NO_0" index="0" disallow="pedestrian" speed="22.22" length="234.11" shape="4.80,85.89 4.80,320.00"/>
-        <lane id="NO_1" index="1" disallow="pedestrian" speed="22.22" length="234.11" shape="1.60,85.89 1.60,320.00"/>
+        <lane id="NO_0" index="0" disallow="pedestrian" speed="22.22" length="534.11" shape="4.80,85.89 4.80,620.00"/>
+        <lane id="NO_1" index="1" disallow="pedestrian" speed="22.22" length="534.11" shape="1.60,85.89 1.60,620.00"/>
     </edge>
     <edge id="NW" from="nround" to="wround" priority="-1" shape="0.00,80.00 -20.71,77.27 -40.00,69.28 -56.57,56.57 -69.28,40.00 -77.27,20.71 -80.00,0.00">
         <lane id="NW_0" index="0" disallow="pedestrian" speed="13.89" length="108.33" shape="-9.67,80.34 -21.13,78.83 -40.81,70.68 -57.71,57.71 -70.68,40.81 -78.83,21.13 -80.34,9.67"/>
@@ -103,12 +103,12 @@
         <lane id="SE_0" index="0" disallow="pedestrian" speed="13.89" length="108.33" shape="9.67,-80.34 21.13,-78.83 40.81,-70.68 57.71,-57.71 70.68,-40.81 78.83,-21.13 80.34,-9.67"/>
     </edge>
     <edge id="SI" from="s" to="sround" priority="-1">
-        <lane id="SI_0" index="0" disallow="pedestrian" speed="22.22" length="234.11" shape="4.80,-320.00 4.80,-85.89"/>
-        <lane id="SI_1" index="1" disallow="pedestrian" speed="22.22" length="234.11" shape="1.60,-320.00 1.60,-85.89"/>
+        <lane id="SI_0" index="0" disallow="pedestrian" speed="22.22" length="834.11" shape="4.80,-920.00 4.80,-85.89"/>
+        <lane id="SI_1" index="1" disallow="pedestrian" speed="22.22" length="834.11" shape="1.60,-920.00 1.60,-85.89"/>
     </edge>
     <edge id="SO" from="sround" to="s" priority="-1">
-        <lane id="SO_0" index="0" disallow="pedestrian" speed="22.22" length="234.11" shape="-4.80,-85.89 -4.80,-320.00"/>
-        <lane id="SO_1" index="1" disallow="pedestrian" speed="22.22" length="234.11" shape="-1.60,-85.89 -1.60,-320.00"/>
+        <lane id="SO_0" index="0" disallow="pedestrian" speed="22.22" length="834.11" shape="-4.80,-85.89 -4.80,-920.00"/>
+        <lane id="SO_1" index="1" disallow="pedestrian" speed="22.22" length="834.11" shape="-1.60,-85.89 -1.60,-920.00"/>
     </edge>
     <edge id="WI" from="w" to="wround" priority="-1">
         <lane id="WI_0" index="0" disallow="pedestrian" speed="22.22" length="834.11" shape="-920.00,-4.80 -85.89,-4.80"/>
@@ -129,14 +129,14 @@
         <request index="2" response="0000" foes="0000" cont="0"/>
         <request index="3" response="0000" foes="0001" cont="0"/>
     </junction>
-    <junction id="n" type="dead_end" x="0.00" y="320.00" incLanes="NO_0 NO_1" intLanes="" shape="0.00,320.00 6.40,320.00 0.00,320.00" name=" North"/>
+    <junction id="n" type="dead_end" x="0.00" y="620.00" incLanes="NO_0 NO_1" intLanes="" shape="0.00,620.00 6.40,620.00 0.00,620.00" name=" North"/>
     <junction id="nround" type="priority" x="0.00" y="80.00" incLanes="NI_0 NI_1 EN_0" intLanes=":nround_0_0 :nround_1_0 :nround_1_1 :nround_3_0" shape="-6.40,85.89 6.40,85.89 6.79,83.89 7.27,83.15 7.95,82.57 8.81,82.16 9.88,81.93 9.46,78.75 5.45,79.27 2.47,79.58 -0.00,79.68 -2.47,79.58 -5.45,79.27 -9.46,78.75 -9.88,81.93 -7.95,82.57 -7.27,83.15 -6.79,83.89 -6.50,84.81" name="Roundabout_north">
         <request index="0" response="1000" foes="1000" cont="0"/>
         <request index="1" response="0000" foes="0000" cont="0"/>
         <request index="2" response="0000" foes="0000" cont="0"/>
         <request index="3" response="0000" foes="0001" cont="0"/>
     </junction>
-    <junction id="s" type="dead_end" x="0.00" y="-320.00" incLanes="SO_0 SO_1" intLanes="" shape="0.00,-320.00 -6.40,-320.00 0.00,-320.00" name="South"/>
+    <junction id="s" type="dead_end" x="0.00" y="-920.00" incLanes="SO_0 SO_1" intLanes="" shape="0.00,-920.00 -6.40,-920.00 0.00,-920.00" name="South"/>
     <junction id="sround" type="priority" x="0.00" y="-80.00" incLanes="SI_0 SI_1 WS_0" intLanes=":sround_0_0 :sround_1_0 :sround_1_1 :sround_3_0" shape="9.46,-78.75 9.88,-81.93 7.95,-82.57 7.27,-83.15 6.79,-83.89 6.50,-84.81 6.40,-85.89 -6.40,-85.89 -6.79,-83.89 -7.27,-83.15 -7.95,-82.57 -8.81,-82.16 -9.88,-81.93 -9.46,-78.75 -5.45,-79.27 -2.47,-79.58 0.00,-79.68 2.47,-79.58 5.45,-79.27" name="Roundabout_south">
         <request index="0" response="1000" foes="1000" cont="0"/>
         <request index="1" response="0000" foes="0000" cont="0"/>

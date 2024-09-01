@@ -24,7 +24,7 @@
 #   pip install enum34
 #
 # - Start the SUMO simulation with the TraCI server enabled:
-#  sumo-gui -c Roundabout_8_1.sumocfg --remote-port 1337
+#  sumo-gui -c sumocfg/Roundabout_D_8_1.sumocfg --remote-port 1337
 # - Start the script:
 #  python Roundabout.py
 #
