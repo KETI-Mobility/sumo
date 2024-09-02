@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import math
+import traci
 from enum import Enum
 from Channel import Channel
 from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
@@ -203,21 +204,43 @@ class C_VEH(_C_VEH):
 		# print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
 
 		edm.show_msg()
-		
+		vehicle_id = edm.sender_vehicle_id
+		self_vehicle_lane = ""
+		try:
+			ce_vehicle_lane = traci.vehicle.getLaneID(vehicle_id)
+			# print("Vehicle id:{} lane: {}".format(self.vehicle_id, ce_vehicle_lane))
+			self_vehicle_lane = traci.vehicle.getLaneID(self.vehicle_id)
+			# print("Vehicle id:{} my lane: {}".format(self.vehicle_id, self_vehicle_lane))
+		except:
+			pass
+
 		# print(f"get_distance_to(CE_VEH): {self.get_distance_to(edm.sender_location)}, {self.vehicle_location} - {edm.sender_location}")
 		# if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING and self.get_distance_to(edm.sender_location) < 400.0:
 		# if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING:
-		if self.state == C_VEH.State.APPROACHING:
-			# print(f"Step({step}) {self.vehicle_id} decides emergency mode")
-	
-			self.max_speed = self.max_speed_emergency
-			self.new_event = True
-		#elif self.max_speed == self.max_speed_emergency and (self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED):
-		elif self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED:
-			# print(f"Step({step}) {self.vehicle_id} decides normal mode")
-			
+		
+		if self_vehicle_lane == "EN_0" or self_vehicle_lane == "EI_0" or self_vehicle_lane == "eround_3_0":
 			self.max_speed = self.max_speed_normal
 			self.new_event = True
+		elif (ce_vehicle_lane == "eround_0_0" or ce_vehicle_lane == "EN_0") and self.max_speed <= 2:
+			self.max_speed = self.max_speed_normal
+			self.new_event = True
+		# elif ce_vehicle_lane == "EI_0" and self.get_distance_to(edm.sender_location) < 200 and self.get_location()[1] < -10:
+		elif ce_vehicle_lane == "EI_0" and self_vehicle_lane == "SE_0" and self.get_distance_to(edm.sender_location) < 100:
+			self.max_speed = 0
+			self.new_event = True
+		elif ce_vehicle_lane == "EI_0" and self_vehicle_lane == "SE_0":
+			self.max_speed = 2
+			self.new_event = True	
+		elif self.state == C_VEH.State.APPROACHING:
+			# print(f"Step({step}) {self.vehicle_id} decides emergency mode")
+			self.max_speed = self.max_speed_emergency
+			self.new_event = True
+		# #elif self.max_speed == self.max_speed_emergency and (self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED):
+		# elif self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED:
+		# 	# print(f"Step({step}) {self.vehicle_id} decides normal mode")
+			
+		# 	self.max_speed = self.max_speed_normal
+		# 	self.new_event = True
 
 	def show_info(self) -> None:
 		pass
