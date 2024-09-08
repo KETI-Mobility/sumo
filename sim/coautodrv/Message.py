@@ -29,14 +29,16 @@ class Message:
 		MSG_DNMRESP = 5
 		MSG_EDM	 	= 6
 	
-	def __init__(self, msg_type, sender_vehicle_id, sender_vehicle_type):
+	def __init__(self, msg_type, sender_vehicle_id, sender_vehicle_type, rsu_location):
 		
 		GlobalSim.msg_id += 1
 		self.msg_id					= GlobalSim.msg_id
 		
 		self.msg_type				= msg_type
+
 		self.sender_vehicle_id		= sender_vehicle_id
 		self.sender_vehicle_type	= sender_vehicle_type
+		self.rsu_location			= rsu_location
 
 	def show_msg(self) -> None:
 		pass
@@ -53,10 +55,22 @@ class Message:
 
 class BSM(Message):
 
-	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed):
-		super().__init__(Message.Type.MSG_BSM, sender_vehicle_id, sender_vehicle_type)
-		self.sender_location	= sender_location
-		self.sender_speed		= sender_speed
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, rsu_location, sender_speed, sender_location, sender_vehicle_size, sender_evelivation, sender_position_accuracy, sender_heading, sender_steering_angle, sender_brake_status, sender_acceleration):
+		# sender_location: latitude, longitude
+		# accleration: consists of three othogonal directions of accleleration and yaw rate
+		# brake_status: represents a data element that records various control states related to braking of the vehicle
+		
+		super().__init__(Message.Type.MSG_BSM, sender_vehicle_id, sender_vehicle_type, rsu_location)
+		self.sender_speed				= sender_speed
+		self.sender_location			= sender_location
+		self.sender_vehicle_size		= sender_vehicle_size
+
+		self.sender_evelivation			= sender_evelivation
+		self.sender_position_accuracy	= sender_position_accuracy
+		self.sender_heading				= sender_heading
+		self.sender_steering_angle		= sender_steering_angle
+		self.sender_brake_status		= sender_brake_status
+		self.sender_acceleration		= sender_acceleration
 
 	def show_msg(self) -> None:
 		pass
@@ -73,10 +87,11 @@ class BSM(Message):
 
 class EDM(Message):
 
-	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed):
-		super().__init__(Message.Type.MSG_EDM, sender_vehicle_id, sender_vehicle_type)
-		self.sender_location = sender_location
-		self.sender_speed = sender_speed
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, rsu_location, sender_speed, sender_location, sender_vehicle_size):
+		super().__init__(Message.Type.MSG_EDM, sender_vehicle_id, sender_vehicle_type, rsu_location)
+		self.sender_speed			= sender_speed
+		self.sender_location		= sender_location
+		self.sender_vehicle_size	= sender_vehicle_size
 
 	def show_msg(self) -> None:
 		pass
@@ -93,13 +108,21 @@ class EDM(Message):
 
 class BSMplus(Message):
 
-	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_BSMplus, sender_vehicle_id, sender_vehicle_type)
-		self.sender_location = sender_location
-		self.sender_speed = sender_speed
-		self.sender_acceleration= sender_acceleration
-		self.sender_heading		= sender_heading
-		self.sender_lane_id		= sender_lane_id
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, rsu_location, sender_speed, sender_location, sender_vehicle_size, sender_acceleration, sender_lane_id, sender_routes, sender_heading, sender_evelivation, sender_position_accuracy, sender_steering_angle, sender_brake_status):
+		super().__init__(Message.Type.MSG_BSMplus, sender_vehicle_id, sender_vehicle_type, rsu_location)
+		self.sender_speed			= sender_speed
+		self.sender_location		= sender_location
+		self.sender_vehile_size		= sender_vehicle_size
+
+		self.sender_acceleration	= sender_acceleration
+		self.sender_lane_id			= sender_lane_id
+		self.sender_routes			= sender_routes
+
+		self.sender_heading				= sender_heading
+		self.sender_evelivation			= sender_evelivation
+		self.sender_position_accuracy	= sender_position_accuracy
+		self.sender_steering_angle		= sender_steering_angle
+		self.sender_brake_status		= sender_brake_status
 		
 	def show_msg(self) -> None:
 		pass
@@ -116,13 +139,16 @@ class BSMplus(Message):
 
 class DMM(Message):
 
-	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_DMM, sender_vehicle_id, sender_vehicle_type)
-		self.sender_location = sender_location
-		self.sender_speed = sender_speed
-		self.sender_acceleration= sender_acceleration
-		self.sender_heading		= sender_heading
-		self.sender_lane_id		= sender_lane_id
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, rsu_location, sender_speed, sender_location, sender_vehicle_size, sender_acceleration, sender_lane_id, sender_heading):
+		super().__init__(Message.Type.MSG_DMM, sender_vehicle_id, sender_vehicle_type, rsu_location)
+		self.sender_speed			= sender_speed
+		self.sender_location		= sender_location
+		self.sender_vehicle_size	= sender_vehicle_size
+
+		self.sender_acceleration	= sender_acceleration
+		self.sender_lane_id			= sender_lane_id
+
+		self.sender_heading			= sender_heading
 
 		self.maneuver 			= Maneuver.NONE
 
@@ -141,13 +167,16 @@ class DMM(Message):
 
 class DNMReq(Message):
 
-	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_DNMREQ, sender_vehicle_id, sender_vehicle_type)
-		self.sender_location = sender_location
-		self.sender_speed = sender_speed
-		self.sender_acceleration= sender_acceleration
-		self.sender_heading		= sender_heading
-		self.sender_lane_id		= sender_lane_id
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, rsu_location, sender_speed, sender_location, sender_vehicle_size, sender_acceleration, sender_lane_id, sender_heading):
+		super().__init__(Message.Type.MSG_DNMREQ, sender_vehicle_id, sender_vehicle_type, rsu_location)
+		self.sender_speed			= sender_speed
+		self.sender_location 		= sender_location
+		self.sender_vehicle_size	= sender_vehicle_size
+
+		self.sender_acceleration	= sender_acceleration
+		self.sender_lane_id			= sender_lane_id
+
+		self.sender_heading			= sender_heading
 
 	def show_msg(self) -> None:
 		pass
@@ -156,13 +185,16 @@ class DNMReq(Message):
 
 class DNMResp(Message):
 
-	def __init__(self, sender_vehicle_id, sender_vehicle_type, sender_location, sender_speed, sender_acceleration, sender_heading, sender_lane_id):
-		super().__init__(Message.Type.MSG_DNMRESP, sender_vehicle_id, sender_vehicle_type)
-		self.sender_location = sender_location
-		self.sender_speed = sender_speed
-		self.sender_acceleration= sender_acceleration
-		self.sender_heading		= sender_heading
-		self.sender_lane_id		= sender_lane_id
+	def __init__(self, sender_vehicle_id, sender_vehicle_type, rsu_location, sender_speed, sender_location, sender_vehicle_size, sender_acceleration, sender_lane_id, sender_heading):
+		super().__init__(Message.Type.MSG_DNMRESP, sender_vehicle_id, sender_vehicle_type, rsu_location)
+		self.sender_speed			= sender_speed
+		self.sender_location		= sender_location
+		self.sender_vehicle_size	= sender_vehicle_size
+
+		self.sender_acceleration	= sender_acceleration
+		self.sender_lane_id			= sender_lane_id
+
+		self.sender_heading			= sender_heading
 
 	def show_msg(self) -> None:
 		pass

@@ -23,10 +23,12 @@ class Maneuver(Enum):
 
 
 class Vehicle:
-	def __init__(self, time_birth, vehicle_id, vehicle_type):
-		self.time_birth = time_birth
-		self.vehicle_id = vehicle_id
-		self.vehicle_type = vehicle_type
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_locaton, vehicle_size):
+		self.time_birth		= time_birth
+		self.vehicle_id		= vehicle_id
+		self.vehicle_type	= vehicle_type
+		self.rsu_location	= rsu_locaton
+		self.vehicle_size	= vehicle_size
 		self.stay = True
 
 
@@ -48,8 +50,8 @@ class N_VEH(Vehicle):
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
 
-	def __init__(self, time_birth, vehicle_id, vehicle_type):
-		super().__init__(time_birth, vehicle_id, vehicle_type)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_locaton, vehicle_size):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_locaton, vehicle_size)
 		self.state = N_VEH.State.INITIAL
 	
 	@classmethod
@@ -83,14 +85,11 @@ class N_VEH(Vehicle):
 
 class _C_VEH(Vehicle):
 		
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
-		super().__init__(time_birth, vehicle_id, vehicle_type)
-		self.rsu_location = rsu_location
-		self.vehicle_speed = vehicle_speed
-		self.vehicle_location = vehicle_location
-
-	def get_location(self) -> tuple:
-		return self.vehicle_location 
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location)
+		self.vehicle_speed		= vehicle_speed
+		self.vehicle_location	= vehicle_location
+		self.vehicle_size		= vehicle_size
 	
 	# New function to calculate distance between vehicle and another vehicle's location as a tuple
 	def get_distance_to(self, another_location) -> float:
@@ -98,9 +97,6 @@ class _C_VEH(Vehicle):
 	
 	def get_distance_to_rsu(self) -> float:
 		return math.sqrt((self.vehicle_location[0] - self.rsu_location[0])**2 + (self.vehicle_location[1] - self.rsu_location[1])**2)
-	
-	def get_speed(self) -> float:
-		return self.vehicle_speed
 	
 
 ##############################################################################
@@ -120,8 +116,8 @@ class C_VEH(_C_VEH):
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
 
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
-		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size)
 		
 		self.max_speed_normal = 55.55	# 55.55 m/s (200km/h)
 		self.max_speed_emergency = 8.33	# 8.33 m/s (30km/h)
@@ -178,7 +174,7 @@ class C_VEH(_C_VEH):
 	# def get_speed(self) -> float:
 	
 	def create_bsm(self) -> BSM:
-		bsm = BSM(self.vehicle_id, self.vehicle_type, self.vehicle_location, self.vehicle_speed)
+		bsm = BSM(self.vehicle_id, self.vehicle_type, self.vehicle_location, self.rsu_location, self.vehicle_speed, self.vehicle_size, None, None, None, None, None)
 		return bsm
 
 	def send_bsm(self, step, channel:Channel) -> None:
@@ -265,8 +261,8 @@ class CE_VEH(_C_VEH):
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
 
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location):
-		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size)
 
 		self.state = CE_VEH.State.INITIAL
 	
@@ -318,11 +314,11 @@ class CE_VEH(_C_VEH):
 	# def get_speed(self) -> float:
 	
 	def create_bsm(self) -> BSM:
-		bsm = BSM(self.vehicle_id, self.vehicle_type, self.vehicle_location, self.vehicle_speed)
+		bsm = BSM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None, None, None)
 		return bsm
 
 	def create_edm(self) -> EDM:
-		edm = EDM(self.vehicle_id, self.vehicle_type, self.get_location(), self.vehicle_speed)
+		edm = EDM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size)
 		return edm
 
 	def send_bsm(self, step, channel:Channel) -> None:
@@ -374,8 +370,8 @@ class E_CDA(_C_VEH):
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
 
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
-		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route, vehicle_size):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size)
 		self.vehicle_acceleration = vehicle_acceleration
 		self.vehicle_lane = vehicle_lane
 		self.vehicle_route = vehicle_route
@@ -436,23 +432,23 @@ class E_CDA(_C_VEH):
 	# def get_speed(self) -> float:
 	
 	def create_bsm(self) -> BSM:
-		bsm = BSM(self.vehicle_id, self.vehicle_type, self.vehicle_location, self.vehicle_speed)
+		bsm = BSM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None, None, None, None)
 		return bsm
 
 	def create_bsm_plus(self) -> BSMplus:
-		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_route)
+		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.veicle_location, self.vehicle_size, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_route, None, None, None, None, None)
 		return bsm_plus
 	
 	def create_dmm(self) -> DMM:
-		dmm = DMM(self.vehicle_id, self.vehicle_type, self.get_location())
+		dmm = DMM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
 		return dmm
 	
 	def create_dnm_req(self) -> DNMReq:
-		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.get_location())
+		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
 		return dnm_req
 	
 	def create_dnm_resp(self) -> DNMResp:
-		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.get_location())
+		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
 		return dnm_resp
 	
 	def send_bsm(self, step, channel:Channel) -> None:
@@ -540,8 +536,8 @@ class T_CDA(_C_VEH):
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
 
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route):
-		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location)
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route, vehicle_size):
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size)
 		self.vehicle_acceleration = vehicle_acceleration
 		self.vehicle_lane = vehicle_lane
 		self.vehicle_route = vehicle_route
@@ -602,11 +598,11 @@ class T_CDA(_C_VEH):
 	# def get_speed(self) -> float:
 	
 	def create_bsm(self) -> BSM:
-		bsm = BSM(self.vehicle_id, self.vehicle_type, self.vehicle_location, self.vehicle_speed)
+		bsm = BSM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None, None, None, None)
 		return bsm
 
 	def create_bsm_plus(self) -> BSMplus:
-		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.get_location())
+		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_route, None, None, None, None, None)
 		return bsm_plus
 	
 	def receive_edm(self, step, edm:EDM) -> None:
@@ -614,15 +610,15 @@ class T_CDA(_C_VEH):
 		# print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
 
 	def create_dmm(self) -> DMM:
-		dmm = DMM(self.vehicle_id, self.vehicle_type, self.get_location())
+		dmm = DMM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
 		return dmm
 	
 	def create_dnm_req(self) -> DNMReq:
-		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.get_location())
+		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
 		return dnm_req
 	
 	def create_dnm_resp(self) -> DNMResp:
-		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.get_location())
+		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
 		return dnm_resp
 	
 	def send_bsm(self, step, channel:Channel) -> None:
