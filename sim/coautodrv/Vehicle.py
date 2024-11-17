@@ -3,9 +3,10 @@ import sys
 import json
 import math
 import traci
+import traci_tool
 from enum import Enum
-from Channel import Channel
-from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp
+from Channel import Channel, RSU
+from Message import Message, BSM, BSMplus, EDM, DMM, DNMReq, DNMResp, DetectMessage
 
 
 class Maneuver(Enum):
@@ -86,7 +87,7 @@ class N_VEH(Vehicle):
 class _C_VEH(Vehicle):
 		
 	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size):
-		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location)
+		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_size)
 		self.vehicle_speed		= vehicle_speed
 		self.vehicle_location	= vehicle_location
 		self.vehicle_size		= vehicle_size
@@ -115,17 +116,24 @@ class C_VEH(_C_VEH):
 		INSIDE = "INSIDE"
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
-
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size):
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route, vehicle_size, vehicle_edge, vehicle_route_index):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size)
 		
-		self.max_speed_normal = 55.55	# 55.55 m/s (200km/h)
+		self.max_speed_normal = 23	# 23 m/s (82.8km/h)
+		# self.max_speed_normal = 55.55	# 55.55 m/s (200km/h)
 		self.max_speed_emergency = 8.33	# 8.33 m/s (30km/h)
 		self.max_speed = self.max_speed_normal
-		
+		self.vehicle_acceleration = vehicle_acceleration
+		self.vehicle_lane = vehicle_lane
+		self.vehicle_route = vehicle_route
+		self.vehicle_route_index = vehicle_route_index
+		self.vehicle_edge = vehicle_edge
 		self.new_event = False
+		self.get_edm = False
+		self.vehicle_accum_wait_time = 0
+
 		self.state = C_VEH.State.INITIAL
-	
+
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
@@ -163,34 +171,48 @@ class C_VEH(_C_VEH):
 			# print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = C_VEH.State.REMOVED
 
-	def update(self, new_location, new_speed) -> None:
+	def update(self, new_location, new_speed, new_acceleration, new_lane, new_route, vehicle_edge, vehicle_route_index, vehicle_accumulated_waiting_time) -> None:
 		self.stay = True
 		self.vehicle_location = new_location
 		self.vehicle_speed = new_speed
-	
+		self.vehicle_acceleration = new_acceleration
+		self.vehicle_lane = new_lane
+		self.vehicle_route = new_route
+		self.vehicle_edge = vehicle_edge
+		self.vehicle_route_index = vehicle_route_index
+		self.vehicle_accum_wait_time = vehicle_accumulated_waiting_time
+		# print(f"c-veh => lane: {self.vehicle_lane}, route: {self.vehicle_route}, route_index: {self.vehicle_route_index}, edge: {self.vehicle_edge}")
+		# print(f"next route: {self.vehicle_route[self.vehicle_route_index]}")
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
 	# def get_distance(self) -> float:
 	# def get_speed(self) -> float:
 	
 	def create_bsm(self) -> BSM:
-		bsm = BSM(self.vehicle_id, self.vehicle_type, self.vehicle_location, self.rsu_location, self.vehicle_speed, self.vehicle_size, None, None, None, None, None)
+		bsm = BSM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None, None, None, None)
 		return bsm
 
-	def send_bsm(self, step, channel:Channel) -> None:
+	def send_bsm(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_bsm())
 		# print(f"Step({step}) {self.vehicle_id} sent BSM")
 
-	def receive(self, step, channel:Channel) -> None:
+	def receive(self, step, channel:RSU) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSM):
 					self.receive_bsm(step, message)
 				elif isinstance(message, EDM):
 					self.receive_edm(step, message)
+				elif isinstance(message, BSMplus):
+					self.receive_bsm_plus(step, message)
 				else:
 					print(f"Step({step}) {self.vehicle_id} received a unsupported message({message.msg_type}) sent by {message.sender_vehicle_id}")
-
+		if self.get_edm == False:
+			# print(f"Step({step}) {self.vehicle_id} max_speed {self.max_speed} normal: {self.max_speed_normal}")
+			if self.max_speed == 0:
+				self.max_speed = self.max_speed_normal
+				self.new_event = True
+		self.get_edm = False
 	def receive_bsm(self, step, bsm:BSM) -> None:
 		pass
 		# print(f"Step({step}) {self.vehicle_id} received BSM sent by {bsm.sender_vehicle_id}")
@@ -198,45 +220,61 @@ class C_VEH(_C_VEH):
 	def receive_edm(self, step, edm:EDM) -> None:
 		pass
 		# print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
-
-		edm.show_msg()
-		vehicle_id = edm.sender_vehicle_id
-		self_vehicle_lane = ""
-		try:
-			ce_vehicle_lane = traci.vehicle.getLaneID(vehicle_id)
-			# print("Vehicle id:{} lane: {}".format(self.vehicle_id, ce_vehicle_lane))
-			self_vehicle_lane = traci.vehicle.getLaneID(self.vehicle_id)
-			# print("Vehicle id:{} my lane: {}".format(self.vehicle_id, self_vehicle_lane))
-		except:
-			pass
-
-		# print(f"get_distance_to(CE_VEH): {self.get_distance_to(edm.sender_location)}, {self.vehicle_location} - {edm.sender_location}")
-		# if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING and self.get_distance_to(edm.sender_location) < 400.0:
-		# if self.max_speed != self.max_speed_emergency and self.state == C_VEH.State.APPROACHING:
-		
-		if self_vehicle_lane == "EN_0" or self_vehicle_lane == "EI_0" or self_vehicle_lane == "eround_3_0":
-			self.max_speed = self.max_speed_normal
-			self.new_event = True
-		elif (ce_vehicle_lane == "eround_0_0" or ce_vehicle_lane == "EN_0") and self.max_speed <= 2:
-			self.max_speed = self.max_speed_normal
-			self.new_event = True
-		# elif ce_vehicle_lane == "EI_0" and self.get_distance_to(edm.sender_location) < 200 and self.get_location()[1] < -10:
-		elif ce_vehicle_lane == "EI_0" and self_vehicle_lane == "SE_0" and self.get_distance_to(edm.sender_location) < 100:
-			self.max_speed = 0
-			self.new_event = True
-		elif ce_vehicle_lane == "EI_0" and self_vehicle_lane == "SE_0":
-			self.max_speed = 2
-			self.new_event = True	
-		elif self.state == C_VEH.State.APPROACHING:
-			# print(f"Step({step}) {self.vehicle_id} decides emergency mode")
-			self.max_speed = self.max_speed_emergency
-			self.new_event = True
-		# #elif self.max_speed == self.max_speed_emergency and (self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED):
-		# elif self.state == C_VEH.State.INSIDE or self.state == C_VEH.State.EXITING or C_VEH.State.REMOVED:
-		# 	# print(f"Step({step}) {self.vehicle_id} decides normal mode")
+		# if self.get_distance_to(edm.sender_location) < 100:	# RSU 없는 상황
+		if self.get_distance_to_rsu() < 1000 or self.get_distance_to(edm.sender_location) < 100: # RSU 있는 상황
+			self.get_edm = True
+			edm.show_msg()
+			vehicle_id = edm.sender_vehicle_id
 			
-		# 	self.max_speed = self.max_speed_normal
-		# 	self.new_event = True
+			if len(self.vehicle_route) > self.vehicle_route_index + 1:
+				self.next_route = self.vehicle_route[self.vehicle_route_index + 1]
+			else:
+				self.next_route = None
+			
+			# print(f"edm next_route : {edm.next_route}")
+			if edm.next_route == self.next_route:
+				new_speed = traci_tool.edm_process(self.vehicle_id, edm.sender_vehicle_id)
+				if new_speed != None:
+					self.max_speed = new_speed
+				# print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
+				# new_speed = traci_tool.get_slow_down_junction(self.vehicle_id, self.vehicle_edge, self.vehicle_location, slow_distance=200, stop_distance=5)
+				# if(new_speed != None):
+				# 	self.new_event = True
+				# 	self.max_speed = new_speed
+			elif self.max_speed != self.max_speed_normal:
+				self.max_speed = self.max_speed_normal
+				self.new_event = True
+
+		else:
+			if self.max_speed != self.max_speed_normal:
+				self.max_speed = self.max_speed_normal
+				self.new_event = True
+	def receive_bsm_plus(self, step, bsm_plus:BSMplus) -> None:
+		pass
+
+		if self.get_distance_to(bsm_plus.sender_location) < 100:	# RSU 없는 상황
+		# if self.get_distance_to_rsu() < 1000 or self.get_distance_to(bsm_plus.sender_location) < 100: # RSU 있는 상황
+			if bsm_plus.accident == True:
+				# print(f"accident lane : {bsm_plus.sender_edge_id}")
+				# print(f"my route list : {self.vehicle_route}, route index : {self.vehicle_route_index}")
+				if bsm_plus.sender_edge_id in self.vehicle_route:
+					index = self.vehicle_route.index(bsm_plus.sender_edge_id)
+					if index > self.vehicle_route_index:
+						# print(f"reroute")
+						new_route = list(self.vehicle_route)
+						new_route.pop(index)
+						new_route[index:index] = ["E2", "E3", "-E9"]
+						del new_route[:self.vehicle_route_index]
+						# print(f"new route : {new_route}")
+
+
+						try:
+							traci.vehicle.setRoute(self.vehicle_id, new_route)
+						except Exception as e:
+							print(e)
+					pass
+
+		# print(f"Step({step}) {self.vehicle_id} received BSM+ sent by {bsm_plus.sender_vehicle_id}")
 
 	def show_info(self) -> None:
 		pass
@@ -261,11 +299,17 @@ class CE_VEH(_C_VEH):
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
 
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size):
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route, vehicle_size, vehicle_edge, vehicle_route_index):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size)
-
+		self.time_birth = time_birth
+		self.vehicle_acceleration = vehicle_acceleration
+		self.vehicle_lane = vehicle_lane
+		self.vehicle_route = vehicle_route
+		self.vehicle_route_index = vehicle_route_index
+		self.vehicle_edge = vehicle_edge
 		self.state = CE_VEH.State.INITIAL
-	
+		self.vehicle_accum_wait_time = 0
+
 	@classmethod
 	def from_json(cls, json_data):
 		data = json.loads(json_data)
@@ -303,33 +347,44 @@ class CE_VEH(_C_VEH):
 			# print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = CE_VEH.State.REMOVED
 
-	def update(self, new_location, new_speed) -> None:
+	
+	def update(self, new_location, new_speed, new_acceleration, new_lane, new_route, vehicle_edge, vehicle_route_index, vehicle_accumulated_waiting_time) -> None:
 		self.stay = True
 		self.vehicle_location = new_location
 		self.vehicle_speed = new_speed
-	
+		self.vehicle_acceleration = new_acceleration
+		self.vehicle_lane = new_lane
+		self.vehicle_route = new_route
+		self.vehicle_route_index = vehicle_route_index
+		self.vehicle_edge = vehicle_edge
+		self.vehicle_accum_wait_time = vehicle_accumulated_waiting_time
+		# print(f"ce-veh => lane: {self.vehicle_lane}, route: {self.vehicle_route}, route_index: {self.vehicle_route_index}, edge: {self.vehicle_edge}")
+		# print(f"next route: {self.vehicle_route[self.vehicle_route_index]}")
 	# def update(self, new_location, new_speed) -> None:
 	# def get_location(self) -> tuple:
 	# def get_distance(self) -> float:
 	# def get_speed(self) -> float:
 	
 	def create_bsm(self) -> BSM:
-		bsm = BSM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None, None, None)
+		bsm = BSM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None, None, None, None)
 		return bsm
 
 	def create_edm(self) -> EDM:
-		edm = EDM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size)
+		if len(self.vehicle_route) > self.vehicle_route_index + 1:
+			edm = EDM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, self.vehicle_route[self.vehicle_route_index + 1])
+		else:
+			edm = EDM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None)
 		return edm
 
-	def send_bsm(self, step, channel:Channel) -> None:
+	def send_bsm(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_bsm())
 		# print(f"Step({step}) {self.vehicle_id} sent BSM")
 
-	def send_edm(self, step, channel:Channel) -> None:
+	def send_edm(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_edm())
 		# print(f"Step({step}) {self.vehicle_id} sent EDM")
 
-	def receive(self, step, channel:Channel) -> None:
+	def receive(self, step, channel:RSU) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSM):
@@ -370,10 +425,11 @@ class E_CDA(_C_VEH):
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
 
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route, vehicle_size):
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_edge, vehicle_route, vehicle_size):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size)
 		self.vehicle_acceleration = vehicle_acceleration
 		self.vehicle_lane = vehicle_lane
+		self.vehicle_edge = vehicle_edge
 		self.vehicle_route = vehicle_route
 
 		self.state = E_CDA.State.INITIAL
@@ -417,13 +473,15 @@ class E_CDA(_C_VEH):
 		elif self.state == E_CDA.State.EXITING and self.get_distance_to_rsu() > 200:
 			# print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = E_CDA.State.REMOVED
+	
 
-	def update(self, new_location, new_speed, new_acceleration, new_lane, new_route) -> None:
+	def update(self, new_location, new_speed, new_acceleration, new_lane, new_edge, new_route) -> None:
 		self.stay = True
 		self.vehicle_location = new_location
 		self.vehicle_speed = new_speed
 		self.vehicle_acceleration = new_acceleration
 		self.vehicle_lane = new_lane
+		self.vehicle_edge = new_edge
 		self.vehicle_route = new_route
 
 	# def update(self, new_location, new_speed) -> None:
@@ -436,42 +494,42 @@ class E_CDA(_C_VEH):
 		return bsm
 
 	def create_bsm_plus(self) -> BSMplus:
-		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.veicle_location, self.vehicle_size, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_route, None, None, None, None, None)
+		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_edge, self.vehicle_route, None, None, None, None, None)
 		return bsm_plus
 	
 	def create_dmm(self) -> DMM:
-		dmm = DMM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
+		dmm = DMM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, self.vehicle_acceleration, self.vehicle_lane, None)
 		return dmm
 	
 	def create_dnm_req(self) -> DNMReq:
-		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
+		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, None, None, None, None)
 		return dnm_req
 	
 	def create_dnm_resp(self) -> DNMResp:
-		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
+		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, None, None, None, None)
 		return dnm_resp
 	
-	def send_bsm(self, step, channel:Channel) -> None:
+	def send_bsm(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_bsm())
 		# print(f"Step({step}) {self.vehicle_id} sent BSM")
 	
-	def send_bsm_plus(self, step, channel:Channel) -> None:
+	def send_bsm_plus(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_bsm_plus())
 		# print(f"Step({step}) {self.vehicle_id} sent BSM+")
 
-	def send_dmm(self, step, channel:Channel) -> None:
+	def send_dmm(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_dmm())
 		# print(f"Step({step}) {self.vehicle_id} sent DMM")
 
-	def send_dnm_req(self, step, channel:Channel) -> None:
+	def send_dnm_req(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_dnm_req())
 		# print(f"Step({step}) {self.vehicle_id} sent DNMReq")
 
-	def send_dnm_resp(self, step, channel:Channel) -> None:
+	def send_dnm_resp(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_dnm_resp())
 		# print(f"Step({step}) {self.vehicle_id} sent DNMResp")
 
-	def receive(self, step, channel:Channel) -> None:
+	def receive(self, step, channel:RSU) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSM):
@@ -486,6 +544,8 @@ class E_CDA(_C_VEH):
 					self.receive_dnm_req(step, message)
 				elif isinstance(message, DNMResp):
 					self.receive_dnm_resp(step, message)
+				elif isinstance(message, DetectMessage):
+					self.receive_detect_message(step, message)
 				else:
 					print(f"Step({step}) {self.vehicle_id} received a unsupported message({message.msg_type}) sent by {message.sender_vehicle_id}")
 
@@ -512,7 +572,9 @@ class E_CDA(_C_VEH):
 	def receive_dnm_resp(self, step, dnm_resp:DNMResp) -> None:
 		pass
 		# print(f"Step({step}) {self.vehicle_id} received DNMResp sent by {dnm_resp.sender_vehicle_id}")
-		
+	def receive_detect_message(self, step, detect_msg:DetectMessage) -> None:
+		pass
+
 	def show_info(self) -> None:
 		pass
 		# print("Step({}) Vehicle ID: {}, Type: {}, State: {}, Distance: {}".format(GlobalSim.step, self.vehicle_id, self.vehicle_type, self.state, self.get_distance()))
@@ -536,10 +598,11 @@ class T_CDA(_C_VEH):
 		EXITING = "EXITING"
 		REMOVED = "REMOVED"
 
-	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, vehicle_route, vehicle_size):
+	def __init__(self, time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_acceleration, vehicle_lane, new_edge, vehicle_route, vehicle_size):
 		super().__init__(time_birth, vehicle_id, vehicle_type, rsu_location, vehicle_speed, vehicle_location, vehicle_size)
 		self.vehicle_acceleration = vehicle_acceleration
 		self.vehicle_lane = vehicle_lane
+		self.vehicle_edge = new_edge
 		self.vehicle_route = vehicle_route
 
 		self.state = T_CDA.State.INITIAL
@@ -584,12 +647,13 @@ class T_CDA(_C_VEH):
 			# print(f"Step({step}) {self.vehicle_id} EXITING -> REMOVED, get_distance_to_rsu: {self.get_distance_to_rsu()}")
 			self.state = T_CDA.State.REMOVED
 
-	def update(self, new_location, new_speed, new_acceleration, new_lane, new_route) -> None:
+	def update(self, new_location, new_speed, new_acceleration, new_lane, new_edge, new_route) -> None:
 		self.stay = True
 		self.vehicle_location = new_location
 		self.vehicle_speed = new_speed
 		self.vehicle_acceleration = new_acceleration
 		self.vehicle_lane = new_lane
+		self.vehicle_edge = new_edge
 		self.vehicle_route = new_route
 
 	# def update(self, new_location, new_speed) -> None:
@@ -602,7 +666,11 @@ class T_CDA(_C_VEH):
 		return bsm
 
 	def create_bsm_plus(self) -> BSMplus:
-		bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_route, None, None, None, None, None)
+		if self.vehicle_speed == 0:
+			# print(f"car accident")
+			bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_edge, self.vehicle_route, None, None, None, None, None, True)
+		else:
+			bsm_plus = BSMplus(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, self.vehicle_acceleration, self.vehicle_lane, self.vehicle_edge, self.vehicle_route, None, None, None, None, None, False)
 		return bsm_plus
 	
 	def receive_edm(self, step, edm:EDM) -> None:
@@ -610,38 +678,38 @@ class T_CDA(_C_VEH):
 		# print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
 
 	def create_dmm(self) -> DMM:
-		dmm = DMM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
+		dmm = DMM(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None)
 		return dmm
 	
 	def create_dnm_req(self) -> DNMReq:
-		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
+		dnm_req = DNMReq(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None)
 		return dnm_req
 	
 	def create_dnm_resp(self) -> DNMResp:
-		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location)
+		dnm_resp = DNMResp(self.vehicle_id, self.vehicle_type, self.rsu_location, self.vehicle_speed, self.vehicle_location, self.vehicle_size, None, None, None)
 		return dnm_resp
 	
-	def send_bsm(self, step, channel:Channel) -> None:
+	def send_bsm(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_bsm())
 		# print(f"Step({step}) {self.vehicle_id} sent BSM")
 
-	def send_bsm_plus(self, step, channel:Channel) -> None:
+	def send_bsm_plus(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_bsm_plus())
 		# print(f"Step({step}) {self.vehicle_id} sent BSM+")
 
-	def send_dmm(self, step, channel:Channel) -> None:
+	def send_dmm(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_dmm())
 		# print(f"Step({step}) {self.vehicle_id} sent DMM")
 
-	def send_dnm_req(self, step, channel:Channel) -> None:
+	def send_dnm_req(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_dnm_req())
 		# print(f"Step({step}) {self.vehicle_id} sent DNMReq")
 
-	def send_dnm_resp(self, step, channel:Channel) -> None:
+	def send_dnm_resp(self, step, channel:RSU) -> None:
 		channel.add_message(self.create_dnm_resp())
 		# print(f"Step({step}) {self.vehicle_id} sent DNMResp")
 
-	def receive(self, step, channel:Channel) -> None:
+	def receive(self, step, channel:RSU) -> None:
 		for message in channel.messages:
 			if message.sender_vehicle_id != self.vehicle_id:
 				if isinstance(message, BSM):

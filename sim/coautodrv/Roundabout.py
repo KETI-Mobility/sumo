@@ -68,7 +68,7 @@ CLASS_A = 0
 CLASS_B = 1
 CLASS_C = 2
 CLASS_D = 3
-SIM_CLASS = CLASS_A
+SIM_CLASS = CLASS_D
 
 
 def get_data(vehicle_id) -> Union[T_CDA, E_CDA, C_VEH, CE_VEH, N_VEH]:

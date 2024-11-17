@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-12-18 01:34:43 by Eclipse SUMO netedit Version 1.19.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="C-VEH" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="white" carFollowModel="CACC" tau="2.0"/>
+    <vType id="CE-VEH" accel="2.6" decel="4.5" sigma="0.5" length="7.5" maxSpeed="23.00" color="red" carFollowModel="CACC" tau="2.0"/>
+    <vType id="E-CDA" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="yellow" carFollowModel="CACC" tau="2.0"/>
+    <vType id="N-VEH" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="black" carFollowModel="CACC" tau="2.0"/>
+    <vType id="T-CDA" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="blue" carFollowModel="CACC" tau="2.0"/>
+    <!-- Routes -->
+    <route id="route_main" edges="E4to3 E3to2 E2to1 E1to0"/>
+    <route id="route_join" edges="E5to6 E6to2 E2to1 E1to0"/>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <vehicle id="e-cda" type="C-VEH" depart="0.00" route="route_main"/>
+    <vehicle id="ce-veh" type="CE-VEH" depart="1.00" route="route_join"/>
+</routes>
+

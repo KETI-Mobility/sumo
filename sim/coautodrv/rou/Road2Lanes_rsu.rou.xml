@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-12-21 01:18:12 by Eclipse SUMO netedit Version 1.19.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="C-VEH" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="white" carFollowModel="CACC" tau="2.0"/>
+    <vType id="CE-VEH" accel="2.6" decel="4.5" sigma="0.5" length="7.5" maxSpeed="50.00" color="red" carFollowModel="CACC" tau="2.0" speedFactor="1.5"/>
+    
+    <!-- Routes -->
+    <route id="route0" edges="E3 E2 E1" color="yellow"/>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <vehicle id="t-cda" type="C-VEH" depart="0.00" departLane="0" route="route0"/>
+    <vehicle id="e-cda" type="C-VEH" depart="0.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH0" type="C-VEH" depart="1.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH1" type="C-VEH" depart="1.00" departLane="0" route="route0"/>
+    <vehicle id="C-VEH2" type="C-VEH" depart="2.00" departLane="0" route="route0"/>
+    <vehicle id="C-VEH3" type="C-VEH" depart="2.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH4" type="C-VEH" depart="3.00" departLane="0" route="route0"/>
+    <vehicle id="C-VEH5" type="C-VEH" depart="3.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH6" type="C-VEH" depart="4.00" departLane="0" route="route0"/>
+    <vehicle id="C-VEH7" type="C-VEH" depart="4.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH8" type="C-VEH" depart="5.00" departLane="0" route="route0"/>
+    <vehicle id="C-VEH9" type="C-VEH" depart="5.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH10" type="C-VEH" depart="6.00" departLane="0" route="route0"/>
+    <vehicle id="C-VEH11" type="C-VEH" depart="6.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH12" type="C-VEH" depart="7.00" departLane="0" route="route0"/>
+    <vehicle id="C-VEH13" type="C-VEH" depart="7.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH14" type="C-VEH" depart="8.00" departLane="0" route="route0"/>
+    <vehicle id="C-VEH15" type="C-VEH" depart="8.00" departLane="1" route="route0"/>
+    <vehicle id="ce-veh" type="CE-VEH" depart="15.00" departLane="1" route="route0"/>
+</routes>

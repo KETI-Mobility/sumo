@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <!--
+    <vType id="C-VEH" color="white" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="CE-VEH" vClass="truck" color="red" carFollowModel="ACC"/>
+    <vType id="E-CDA" color="yellow" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="N-VEH" color="white" carFollowModel="ACC"/>
+    <vType id="T-CDA" color="0,156,255" carFollowModel="ACC"/>
+    -->
+
+    <!-- Define a Vehicle Type using the CACC model -->
+    <vType id="C-VEH" accel="2.6" decel="5.0" sigma="0.5" length="4.5" maxSpeed="23.00" color="white" carFollowModel="CACC" tau="0.2" minGap="5"/>
+    <vType id="CE-VEH" accel="2.6" decel="5.0" sigma="0.5" length="7.5" maxSpeed="50.00" color="red" carFollowModel="CACC" tau="2.0" speedFactor="1.5"/>
+    <!-- <vType id="CE-VEH" vClass="emergency" accel="2.6" decel="4.5" sigma="0.5" length="7.5" maxSpeed="50.00" color="red" carFollowModel="CACC" tau="2.0">
+        <param key="has.bluelight.device" value="true"/>
+    </vType> -->
+    <vType id="T-CDA" accel="2.6" decel="5.0" sigma="0.5" length="4.5" maxSpeed="23.00" color="white" carFollowModel="CACC" tau="0.2" minGap="5"/>
+    <vType id="E-CDA" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="yellow" carFollowModel="CACC" tau="2.0"/>
+    <vType id="N-VEH" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="black" carFollowModel="CACC" tau="0.2"/>
+    <!-- <vType id="T-CDA" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="blue" carFollowModel="CACC" tau="2.0"/> -->
+
+
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+
+    <!-- Scenario 1 응급차량이 먼저 회전교차로에 진입했기 때문에 새로 진입하는 차량에 비해 우선권이 있다 
+    <trip id="CE_VEH" type="CE-VEH" depart="0.00" departLane="0" from="WI" to="NO"/>
+    <trip id="E_CDA" type="E-CDA" depart="16.00" departLane="0" from="EI" to="NO"/>
+    <trip id="C_VEH" type="C-VEH" depart="16.00" departLane="1" from="EI" to="NO"/>
+    -->
+
+    <!-- Scenario 3 일반차량이 응급차량보다 먼저 회전교차로에 진입할 수 있지만, 응급차량을 위해 일반차량이 회전 교차로 진입을 하지 않고 대기해 응급 차량에게 양보 -->
+
+
+    <trip id="C_VEH00" type="C-VEH" depart="0.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH02" type="C-VEH" depart="0.50" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH03" type="C-VEH" depart="1.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH04" type="C-VEH" depart="1.50" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH05" type="C-VEH" depart="2.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH06" type="C-VEH" depart="3.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH07" type="C-VEH" depart="4.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH08" type="C-VEH" depart="5.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="T-CDA01" type="T-CDA" depart="10.00" departLane="0" from="-E4" to="E6"/>
+    <trip id="C_VEH10" type="C-VEH" depart="10.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH12" type="C-VEH" depart="10.50" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH13" type="C-VEH" depart="11.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH14" type="C-VEH" depart="11.50" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH15" type="C-VEH" depart="12.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH16" type="C-VEH" depart="13.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH17" type="C-VEH" depart="14.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH18" type="C-VEH" depart="15.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="T-CDA02" type="T-CDA" depart="20.00" departLane="0" from="-E4" to="E6"/>
+    <trip id="C_VEH20" type="C-VEH" depart="20.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH22" type="C-VEH" depart="20.50" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH23" type="C-VEH" depart="21.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH24" type="C-VEH" depart="21.50" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH25" type="C-VEH" depart="22.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH26" type="C-VEH" depart="23.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="T-CDA04" type="T-CDA" depart="23.00" departLane="0" from="-E4" to="E6"/>
+    <trip id="C_VEH27" type="C-VEH" depart="24.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="C_VEH28" type="C-VEH" depart="25.00" departLane="0" from="-E3" to="E7"/>
+    <trip id="T-CDA03" type="T-CDA" depart="30.00" departLane="0" from="-E4" to="E6"/>
+
+</routes>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-12-21 01:18:12 by Eclipse SUMO netedit Version 1.19.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="C-VEH" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="8.33" color="white" carFollowModel="CACC" tau="2.0"/>
+    <vType id="CE-VEH" accel="2.6" decel="4.5" sigma="0.5" length="7.5" maxSpeed="50.00" color="red" carFollowModel="CACC" tau="2.0" speedFactor="1.5"/>
+    
+    <!-- Routes -->
+    <route id="route0" edges="E3 E2 E1" color="yellow"/>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <vehicle id="t-cda" type="C-VEH" depart="0.00" departLane="1" route="route0"/>
+    <vehicle id="e-cda" type="C-VEH" depart="1.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH0" type="C-VEH" depart="2.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH1" type="C-VEH" depart="3.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH2" type="C-VEH" depart="4.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH3" type="C-VEH" depart="5.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH4" type="C-VEH" depart="6.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH5" type="C-VEH" depart="7.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH6" type="C-VEH" depart="8.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH7" type="C-VEH" depart="9.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH8" type="C-VEH" depart="10.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH9" type="C-VEH" depart="11.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH10" type="C-VEH" depart="12.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH11" type="C-VEH" depart="13.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH12" type="C-VEH" depart="14.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH14" type="C-VEH" depart="16.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH15" type="C-VEH" depart="17.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH18" type="C-VEH" depart="18.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH19" type="C-VEH" depart="19.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH20" type="C-VEH" depart="20.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH21" type="C-VEH" depart="21.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH22" type="C-VEH" depart="22.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH23" type="C-VEH" depart="23.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH24" type="C-VEH" depart="24.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH25" type="C-VEH" depart="25.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH26" type="C-VEH" depart="26.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH27" type="C-VEH" depart="27.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH28" type="C-VEH" depart="28.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH29" type="C-VEH" depart="29.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH30" type="C-VEH" depart="30.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH31" type="C-VEH" depart="31.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH32" type="C-VEH" depart="32.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH33" type="C-VEH" depart="33.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH34" type="C-VEH" depart="34.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH35" type="C-VEH" depart="35.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH36" type="C-VEH" depart="36.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH37" type="C-VEH" depart="37.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH38" type="C-VEH" depart="38.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH39" type="C-VEH" depart="39.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH40" type="C-VEH" depart="40.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH41" type="C-VEH" depart="41.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH42" type="C-VEH" depart="42.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH43" type="C-VEH" depart="43.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH44" type="C-VEH" depart="44.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH45" type="C-VEH" depart="45.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH46" type="C-VEH" depart="46.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH47" type="C-VEH" depart="47.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH48" type="C-VEH" depart="48.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH49" type="C-VEH" depart="49.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH50" type="C-VEH" depart="50.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH51" type="C-VEH" depart="51.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH52" type="C-VEH" depart="52.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH53" type="C-VEH" depart="53.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH54" type="C-VEH" depart="54.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH55" type="C-VEH" depart="55.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH56" type="C-VEH" depart="56.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH57" type="C-VEH" depart="57.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH58" type="C-VEH" depart="58.00" departLane="1" route="route0"/>
+    <vehicle id="C-VEH59" type="C-VEH" depart="59.00" departLane="1" route="route0"/>
+
+
+
+    <vehicle id="ce-veh" type="CE-VEH" depart="60.00" departLane="1" route="route0"/>
+</routes>

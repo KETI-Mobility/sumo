@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="../net/RoundaboutLarge_rsu.net.xml"/>
+        <route-files value="../rou/D_8_1_Testcase_rsu_case2.rou.xml"/>
+        <gui-settings-file value="../settings/Roundabout.settings.xml"/>
+    </input>
+    <time-to-teleport value="-1"/>
+
+</configuration>

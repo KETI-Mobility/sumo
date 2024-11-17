@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-12-20 02:49:21 by Eclipse SUMO netedit Version 1.19.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+  
+    <!-- Define a Vehicle Type using the CACC model -->
+    <vType id="C-VEH" accel="2.6" decel="5.0" sigma="0.5" length="4.5" maxSpeed="23.00" color="white" carFollowModel="CACC" tau="2.0" minGap="5"/>
+    <vType id="CE-VEH" accel="2.6" decel="5.0" sigma="0.5" length="7.5" maxSpeed="50.00" color="red" carFollowModel="CACC" tau="2.0" speedFactor="1.5"/>
+    <!-- <vType id="CE-VEH" vClass="emergency" accel="2.6" decel="4.5" sigma="0.5" length="7.5" maxSpeed="50.00" color="red" carFollowModel="CACC" tau="2.0">
+        <param key="has.bluelight.device" value="true"/>
+    </vType> -->
+    <vType id="T-CDA" accel="2.6" decel="5.0" sigma="0.5" length="4.5" maxSpeed="23.00" color="white" carFollowModel="CACC" tau="2.0" minGap="5"/>
+    <vType id="E-CDA" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="yellow" carFollowModel="CACC" tau="2.0"/>
+    <vType id="N-VEH" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="black" carFollowModel="CACC" tau="2.0"/>
+    <!-- <vType id="T-CDA" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="blue" carFollowModel="CACC" tau="2.0"/> -->
+
+    <flow id="random_flow2" type="C-VEH" begin = "0" end="500" number="100">
+        <route edges="righti topo"/>
+    </flow>
+    <flow id="random_flow" type="C-VEH" begin = "0" end="500" number="50">
+        <route edges="bottomi topo"/>
+    </flow>
+    <flow id="random_flow4" type="C-VEH" begin = "0" end="500" number="50">
+        <route edges="lefti righto"/>
+    </flow>
+    <flow id="random_flow5" type="C-VEH" begin = "0" end="500" number="50">
+        <route edges="righti lefto"/>
+    </flow>
+    <flow id="random_flow3" type="C-VEH" begin = "0" end="500" number="50">
+        <route edges="lefti topo"/>
+    </flow>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+</routes>

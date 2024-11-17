@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <!--
+    <vType id="C-VEH" color="white" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="CE-VEH" vClass="truck" color="red" carFollowModel="ACC"/>
+    <vType id="E-CDA" color="yellow" lcCooperativeRoundabout="0" accel="5.0" decel="4.5" carFollowModel="ACC"/>
+    <vType id="N-VEH" color="white" carFollowModel="ACC"/>
+    <vType id="T-CDA" color="0,156,255" carFollowModel="ACC"/>
+    -->
+
+    <!-- Define a Vehicle Type using the CACC model -->
+    <vType id="C-VEH" accel="2.6" decel="5.0" sigma="0.5" length="4.5" maxSpeed="23.00" color="white" carFollowModel="CACC" tau="2.0" minGap="5"/>
+    <vType id="CE-VEH" accel="2.6" decel="5.0" sigma="0.5" length="7.5" maxSpeed="50.00" color="red" carFollowModel="CACC" tau="2.0" speedFactor="1.5"/>
+    <!-- <vType id="CE-VEH" vClass="emergency" accel="2.6" decel="4.5" sigma="0.5" length="7.5" maxSpeed="50.00" color="red" carFollowModel="CACC" tau="2.0">
+        <param key="has.bluelight.device" value="true"/>
+    </vType> -->
+    <vType id="E-CDA" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="yellow" carFollowModel="CACC" tau="2.0"/>
+    <vType id="N-VEH" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="black" carFollowModel="CACC" tau="2.0"/>
+    <vType id="T-CDA" accel="2.6" decel="4.5" sigma="0.5" length="4.5" maxSpeed="23.00" color="blue" carFollowModel="CACC" tau="2.0"/>
+
+
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+
+    <!-- Scenario 1 응급차량이 먼저 회전교차로에 진입했기 때문에 새로 진입하는 차량에 비해 우선권이 있다 
+    <trip id="CE_VEH" type="CE-VEH" depart="0.00" departLane="0" from="WI" to="NO"/>
+    <trip id="E_CDA" type="E-CDA" depart="16.00" departLane="0" from="EI" to="NO"/>
+    <trip id="C_VEH" type="C-VEH" depart="16.00" departLane="1" from="EI" to="NO"/>
+    -->
+
+    <!-- Scenario 3 일반차량이 응급차량보다 먼저 회전교차로에 진입할 수 있지만, 응급차량을 위해 일반차량이 회전 교차로 진입을 하지 않고 대기해 응급 차량에게 양보 -->
+
+
+   <!-- <flow id="random_flow" type="C-VEH" begin = "0" end="200" number="100">
+        <route edges="WI WS SE EN NO"/>
+    </flow> -->
+
+   <flow id="random_flow2" type="C-VEH" begin = "0" end="200" number="100">
+        <route edges="SI SE EN NO"/>
+    </flow>
+    <trip id="CE_VEH" type="CE-VEH" depart="80.00" departLane="0" from="EI" to="NO"/>
+
+</routes>

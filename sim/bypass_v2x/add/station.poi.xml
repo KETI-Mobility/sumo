@@ -1,0 +1,3 @@
+<pois>
+    <poi id="base_station1" x="10.0" y="10.0" type="base_station" layer="5" color="0,0,255" width="10.0" height="10.0" imgFile="station.png"/>
+</pois>
