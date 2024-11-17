@@ -225,8 +225,7 @@ class C_VEH(_C_VEH):
 	def receive_edm(self, step, edm:EDM) -> None:
 		pass
 		# print(f"Step({step}) {self.vehicle_id} received EDM sent by {edm.sender_vehicle_id}")
-		# if self.get_distance_to(edm.sender_location) < 100:	# RSU 없는 상황
-		if self.get_distance_to_rsu() < 1000 or self.get_distance_to(edm.sender_location) < 100: # RSU 있는 상황
+		if self.get_distance_to_rsu() < 1000 or self.get_distance_to(edm.sender_location) < 100:
 			self.get_edm = True
 			edm.show_msg()
 			vehicle_id = edm.sender_vehicle_id
@@ -257,27 +256,8 @@ class C_VEH(_C_VEH):
 	def receive_bsm_plus(self, step, bsm_plus:BSMplus) -> None:
 		pass
 
-		if self.get_distance_to(bsm_plus.sender_location) < 100:	# RSU 없는 상황
-		# if self.get_distance_to_rsu() < 1000 or self.get_distance_to(bsm_plus.sender_location) < 100: # RSU 있는 상황
-			if bsm_plus.accident == True:
-				# print(f"accident lane : {bsm_plus.sender_edge_id}")
-				# print(f"my route list : {self.vehicle_route}, route index : {self.vehicle_route_index}")
-				if bsm_plus.sender_edge_id in self.vehicle_route:
-					index = self.vehicle_route.index(bsm_plus.sender_edge_id)
-					if index > self.vehicle_route_index:
-						# print(f"reroute")
-						new_route = list(self.vehicle_route)
-						new_route.pop(index)
-						new_route[index:index] = ["E2", "E3", "-E9"]
-						del new_route[:self.vehicle_route_index]
-						# print(f"new route : {new_route}")
-
-
-						try:
-							traci.vehicle.setRoute(self.vehicle_id, new_route)
-						except Exception as e:
-							print(e)
-					pass
+		if self.get_distance_to_rsu() < 1000 or self.get_distance_to(bsm_plus.sender_location) < 100:
+			pass
 
 		# print(f"Step({step}) {self.vehicle_id} received BSM+ sent by {bsm_plus.sender_vehicle_id}")
 	def receive_detect_message(self, step, detect_message:DetectMessage) -> None:
